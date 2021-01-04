@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2E71AA9C-0EEE-4390-85DF-4021440F14C0}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>QuantConnect.TradingTechnologies.Fix</RootNamespace>
+    <AssemblyName>QuantConnect.TradingTechnologies.Fix</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="QuickFix, Version=1.8.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\QuickFix.Net.NETCore.1.8.1\lib\netstandard2.0\QuickFix.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Fix\TT\FIX44\Fields\Fields.cs" />
+    <Compile Include="Fix\TT\FIX44\Fields\FieldTags.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\BusinessMessageReject.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\ExecutionReport.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\Heartbeat.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\HistoryRequest.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\Logon.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\Logout.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\MarketDataIncrementalRefresh.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\MarketDataRequest.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\MarketDataRequestReject.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\MarketDataSnapshot.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\Message.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\MessageFactory.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\MultilegOrderCancelReplace.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\NewOrderMultileg.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\NewOrderSingle.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\News.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\OrderCancelReject.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\OrderCancelReplaceRequest.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\OrderCancelRequest.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\OrderMassAction.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\OrderMassCancelReport.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\OrderStatusRequest.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\OutOfBandRecoveryRequest.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\QuoteRequest.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\Reject.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\ResendRequest.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\SecurityDefinition.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\SecurityDefinitionRequest.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\SecurityStatus.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\SecurityStatusRequest.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\SequenceReset.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\TestRequest.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\TradeCaptureReport.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\TradeCaptureReportAck.cs" />
+    <Compile Include="Fix\TT\FIX44\Messages\XMLnonFIX.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
