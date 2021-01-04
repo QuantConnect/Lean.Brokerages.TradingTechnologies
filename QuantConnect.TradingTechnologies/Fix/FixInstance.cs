@@ -44,15 +44,20 @@ namespace QuantConnect.TradingTechnologies.Fix
             _acceptor = new SocketInitiator(this, storeFactory, settings, logFactory, protocolDirector.MessageFactory);
         }
 
-        // TODO: Decide if the director should be passed in here instead, allowing QCQuickFix to have a parameter-less constructor.
         public void Initialise()
         {
             if (_acceptor.IsStopped)
             {
                 _acceptor.Start();
 
+                var start = DateTime.UtcNow;
                 while (!IsConnected() || !_protocolDirector.AreSessionsReady())
                 {
+                    if (DateTime.UtcNow > start.AddSeconds(30))
+                    {
+                        throw new TimeoutException("Timeout initializing FIX sessions.");
+                    }
+
                     Thread.Sleep(1000);
                 }
             }
