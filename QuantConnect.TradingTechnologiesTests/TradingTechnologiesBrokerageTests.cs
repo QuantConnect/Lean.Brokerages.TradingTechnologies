@@ -31,8 +31,16 @@ namespace QuantConnect.TradingTechnologiesTests
             UserName = Config.Get("tt-user-name"),
             SessionPassword = Config.Get("tt-session-password"),
             AccountName = Config.Get("tt-account-name"),
+
             MarketDataSenderCompId = Config.Get("tt-market-data-sender-comp-id"),
-            OrderRoutingSenderCompId = Config.Get("tt-order-routing-sender-comp-id")
+            MarketDataTargetCompId = Config.Get("tt-market-data-target-comp-id"),
+            MarketDataHost = Config.Get("tt-market-data-host"),
+            MarketDataPort = Config.Get("tt-market-data-port"),
+
+            OrderRoutingSenderCompId = Config.Get("tt-order-routing-sender-comp-id"),
+            OrderRoutingTargetCompId = Config.Get("tt-order-routing-target-comp-id"),
+            OrderRoutingHost = Config.Get("tt-order-routing-host"),
+            OrderRoutingPort = Config.Get("tt-order-routing-port")
         };
 
         private readonly Symbol _symbolEs = Symbol.CreateFuture("ES", Market.CME, new DateTime(2021, 3, 19));

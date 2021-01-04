@@ -10,7 +10,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using NodaTime;
 using QuantConnect.Data.Market;
-using QuantConnect.Fix.TT;
 using QuantConnect.Fix.TT.FIX44.Fields;
 using QuantConnect.Fix.TT.FIX44.Messages;
 using QuantConnect.Securities;

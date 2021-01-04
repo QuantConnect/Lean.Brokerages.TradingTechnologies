@@ -41,8 +41,16 @@ namespace QuantConnect.TradingTechnologies
             { "tt-user-name", Config.Get("tt-user-name") },
             { "tt-session-password", Config.Get("tt-session-password") },
             { "tt-account-name", Config.Get("tt-account-name") },
+
             { "tt-market-data-sender-comp-id", Config.Get("tt-market-data-sender-comp-id") },
-            { "tt-order-routing-sender-comp-id", Config.Get("tt-order-routing-sender-comp-id") }
+            { "tt-market-data-target-comp-id", Config.Get("tt-market-data-target-comp-id") },
+            { "tt-market-data-host", Config.Get("tt-market-data-host") },
+            { "tt-market-data-port", Config.Get("tt-market-data-port") },
+
+            { "tt-order-routing-sender-comp-id", Config.Get("tt-order-routing-sender-comp-id") },
+            { "tt-order-routing-target-comp-id", Config.Get("tt-order-routing-target-comp-id") },
+            { "tt-order-routing-host", Config.Get("tt-order-routing-host") },
+            { "tt-order-routing-port", Config.Get("tt-order-routing-port") }
         };
 
         /// <summary>
@@ -67,8 +75,16 @@ namespace QuantConnect.TradingTechnologies
                 UserName = Read<string>(job.BrokerageData, "tt-user-name", errors),
                 SessionPassword = Read<string>(job.BrokerageData, "tt-session-password", errors),
                 AccountName = Read<string>(job.BrokerageData, "tt-account-name", errors),
+
                 MarketDataSenderCompId = Read<string>(job.BrokerageData, "tt-market-data-sender-comp-id", errors),
-                OrderRoutingSenderCompId = Read<string>(job.BrokerageData, "tt-order-routing-sender-comp-id", errors)
+                MarketDataTargetCompId = Read<string>(job.BrokerageData, "tt-market-data-target-comp-id", errors),
+                MarketDataHost = Read<string>(job.BrokerageData, "tt-market-data-host", errors),
+                MarketDataPort = Read<string>(job.BrokerageData, "tt-market-data-port", errors),
+
+                OrderRoutingSenderCompId = Read<string>(job.BrokerageData, "tt-order-routing-sender-comp-id", errors),
+                OrderRoutingTargetCompId = Read<string>(job.BrokerageData, "tt-order-routing-target-comp-id", errors),
+                OrderRoutingHost = Read<string>(job.BrokerageData, "tt-order-routing-host", errors),
+                OrderRoutingPort = Read<string>(job.BrokerageData, "tt-order-routing-port", errors)
             };
 
             if (errors.Count != 0)

@@ -5,7 +5,6 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using QuantConnect.Fix.TT;
 using QuantConnect.Fix.TT.FIX44.Messages;
 using QuantConnect.TradingTechnologies.Fix.Utils;
 using QuickFix;

@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using QuantConnect.Fix.TT;
 using QuantConnect.Fix.TT.FIX44.Fields;
 using QuantConnect.Fix.TT.FIX44.Messages;
 using QuantConnect.TradingTechnologies.Fix;

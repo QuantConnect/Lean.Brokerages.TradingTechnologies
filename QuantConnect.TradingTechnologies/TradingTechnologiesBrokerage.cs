@@ -51,7 +51,7 @@ namespace QuantConnect.TradingTechnologies
             _fixBrokerageController.ExecutionReport += OnExecutionReport;
             _fixProtocolDirector = new TTFixProtocolDirector(_fixConfiguration, _fixMarketDataController, _fixBrokerageController);
 
-            _fixInstance = new FixInstance(_fixProtocolDirector);
+            _fixInstance = new FixInstance(_fixProtocolDirector, fixConfiguration);
         }
 
         /// <summary>
