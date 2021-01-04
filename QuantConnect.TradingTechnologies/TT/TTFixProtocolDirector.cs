@@ -43,18 +43,18 @@ namespace QuantConnect.TradingTechnologies.TT
             Console.WriteLine($"OnLogon(): SessionId: {sessionId}");
 
             var session = new QuickFixSession(sessionId);
-            var handler = CreateSessionHandler(sessionId.SenderCompID, session);
+            var handler = CreateSessionHandler(sessionId.SenderCompID, sessionId.TargetCompID, session);
             _sessionHandlers[sessionId] = handler;
         }
 
-        private ITTFixSessionHandler CreateSessionHandler(string senderCompId, ISession session)
+        private ITTFixSessionHandler CreateSessionHandler(string senderCompId, string targetCompId, ISession session)
         {
-            if (senderCompId == _fixConfiguration.MarketDataSenderCompId)
+            if (senderCompId == _fixConfiguration.MarketDataSenderCompId && targetCompId == _fixConfiguration.MarketDataTargetCompId)
             {
                 return new TTMarketDataSessionHandler(session, _fixMarketDataController);
             }
 
-            if (senderCompId == _fixConfiguration.OrderRoutingSenderCompId)
+            if (senderCompId == _fixConfiguration.OrderRoutingSenderCompId && targetCompId == _fixConfiguration.OrderRoutingTargetCompId)
             {
                 return new TTOrderRoutingSessionHandler(session, _fixBrokerageController, _fixConfiguration.AccountName);
             }
