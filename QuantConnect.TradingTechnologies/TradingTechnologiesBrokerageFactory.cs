@@ -42,6 +42,10 @@ namespace QuantConnect.TradingTechnologies
             { "tt-session-password", Config.Get("tt-session-password") },
             { "tt-account-name", Config.Get("tt-account-name") },
 
+            { "tt-rest-app-key", Config.Get("tt-rest-app-key") },
+            { "tt-rest-app-secret", Config.Get("tt-rest-app-secret") },
+            { "tt-rest-environment", Config.Get("tt-rest-environment") },
+
             { "tt-market-data-sender-comp-id", Config.Get("tt-market-data-sender-comp-id") },
             { "tt-market-data-target-comp-id", Config.Get("tt-market-data-target-comp-id") },
             { "tt-market-data-host", Config.Get("tt-market-data-host") },
@@ -75,6 +79,10 @@ namespace QuantConnect.TradingTechnologies
                 UserName = Read<string>(job.BrokerageData, "tt-user-name", errors),
                 SessionPassword = Read<string>(job.BrokerageData, "tt-session-password", errors),
                 AccountName = Read<string>(job.BrokerageData, "tt-account-name", errors),
+
+                RestAppKey = Read<string>(job.BrokerageData, "tt-rest-app-key", errors),
+                RestAppSecret = Read<string>(job.BrokerageData, "tt-rest-app-secret", errors),
+                RestEnvironment = Read<string>(job.BrokerageData, "tt-rest-environment", errors),
 
                 MarketDataSenderCompId = Read<string>(job.BrokerageData, "tt-market-data-sender-comp-id", errors),
                 MarketDataTargetCompId = Read<string>(job.BrokerageData, "tt-market-data-target-comp-id", errors),

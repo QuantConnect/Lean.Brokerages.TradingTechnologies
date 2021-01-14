@@ -65,10 +65,14 @@
     <Compile Include="Fix\Protocol\IFixOutboundBrokerageHandler.cs" />
     <Compile Include="Fix\Protocol\IFixOutboundMarketDataHandler.cs" />
     <Compile Include="Fix\Protocol\IFixProtocolDirector.cs" />
+    <Compile Include="TradingTechnologiesSymbolMapper.cs" />
     <Compile Include="TT\ITTFixSessionHandler.cs" />
-    <Compile Include="TT\Position\PositionsResponse.cs" />
-    <Compile Include="TT\Position\TokenResponse.cs" />
-    <Compile Include="TT\Position\TTPositionsProvider.cs" />
+    <Compile Include="TT\Api\InstrumentResponse.cs" />
+    <Compile Include="TT\Api\ProductDataResponse.cs" />
+    <Compile Include="TT\Api\MarketsResponse.cs" />
+    <Compile Include="TT\Api\PositionsResponse.cs" />
+    <Compile Include="TT\Api\TokenResponse.cs" />
+    <Compile Include="TT\Api\TTApiClient.cs" />
     <Compile Include="TT\TTEnums.cs" />
     <Compile Include="TT\TTFixProtocolDirector.cs" />
     <Compile Include="TT\TTFixSessionHandlerBase.cs" />

@@ -32,6 +32,10 @@ namespace QuantConnect.TradingTechnologiesTests
             SessionPassword = Config.Get("tt-session-password"),
             AccountName = Config.Get("tt-account-name"),
 
+            RestAppKey = Config.Get("tt-rest-app-key"),
+            RestAppSecret = Config.Get("tt-rest-app-secret"),
+            RestEnvironment = Config.Get("tt-rest-environment"),
+
             MarketDataSenderCompId = Config.Get("tt-market-data-sender-comp-id"),
             MarketDataTargetCompId = Config.Get("tt-market-data-target-comp-id"),
             MarketDataHost = Config.Get("tt-market-data-host"),
@@ -55,6 +59,23 @@ namespace QuantConnect.TradingTechnologiesTests
 
                 brokerage.Connect();
                 Assert.IsTrue(brokerage.IsConnected);
+
+                brokerage.Disconnect();
+                Assert.IsFalse(brokerage.IsConnected);
+            }
+        }
+
+        [Test]
+        public void GetsAccountHoldings()
+        {
+            using (var brokerage = new TradingTechnologiesBrokerage(new OrderProvider(_orders), _aggregationManager, _fixConfiguration))
+            {
+                Assert.IsFalse(brokerage.IsConnected);
+
+                brokerage.Connect();
+                Assert.IsTrue(brokerage.IsConnected);
+
+                var holdings = brokerage.GetAccountHoldings();
 
                 brokerage.Disconnect();
                 Assert.IsFalse(brokerage.IsConnected);

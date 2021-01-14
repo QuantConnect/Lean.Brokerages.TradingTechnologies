@@ -1,42 +1,76 @@
-﻿using System;
+﻿/*
+* QUANTCONNECT.COM - Democratizing Finance, Empowering Individuals.
+* Lean Algorithmic Trading Engine v2.2 Copyright 2015 QuantConnect Corporation.
+*/
+
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using QuantConnect.Logging;
 
-namespace QuantConnect.Fix.TT.Position
+namespace QuantConnect.TradingTechnologies.TT.Api
 {
     /// <summary>
-    ///     Utilises TT's REST API to retrieve positions from.
+    /// Utilises TT's REST API to retrieve positions and other information.
     /// </summary>
-    public class TTPositionsProvider : IDisposable
+    public class TTApiClient : IDisposable
     {
-        // TODO: Move app keys into an external configuration file.
-        private const string AppKey = ""; //TODO: ""de3f2502-c5bb-ff55-6487-923aa0780510";
-        private const string Secret = ""; //TODO: AppKey + ":31e87f27-3246-d004-08f9-02cbe1566522";
         private const string BaseUrl = "https://apigateway.trade.tt";
-        // TODO: Create a switch for the environment.
-        private const string Environment = "ext_uat_cert";
+
+        private readonly string _appKey;
+        private readonly string _appSecret;
+        private readonly string _environment;
+
         private static readonly JsonSerializer Serializer = new JsonSerializer();
         private readonly HttpClient _httpClient = new HttpClient();
         private readonly SemaphoreSlim _tokenLock = new SemaphoreSlim(1);
-        private readonly string _tokenFile = Path.Combine(System.Environment.CurrentDirectory, "token.json");
+        private readonly string _tokenFile = Path.Combine(Environment.CurrentDirectory, "token.json");
         private TokenResponse _token;
         private bool _disposed;
 
-        public TTPositionsProvider()
+        public TTApiClient(string appKey, string appSecret, string environment)
         {
+            _appKey = appKey;
+            _appSecret = appKey + ":" + appSecret;
+            _environment = environment;
+
             _token = LoadToken(_tokenFile);
             if (_token != null) { }
         }
 
         public async Task<List<Position>> GetPositions()
         {
-            var response = await RequestAsync<PositionsResponse>("monitor", "position", AddRequestId(), "scaleQty=0").ConfigureAwait(false);
+            var response = await RequestAsync<PositionsResponse>("ttmonitor", "position", AddRequestId(), "scaleQty=0").ConfigureAwait(false);
             return response?.Positions ?? new List<Position>(0);
+        }
+
+        public async Task<Instrument> GetInstrument(string instrumentId)
+        {
+            var response = await RequestAsync<InstrumentResponse>("ttpds", $"instrument/{instrumentId}", AddRequestId()).ConfigureAwait(false);
+            return response?.Instrument.FirstOrDefault();
+        }
+
+        public async Task<List<Market>> GetMarkets()
+        {
+            var response = await RequestAsync<MarketsResponse>("ttpds", "markets", AddRequestId()).ConfigureAwait(false);
+            return response?.Markets ?? new List<Market>(0);
+        }
+
+        public async Task<List<Currency>> GetCurrencies()
+        {
+            var response = await RequestAsync<ProductDataResponse>("ttpds", "productdata", AddRequestId()).ConfigureAwait(false);
+            return response?.Currencies ?? new List<Currency>(0);
+        }
+
+        public async Task<List<ProductType>> GetProductTypes()
+        {
+            var response = await RequestAsync<ProductDataResponse>("ttpds", "productdata", AddRequestId()).ConfigureAwait(false);
+            return response?.ProductTypes ?? new List<ProductType>(0);
         }
 
         /// <summary>
@@ -150,7 +184,7 @@ namespace QuantConnect.Fix.TT.Position
             }
         }
 
-        private static string CreateUrl(string service, string function)
+        private string CreateUrl(string service, string function)
         {
             if (string.IsNullOrWhiteSpace(service))
             {
@@ -162,18 +196,18 @@ namespace QuantConnect.Fix.TT.Position
                 throw new ArgumentNullException(nameof(function));
             }
 
-            return $"{BaseUrl}/{service}/{Environment}/{function}";
+            return $"{BaseUrl}/{service}/{_environment}/{function}";
         }
 
         private async Task<TokenResponse> GetNewToken()
         {
             using (var request = new HttpRequestMessage(HttpMethod.Post, CreateUrl("ttid", "token")))
             {
-                request.Headers.Add("x-api-key", AppKey);
+                request.Headers.Add("x-api-key", _appKey);
                 request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
                 {
                     ["grant_type"] = "user_app",
-                    ["app_key"] = Secret
+                    ["app_key"] = _appSecret
                 });
                 using (var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false))
                 {
@@ -200,7 +234,7 @@ namespace QuantConnect.Fix.TT.Position
             var url = $"{CreateUrl(service, function)}?{string.Join("&", args)}";
             using (var request = new HttpRequestMessage(HttpMethod.Get, url))
             {
-                request.Headers.Add("x-api-key", AppKey);
+                request.Headers.Add("x-api-key", _appKey);
                 request.Headers.Add("Authorization", "Bearer " + _token.AccessToken);
                 using (var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false))
                 {
@@ -220,6 +254,7 @@ namespace QuantConnect.Fix.TT.Position
             using (var sr = new StreamReader(stream))
             using (var jtr = new JsonTextReader(sr))
             {
+                // var json = sr.ReadToEnd();
                 return Serializer.Deserialize<T>(jtr);
             }
         }

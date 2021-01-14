@@ -20,6 +20,7 @@ using QuantConnect.TradingTechnologies.Fix.Core;
 using QuantConnect.TradingTechnologies.Fix.Protocol;
 using QuantConnect.TradingTechnologies.Fix.Utils;
 using QuantConnect.TradingTechnologies.TT;
+using QuantConnect.TradingTechnologies.TT.Api;
 using QuantConnect.Util;
 using BaseData = QuantConnect.Data.BaseData;
 
@@ -37,6 +38,9 @@ namespace QuantConnect.TradingTechnologies
         private readonly IFixProtocolDirector _fixProtocolDirector;
         private readonly FixInstance _fixInstance;
 
+        private readonly TTApiClient _apiClient;
+        private readonly TradingTechnologiesSymbolMapper _symbolMapper;
+
         public TradingTechnologiesBrokerage(IOrderProvider orderProvider, IDataAggregator aggregator, FixConfiguration fixConfiguration)
             : base("TradingTechnologies")
         {
@@ -52,6 +56,9 @@ namespace QuantConnect.TradingTechnologies
             _fixProtocolDirector = new TTFixProtocolDirector(_fixConfiguration, _fixMarketDataController, _fixBrokerageController);
 
             _fixInstance = new FixInstance(_fixProtocolDirector, fixConfiguration);
+
+            _apiClient = new TTApiClient(fixConfiguration.RestAppKey, fixConfiguration.RestAppSecret, fixConfiguration.RestEnvironment);
+            _symbolMapper = new TradingTechnologiesSymbolMapper(_apiClient);
         }
 
         /// <summary>
@@ -128,11 +135,45 @@ namespace QuantConnect.TradingTechnologies
 
         public override List<Holding> GetAccountHoldings()
         {
-            return new List<Holding>();
+            var holdings = new List<Holding>();
+
+            var positions = _apiClient.GetPositions().SynchronouslyAwaitTaskResult();
+
+            foreach (var position in positions)
+            {
+                var symbol = _symbolMapper.GetLeanSymbol(position.InstrumentId);
+
+                var holding = new Holding
+                {
+                    AveragePrice = position.OpenAvgPrice ?? 0,
+                    ConversionRate = 0,
+                    CurrencySymbol = "",
+                    MarketPrice = 0,
+                    MarketValue = 0,
+                    Quantity = position.NetPosition ?? 0,
+                    Symbol = symbol,
+                    Type = symbol.SecurityType,
+                    UnrealizedPnL = 0
+                };
+
+                holdings.Add(holding);
+            }
+
+            return holdings;
+        }
+
+        private Symbol GetSymbol(string instrumentId)
+        {
+            // TODO: cache instruments in dictionary
+            var instrument = _apiClient.GetInstrument(instrumentId).SynchronouslyAwaitTaskResult();
+
+            return Symbol.Empty;
         }
 
         public override List<CashAmount> GetCashBalance()
         {
+            // TODO:
+
             return new List<CashAmount>();
         }
 

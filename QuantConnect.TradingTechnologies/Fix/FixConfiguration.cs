@@ -14,6 +14,10 @@ namespace QuantConnect.TradingTechnologies.Fix
         public string SessionPassword { get; set; }
         public string AccountName { get; set; }
 
+        public string RestAppKey { get; set; }
+        public string RestAppSecret { get; set; }
+        public string RestEnvironment { get; set; }
+
         // QuickFix settings
 
         public string FixVersionString { get; set; } = "FIX.4.4";
