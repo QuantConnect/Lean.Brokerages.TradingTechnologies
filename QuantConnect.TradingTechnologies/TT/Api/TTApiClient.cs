@@ -29,7 +29,6 @@ namespace QuantConnect.TradingTechnologies.TT.Api
         private static readonly JsonSerializer Serializer = new JsonSerializer();
         private readonly HttpClient _httpClient = new HttpClient();
         private readonly SemaphoreSlim _tokenLock = new SemaphoreSlim(1);
-        private readonly string _tokenFile = Path.Combine(Environment.CurrentDirectory, "token.json");
         private TokenResponse _token;
         private bool _disposed;
 
@@ -38,9 +37,6 @@ namespace QuantConnect.TradingTechnologies.TT.Api
             _appKey = appKey;
             _appSecret = appKey + ":" + appSecret;
             _environment = environment;
-
-            _token = LoadToken(_tokenFile);
-            if (_token != null) { }
         }
 
         public async Task<List<Position>> GetPositions()
@@ -96,15 +92,7 @@ namespace QuantConnect.TradingTechnologies.TT.Api
                 }
 
                 _token = await GetNewToken().ConfigureAwait(false);
-                if (_token.ExpiryTime.HasValue)
-                {
-                    SaveToken(_token, _tokenFile);
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                return _token.ExpiryTime.HasValue;
             }
             catch (Exception e)
             {
@@ -114,73 +102,6 @@ namespace QuantConnect.TradingTechnologies.TT.Api
             finally
             {
                 _tokenLock.Release();
-            }
-        }
-
-        /// <summary>
-        ///     Reads a token from disk.
-        /// </summary>
-        /// <param name="fileName">File to deserialize.</param>
-        /// <returns>A deserialized token, or null.</returns>
-        private static TokenResponse LoadToken(string fileName)
-        {
-            if (!File.Exists(fileName))
-            {
-                Log.Trace("No cached token file exists: {0}", fileName);
-                return null;
-            }
-
-            try
-            {
-                using (var fs = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
-                {
-                    using (var stream = new StreamReader(fs))
-                    {
-                        using (var jsonStream = new JsonTextReader(stream))
-                        {
-                            var result = Serializer.Deserialize<TokenResponse>(jsonStream);
-                            if (result?.ExpiryTime != null)
-                            {
-                                Log.Trace($"Loaded cached token - expiry: {result.ExpiryTime?.ToLocalTime()}");
-                                return result;
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, $"Unable to deserialize file: {fileName}");
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        ///     Serializes a token to a file.
-        /// </summary>
-        /// <param name="token">Token to serialize</param>
-        /// <param name="fileName">File to serialize to</param>
-        private static void SaveToken(TokenResponse token, string fileName)
-        {
-            if (token == null)
-            {
-                return;
-            }
-
-            try
-            {
-                using (var fs = File.Open(fileName, FileMode.Create, FileAccess.Write, FileShare.Read))
-                {
-                    using (var stream = new StreamWriter(fs))
-                    {
-                        Serializer.Serialize(stream, token);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, $"Unable to serialize token to file: {fileName}");
             }
         }
 
@@ -254,7 +175,6 @@ namespace QuantConnect.TradingTechnologies.TT.Api
             using (var sr = new StreamReader(stream))
             using (var jtr = new JsonTextReader(sr))
             {
-                // var json = sr.ReadToEnd();
                 return Serializer.Deserialize<T>(jtr);
             }
         }

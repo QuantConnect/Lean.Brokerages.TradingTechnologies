@@ -13,11 +13,14 @@ namespace QuantConnect.TradingTechnologies.TT.Api
     {
         private int? _secondsUntilExpiry;
 
-        [JsonProperty] public string Status { get; set; }
+        [JsonProperty]
+        public string Status { get; set; }
 
-        [JsonProperty("access_token")] public string AccessToken { get; set; }
+        [JsonProperty("access_token")]
+        public string AccessToken { get; set; }
 
-        [JsonProperty("token_type")] public string TokenType { get; set; }
+        [JsonProperty("token_type")]
+        public string TokenType { get; set; }
 
         [JsonProperty("seconds_until_expiry")]
         public int? SecondsUntilExpiry
@@ -30,6 +33,7 @@ namespace QuantConnect.TradingTechnologies.TT.Api
             }
         }
 
-        [JsonIgnore] public DateTime? ExpiryTime { get; private set; }
+        [JsonIgnore]
+        public DateTime? ExpiryTime { get; private set; }
     }
 }
