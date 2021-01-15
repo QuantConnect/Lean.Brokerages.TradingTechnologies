@@ -40,6 +40,7 @@ namespace QuantConnect.TradingTechnologies
 
         private readonly TTApiClient _apiClient;
         private readonly TradingTechnologiesSymbolMapper _symbolMapper;
+        private readonly SymbolPropertiesDatabase _symbolPropertiesDatabase = SymbolPropertiesDatabase.FromDataFolder();
 
         public TradingTechnologiesBrokerage(IOrderProvider orderProvider, IDataAggregator aggregator, FixConfiguration fixConfiguration)
             : base("TradingTechnologies")
@@ -143,31 +144,25 @@ namespace QuantConnect.TradingTechnologies
             {
                 var symbol = _symbolMapper.GetLeanSymbol(position.InstrumentId);
 
+                var currencySymbol = Currencies.GetCurrencySymbol(
+                    _symbolPropertiesDatabase.GetSymbolProperties(symbol.ID.Market, symbol, symbol.SecurityType, Currencies.USD).QuoteCurrency);
+
+                var priceMultiplier = Utility.GetPriceMultiplier(symbol);
+
                 var holding = new Holding
                 {
-                    AveragePrice = position.OpenAvgPrice ?? 0,
-                    ConversionRate = 0,
-                    CurrencySymbol = "",
-                    MarketPrice = 0,
-                    MarketValue = 0,
-                    Quantity = position.NetPosition ?? 0,
                     Symbol = symbol,
                     Type = symbol.SecurityType,
-                    UnrealizedPnL = 0
+                    Quantity = position.NetPosition ?? 0,
+                    AveragePrice = position.OpenAvgPrice / priceMultiplier ?? 0,
+                    MarketPrice = position.PnlPrice / priceMultiplier ?? 0,
+                    CurrencySymbol = currencySymbol
                 };
 
                 holdings.Add(holding);
             }
 
             return holdings;
-        }
-
-        private Symbol GetSymbol(string instrumentId)
-        {
-            // TODO: cache instruments in dictionary
-            var instrument = _apiClient.GetInstrument(instrumentId).SynchronouslyAwaitTaskResult();
-
-            return Symbol.Empty;
         }
 
         public override List<CashAmount> GetCashBalance()

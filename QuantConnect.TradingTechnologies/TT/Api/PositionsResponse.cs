@@ -14,6 +14,18 @@ namespace QuantConnect.TradingTechnologies.TT.Api
         [JsonProperty]
         public string Status { get; set; }
 
+        [JsonProperty("status_message")]
+        public string StatusMessage { get; set; }
+
+        [JsonProperty]
+        public int StatusCode { get; set; }
+
+        [JsonProperty]
+        public string NextPageKey { get; set; }
+
+        [JsonProperty]
+        public string LastPage { get; set; }
+
         [JsonProperty]
         public List<Position> Positions { get; set; }
     }

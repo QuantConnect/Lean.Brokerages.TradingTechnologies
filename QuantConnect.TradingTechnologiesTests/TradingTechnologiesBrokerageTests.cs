@@ -76,6 +76,10 @@ namespace QuantConnect.TradingTechnologiesTests
                 Assert.IsTrue(brokerage.IsConnected);
 
                 var holdings = brokerage.GetAccountHoldings();
+                foreach (var holding in holdings)
+                {
+                    Log.Trace($"Holding: {holding}");
+                }
 
                 brokerage.Disconnect();
                 Assert.IsFalse(brokerage.IsConnected);
