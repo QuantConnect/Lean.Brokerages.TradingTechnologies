@@ -16,28 +16,6 @@ namespace QuantConnect.TradingTechnologies.Fix.Utils
     {
         private static readonly SymbolPropertiesDatabase _symbolPropertiesDatabase = SymbolPropertiesDatabase.FromDataFolder();
 
-        public static bool TryParseMaturityMonthYear(string value, out string result)
-        {
-            switch (value.Length)
-            {
-                case 2:
-                    value = "2020" + value;
-                    break;
-                case 4:
-                    value = "20" + value;
-                    break;
-            }
-
-            if (value.Length == 6 && int.TryParse(value, out _))
-            {
-                result = value;
-                return true;
-            }
-
-            result = null;
-            return false;
-        }
-
         public static decimal GetPriceMultiplier(Symbol symbol)
         {
             if (symbol.SecurityType == SecurityType.Future)
@@ -115,27 +93,6 @@ namespace QuantConnect.TradingTechnologies.Fix.Utils
 
                 default:
                     throw new NotSupportedException($"Unsupported TimeInForce: {timeInForce}");
-            }
-        }
-
-        public static SecurityType ConvertSecurityType(string securityType)
-        {
-            switch (securityType)
-            {
-                case QuantConnect.Fix.TT.FIX44.Fields.SecurityType.FUTURE:
-                    return SecurityType.Future;
-
-                case QuantConnect.Fix.TT.FIX44.Fields.SecurityType.OPTION:
-                    return SecurityType.Option;
-
-                case QuantConnect.Fix.TT.FIX44.Fields.SecurityType.OPTIONS_ON_FUTURES:
-                    return SecurityType.FutureOption;
-
-                case QuantConnect.Fix.TT.FIX44.Fields.SecurityType.COMMON_STOCK:
-                    return SecurityType.Equity;
-
-                default:
-                    throw new NotSupportedException($"Unsupported security type: {securityType}");
             }
         }
 

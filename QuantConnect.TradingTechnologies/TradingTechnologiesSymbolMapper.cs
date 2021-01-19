@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using QuantConnect.Brokerages;
 using QuantConnect.TradingTechnologies.TT.Api;
 
@@ -14,6 +15,28 @@ namespace QuantConnect.TradingTechnologies
     public class TradingTechnologiesSymbolMapper : ISymbolMapper
     {
         private readonly TTApiClient _apiClient;
+
+        // TT SecurityExchange -> Lean market
+        private readonly Dictionary<string, string> _mapSecurityExchangeToLeanMarket = new Dictionary<string, string>
+        {
+            { "CME", Market.CME },
+            { "CBOE", Market.CBOE },
+            { "ICE", Market.ICE }
+        };
+
+        // Lean market -> TT SecurityExchange
+        private readonly Dictionary<string, string> _mapLeanMarketToSecurityExchange;
+
+        // TT ProductType -> LEAN security type
+        private readonly Dictionary<string, SecurityType> _mapProductTypeToLeanSecurityType = new Dictionary<string, SecurityType>
+        {
+            { QuantConnect.Fix.TT.FIX44.Fields.SecurityType.COMMON_STOCK, SecurityType.Equity },
+            { QuantConnect.Fix.TT.FIX44.Fields.SecurityType.FUTURE, SecurityType.Future },
+            { QuantConnect.Fix.TT.FIX44.Fields.SecurityType.OPTION, SecurityType.Option }
+        };
+
+        // LEAN security type -> TT ProductType
+        private readonly Dictionary<SecurityType, string> _mapLeanSecurityTypeToProductType;
 
         // TT ProductTypeId -> LEAN security type
         private readonly Dictionary<int, SecurityType> _mapProductTypes = new Dictionary<int, SecurityType>();
@@ -28,19 +51,25 @@ namespace QuantConnect.TradingTechnologies
         {
             _apiClient = apiClient;
 
+            _mapLeanMarketToSecurityExchange = _mapSecurityExchangeToLeanMarket
+                .ToDictionary(x => x.Value, x => x.Key);
+
+            _mapLeanSecurityTypeToProductType = _mapProductTypeToLeanSecurityType
+                .ToDictionary(x => x.Value, x => x.Key);
+
             LoadProductTypesMap();
             LoadMarketsMap();
         }
 
         public string GetBrokerageSymbol(Symbol symbol)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public Symbol GetLeanSymbol(string brokerageSymbol, SecurityType securityType, string market,
             DateTime expirationDate = default(DateTime), decimal strike = 0, OptionRight optionRight = OptionRight.Call)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public Symbol GetLeanSymbol(string instrumentId)
@@ -69,16 +98,9 @@ namespace QuantConnect.TradingTechnologies
         {
             var productTypes = _apiClient.GetProductTypes().SynchronouslyAwaitTaskResult();
 
-            var supportedProductTypes = new Dictionary<string, SecurityType>
-            {
-                { "CS", SecurityType.Equity },
-                { "FUT", SecurityType.Future },
-                { "OPT", SecurityType.Option }
-            };
-
             foreach (var productType in productTypes)
             {
-                if (supportedProductTypes.TryGetValue(productType.Name, out var securityType))
+                if (_mapProductTypeToLeanSecurityType.TryGetValue(productType.Name, out var securityType))
                 {
                     _mapProductTypes.Add(Convert.ToInt32(productType.Id), securityType);
                 }
@@ -89,16 +111,9 @@ namespace QuantConnect.TradingTechnologies
         {
             var markets = _apiClient.GetMarkets().SynchronouslyAwaitTaskResult();
 
-            var supportedMarkets = new Dictionary<string, string>
-            {
-                { "CME", Market.CME },
-                { "CBOE", Market.CBOE },
-                { "ICE", Market.ICE }
-            };
-
             foreach (var market in markets)
             {
-                if (supportedMarkets.TryGetValue(market.Name, out var leanMarket))
+                if (_mapSecurityExchangeToLeanMarket.TryGetValue(market.Name, out var leanMarket))
                 {
                     _mapMarkets.Add(Convert.ToInt32(market.Id), leanMarket);
                 }
@@ -141,5 +156,46 @@ namespace QuantConnect.TradingTechnologies
 
             return instrument;
         }
+
+        public string GetBrokerageMarket(string leanMarket)
+        {
+            if (!_mapLeanMarketToSecurityExchange.TryGetValue(leanMarket, out var market))
+            {
+                throw new NotSupportedException($"Unsupported LEAN Market: {leanMarket}");
+            }
+
+            return market;
+        }
+
+        public string GetBrokerageProductType(SecurityType leanSecurityType)
+        {
+            if (!_mapLeanSecurityTypeToProductType.TryGetValue(leanSecurityType, out var productType))
+            {
+                throw new NotSupportedException($"Unsupported LEAN security type: {leanSecurityType}");
+            }
+
+            return productType;
+        }
+
+        public string GetLeanMarket(string securityExchange)
+        {
+            if (!_mapSecurityExchangeToLeanMarket.TryGetValue(securityExchange, out var market))
+            {
+                throw new NotSupportedException($"Unsupported TT SecurityExchange: {securityExchange}");
+            }
+
+            return market;
+        }
+
+        public SecurityType GetLeanSecurityType(string productType)
+        {
+            if (!_mapProductTypeToLeanSecurityType.TryGetValue(productType, out var securityType))
+            {
+                throw new NotSupportedException($"Unsupported TT ProductType: {productType}");
+            }
+
+            return securityType;
+        }
+
     }
 }

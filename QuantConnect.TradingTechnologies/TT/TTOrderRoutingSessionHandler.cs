@@ -21,13 +21,15 @@ namespace QuantConnect.TradingTechnologies.TT
     /// </summary>
     public class TTOrderRoutingSessionHandler : TTFixSessionHandlerBase, IFixOutboundBrokerageHandler
     {
+        private readonly TradingTechnologiesSymbolMapper _symbolMapper;
         private readonly ISession _session;
         private readonly IFixBrokerageController _fixBrokerageController;
         private readonly string _account;
         private int _initialCount;
 
-        public TTOrderRoutingSessionHandler(ISession session, IFixBrokerageController fixBrokerageController, string account)
+        public TTOrderRoutingSessionHandler(TradingTechnologiesSymbolMapper symbolMapper, ISession session, IFixBrokerageController fixBrokerageController, string account)
         {
+            _symbolMapper = symbolMapper;
             _session = session ?? throw new ArgumentNullException(nameof(session));
             _fixBrokerageController = fixBrokerageController ?? throw new ArgumentNullException(nameof(fixBrokerageController));
             _account = account;
@@ -49,8 +51,9 @@ namespace QuantConnect.TradingTechnologies.TT
         {
             var side = new Side(order.Direction == OrderDirection.Buy ? Side.BUY : Side.SELL);
 
-            var securityExchange = new SecurityExchange("CME");
-            var securityType = new QuantConnect.Fix.TT.FIX44.Fields.SecurityType(QuantConnect.Fix.TT.FIX44.Fields.SecurityType.FUTURE);
+            var securityExchange = new SecurityExchange(_symbolMapper.GetBrokerageMarket(order.Symbol.ID.Market));
+            var securityType = new QuantConnect.Fix.TT.FIX44.Fields.SecurityType(_symbolMapper.GetBrokerageProductType(order.Symbol.SecurityType));
+
             var maturity = order.Symbol.ID.Date.ToString("yyyyMM");
 
             var priceMultiplier = Utility.GetPriceMultiplier(order.Symbol);

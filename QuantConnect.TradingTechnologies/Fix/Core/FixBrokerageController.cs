@@ -24,11 +24,17 @@ namespace QuantConnect.TradingTechnologies.Fix.Core
     /// </summary>
     public class FixBrokerageController : IFixBrokerageController, IDisposable
     {
+        private readonly TradingTechnologiesSymbolMapper _symbolMapper;
         private readonly ConcurrentDictionary<string, ExecutionReport> _orders = new ConcurrentDictionary<string, ExecutionReport>();
         private readonly ManualResetEvent _getOpenOrdersResetEvent = new ManualResetEvent(false);
         private IFixOutboundBrokerageHandler _handler;
 
         public event EventHandler<ExecutionReport> ExecutionReport;
+
+        public FixBrokerageController(TradingTechnologiesSymbolMapper symbolMapper)
+        {
+            _symbolMapper = symbolMapper;
+        }
 
         public bool RequestOpenOrders()
         {
@@ -127,8 +133,8 @@ namespace QuantConnect.TradingTechnologies.Fix.Core
             }
 
             var ticker = er.Symbol.getValue();
-            var market = er.SecurityExchange.getValue().ToLowerInvariant();
-            var securityType = Utility.ConvertSecurityType(er.SecurityType.getValue());
+            var market = _symbolMapper.GetLeanMarket(er.SecurityExchange.getValue());
+            var securityType = _symbolMapper.GetLeanSecurityType(er.SecurityType.getValue());
 
             Symbol symbol;
             if (securityType == SecurityType.Future)

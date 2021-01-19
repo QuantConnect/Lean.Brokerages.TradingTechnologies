@@ -18,14 +18,20 @@ namespace QuantConnect.TradingTechnologies.TT
 {
     public class TTFixProtocolDirector : IFixProtocolDirector
     {
-        // TODO: Decide whether SessionHandlers & management of sessions could move into QCQuickFix instead.
-        private readonly ConcurrentDictionary<SessionID, ITTFixSessionHandler> _sessionHandlers = new ConcurrentDictionary<SessionID, ITTFixSessionHandler>();
+        private readonly TradingTechnologiesSymbolMapper _symbolMapper;
         private readonly FixConfiguration _fixConfiguration;
         private readonly IFixMarketDataController _fixMarketDataController;
         private readonly IFixBrokerageController _fixBrokerageController;
 
-        public TTFixProtocolDirector(FixConfiguration fixConfiguration, IFixMarketDataController fixMarketDataController, IFixBrokerageController fixBrokerageController)
+        private readonly ConcurrentDictionary<SessionID, ITTFixSessionHandler> _sessionHandlers = new ConcurrentDictionary<SessionID, ITTFixSessionHandler>();
+
+        public TTFixProtocolDirector(
+            TradingTechnologiesSymbolMapper symbolMapper,
+            FixConfiguration fixConfiguration,
+            IFixMarketDataController fixMarketDataController,
+            IFixBrokerageController fixBrokerageController)
         {
+            _symbolMapper = symbolMapper;
             _fixConfiguration = fixConfiguration;
             _fixMarketDataController = fixMarketDataController ?? throw new ArgumentNullException(nameof(fixMarketDataController));
             _fixBrokerageController = fixBrokerageController ?? throw new ArgumentNullException(nameof(fixBrokerageController));
@@ -51,12 +57,12 @@ namespace QuantConnect.TradingTechnologies.TT
         {
             if (senderCompId == _fixConfiguration.MarketDataSenderCompId && targetCompId == _fixConfiguration.MarketDataTargetCompId)
             {
-                return new TTMarketDataSessionHandler(session, _fixMarketDataController);
+                return new TTMarketDataSessionHandler(_symbolMapper, session, _fixMarketDataController);
             }
 
             if (senderCompId == _fixConfiguration.OrderRoutingSenderCompId && targetCompId == _fixConfiguration.OrderRoutingTargetCompId)
             {
-                return new TTOrderRoutingSessionHandler(session, _fixBrokerageController, _fixConfiguration.AccountName);
+                return new TTOrderRoutingSessionHandler(_symbolMapper, session, _fixBrokerageController, _fixConfiguration.AccountName);
             }
 
             throw new Exception($"Unknown session senderCompId: '{senderCompId}'");

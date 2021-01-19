@@ -57,7 +57,7 @@ namespace QuantConnect.TradingTechnologies.Fix.Core
 
         public void Receive(Tick tick)
         {
-            // Send the data back into QC.
+            // TODO: Send the data back into QC.
             Log.Trace($"Received tick: {tick}");
         }
     }

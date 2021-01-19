@@ -17,7 +17,6 @@ using QuantConnect.Packets;
 using QuantConnect.Securities;
 using QuantConnect.TradingTechnologies.Fix;
 using QuantConnect.TradingTechnologies.Fix.Core;
-using QuantConnect.TradingTechnologies.Fix.Protocol;
 using QuantConnect.TradingTechnologies.Fix.Utils;
 using QuantConnect.TradingTechnologies.TT;
 using QuantConnect.TradingTechnologies.TT.Api;
@@ -30,12 +29,10 @@ namespace QuantConnect.TradingTechnologies
     {
         private readonly IOrderProvider _orderProvider;
         private readonly IDataAggregator _aggregator;
-        private readonly FixConfiguration _fixConfiguration;
 
         private readonly EventBasedDataQueueHandlerSubscriptionManager _subscriptionManager;
-        private readonly IFixMarketDataController _fixMarketDataController = new FixMarketDataController();
-        private readonly IFixBrokerageController _fixBrokerageController = new FixBrokerageController();
-        private readonly IFixProtocolDirector _fixProtocolDirector;
+        private readonly IFixMarketDataController _fixMarketDataController;
+        private readonly IFixBrokerageController _fixBrokerageController;
         private readonly FixInstance _fixInstance;
 
         private readonly TTApiClient _apiClient;
@@ -47,19 +44,22 @@ namespace QuantConnect.TradingTechnologies
         {
             _orderProvider = orderProvider;
             _aggregator = aggregator;
-            _fixConfiguration = fixConfiguration;
 
             _subscriptionManager = new EventBasedDataQueueHandlerSubscriptionManager();
             _subscriptionManager.SubscribeImpl += (s, t) => Subscribe(s);
             _subscriptionManager.UnsubscribeImpl += (s, t) => Unsubscribe(s);
 
-            _fixBrokerageController.ExecutionReport += OnExecutionReport;
-            _fixProtocolDirector = new TTFixProtocolDirector(_fixConfiguration, _fixMarketDataController, _fixBrokerageController);
-
-            _fixInstance = new FixInstance(_fixProtocolDirector, fixConfiguration);
-
             _apiClient = new TTApiClient(fixConfiguration.RestAppKey, fixConfiguration.RestAppSecret, fixConfiguration.RestEnvironment);
             _symbolMapper = new TradingTechnologiesSymbolMapper(_apiClient);
+
+            _fixMarketDataController = new FixMarketDataController();
+
+            _fixBrokerageController = new FixBrokerageController(_symbolMapper);
+            _fixBrokerageController.ExecutionReport += OnExecutionReport;
+
+            var fixProtocolDirector = new TTFixProtocolDirector(_symbolMapper, fixConfiguration, _fixMarketDataController, _fixBrokerageController);
+
+            _fixInstance = new FixInstance(fixProtocolDirector, fixConfiguration);
         }
 
         /// <summary>
@@ -167,7 +167,7 @@ namespace QuantConnect.TradingTechnologies
 
         public override List<CashAmount> GetCashBalance()
         {
-            // TODO:
+            // TODO: waiting for TT feedback
 
             return new List<CashAmount>();
         }

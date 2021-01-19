@@ -28,6 +28,7 @@ namespace QuantConnect.TradingTechnologies.TT
     /// </summary>
     public class TTMarketDataSessionHandler : TTFixSessionHandlerBase, IFixOutboundMarketDataHandler
     {
+        private readonly TradingTechnologiesSymbolMapper _symbolMapper;
         private readonly ISession _session;
         private readonly IFixMarketDataController _fixMarketDataHandler;
         private int _nextRequestId;
@@ -38,8 +39,9 @@ namespace QuantConnect.TradingTechnologies.TT
         private readonly Dictionary<Symbol, DateTimeZone> _symbolExchangeTimeZones = new Dictionary<Symbol, DateTimeZone>();
 
         // TODO: Decide whether handlers should receive individual controllers, or if they can receive the director and request controllers from it.
-        public TTMarketDataSessionHandler(ISession session, IFixMarketDataController fixMarketDataHandler)
+        public TTMarketDataSessionHandler(TradingTechnologiesSymbolMapper symbolMapper, ISession session, IFixMarketDataController fixMarketDataHandler)
         {
+            _symbolMapper = symbolMapper;
             _session = session ?? throw new ArgumentNullException(nameof(session));
             _fixMarketDataHandler = fixMarketDataHandler ?? throw new ArgumentNullException(nameof(fixMarketDataHandler));
             _fixMarketDataHandler.Register(this);
@@ -225,8 +227,9 @@ namespace QuantConnect.TradingTechnologies.TT
 
             var ticker = symbol.ID.Symbol;
             var maturity = symbol.ID.Date.ToString("yyyyMM");
-            var securityType = new QuantConnect.Fix.TT.FIX44.Fields.SecurityType(QuantConnect.Fix.TT.FIX44.Fields.SecurityType.FUTURE);
-            var securityExchange = new SecurityExchange("CME");
+
+            var securityType = new QuantConnect.Fix.TT.FIX44.Fields.SecurityType(_symbolMapper.GetBrokerageProductType(symbol.SecurityType));
+            var securityExchange = new SecurityExchange(_symbolMapper.GetBrokerageMarket(symbol.ID.Market));
 
             Logging.Log.Trace($"Subscribing to: {ticker}-{maturity}-{securityType.getValue()}-{securityExchange.getValue()}, RequestId: {requestId}");
 
@@ -264,8 +267,9 @@ namespace QuantConnect.TradingTechnologies.TT
 
             var ticker = symbol.ID.Symbol;
             var maturity = symbol.ID.Date.ToString("yyyyMM");
-            var securityType = new QuantConnect.Fix.TT.FIX44.Fields.SecurityType(QuantConnect.Fix.TT.FIX44.Fields.SecurityType.FUTURE);
-            var securityExchange = new SecurityExchange("CME");
+
+            var securityType = new QuantConnect.Fix.TT.FIX44.Fields.SecurityType(_symbolMapper.GetBrokerageProductType(symbol.SecurityType));
+            var securityExchange = new SecurityExchange(_symbolMapper.GetBrokerageMarket(symbol.ID.Market));
 
             Logging.Log.Trace($"Unsubscribing from: {ticker}-{maturity}-{securityType.getValue()}-{securityExchange.getValue()}, RequestId: {requestId}");
 
