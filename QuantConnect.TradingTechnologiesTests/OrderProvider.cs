@@ -17,7 +17,7 @@ namespace QuantConnect.TradingTechnologiesTests
     /// </summary>
     public class OrderProvider : IOrderProvider
     {
-        private static int _orderID;
+        private static int _orderId;
         private readonly IList<Order> _orders;
 
         public OrderProvider(IList<Order> orders)
@@ -32,18 +32,20 @@ namespace QuantConnect.TradingTechnologiesTests
 
         public void Add(Order order)
         {
-            var orderId = Interlocked.Increment(ref _orderID);
+            var orderId = Interlocked.Increment(ref _orderId);
 
-            // TODO:
-            // order.Id = orderId;
+            var propertyInfo = order.GetType().GetProperty("Id");
+            if (propertyInfo == null)
+            {
+                throw new Exception("Order.Id property not found.");
+            }
+
+            propertyInfo.SetValue(order, orderId);
 
             _orders.Add(order);
         }
 
-        public int OrdersCount
-        {
-            get { return _orders.Count; }
-        }
+        public int OrdersCount => _orders.Count;
 
         public Order GetOrderById(int orderId)
         {

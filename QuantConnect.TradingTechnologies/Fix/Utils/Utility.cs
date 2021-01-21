@@ -48,12 +48,19 @@ namespace QuantConnect.TradingTechnologies.Fix.Utils
                 case ExecType.CANCELLED:
                     return OrderStatus.Canceled;
 
+                case ExecType.REPLACED:
+                    return OrderStatus.UpdateSubmitted;
+
                 case ExecType.PARTIAL_FILL:
                     return OrderStatus.PartiallyFilled;
 
                 case ExecType.FILL:
-                case ExecType.TRADE:
                     return OrderStatus.Filled;
+
+                case ExecType.TRADE:
+                    return execution.CumQty.getValue() < execution.OrderQty.getValue()
+                        ? OrderStatus.PartiallyFilled
+                        : OrderStatus.Filled;
 
                 default:
                     return OrderStatus.Invalid;

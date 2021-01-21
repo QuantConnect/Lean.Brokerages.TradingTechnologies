@@ -206,7 +206,9 @@ namespace QuantConnect.TradingTechnologies
         {
             var orderStatus = Utility.ConvertOrderStatus(e);
 
-            var orderId = orderStatus == OrderStatus.Canceled ? e.OrigClOrdID.getValue() : e.ClOrdID.getValue();
+            var orderId = orderStatus == OrderStatus.Canceled || orderStatus == OrderStatus.UpdateSubmitted
+                ? e.OrigClOrdID.getValue()
+                : e.ClOrdID.getValue();
             var time = e.TransactTime.getValue();
 
             var order = _orderProvider.GetOrderByBrokerageId(orderId);
@@ -214,6 +216,11 @@ namespace QuantConnect.TradingTechnologies
             {
                 Log.Error($"TradingTechnologiesBrokerage.OnExecutionReport(): Unable to locate order with BrokerageId: {orderId}");
                 return;
+            }
+
+            if (orderStatus == OrderStatus.UpdateSubmitted)
+            {
+                order.BrokerId[0] = e.ClOrdID.getValue();
             }
 
             var message = "Trading Technologies Order Event";
@@ -229,11 +236,13 @@ namespace QuantConnect.TradingTechnologies
 
             if (orderStatus == OrderStatus.Filled || orderStatus == OrderStatus.PartiallyFilled)
             {
+                var priceMultiplier = Utility.GetPriceMultiplier(order.Symbol);
+
                 var filledQuantity = e.LastShares.getValue();
-                var remainingQuantity = order.AbsoluteQuantity - filledQuantity;
+                var remainingQuantity = order.AbsoluteQuantity - e.CumQty.getValue();
 
                 orderEvent.FillQuantity = filledQuantity * (order.Direction == OrderDirection.Buy ? 1 : -1);
-                orderEvent.FillPrice = e.LastPx.getValue();
+                orderEvent.FillPrice = e.LastPx.getValue() / priceMultiplier;
 
                 if (remainingQuantity > 0)
                 {
