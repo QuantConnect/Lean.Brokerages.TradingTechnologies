@@ -102,7 +102,7 @@ namespace QuantConnect.TradingTechnologies
             {
                 if (_mapProductTypeToLeanSecurityType.TryGetValue(productType.Name, out var securityType))
                 {
-                    _mapProductTypes.Add(Convert.ToInt32(productType.Id), securityType);
+                    _mapProductTypes.Add(Convert.ToInt32(productType.Id, CultureInfo.InvariantCulture), securityType);
                 }
             }
         }
@@ -115,7 +115,7 @@ namespace QuantConnect.TradingTechnologies
             {
                 if (_mapSecurityExchangeToLeanMarket.TryGetValue(market.Name, out var leanMarket))
                 {
-                    _mapMarkets.Add(Convert.ToInt32(market.Id), leanMarket);
+                    _mapMarkets.Add(Convert.ToInt32(market.Id, CultureInfo.InvariantCulture), leanMarket);
                 }
             }
         }

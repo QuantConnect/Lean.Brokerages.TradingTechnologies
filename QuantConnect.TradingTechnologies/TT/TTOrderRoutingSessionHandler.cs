@@ -4,6 +4,7 @@
 */
 
 using System;
+using System.Globalization;
 using QuantConnect.Fix.TT.FIX44.Fields;
 using QuantConnect.Fix.TT.FIX44.Messages;
 using QuantConnect.Orders;
@@ -54,7 +55,7 @@ namespace QuantConnect.TradingTechnologies.TT
             var securityExchange = new SecurityExchange(_symbolMapper.GetBrokerageMarket(order.Symbol.ID.Market));
             var securityType = new QuantConnect.Fix.TT.FIX44.Fields.SecurityType(_symbolMapper.GetBrokerageProductType(order.Symbol.SecurityType));
 
-            var maturity = order.Symbol.ID.Date.ToString("yyyyMM");
+            var maturity = order.Symbol.ID.Date.ToString("yyyyMM", CultureInfo.InvariantCulture);
 
             var priceMultiplier = Utility.GetPriceMultiplier(order.Symbol);
 

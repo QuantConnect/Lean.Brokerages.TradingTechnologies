@@ -4,6 +4,7 @@
 */
 
 using System;
+using System.Globalization;
 using QuantConnect.Fix.TT.FIX44.Fields;
 using QuantConnect.Fix.TT.FIX44.Messages;
 
@@ -19,7 +20,7 @@ namespace QuantConnect.TradingTechnologies.Fix.Extensions
         public static string ToUtcTimestamp(this DateTime dateTime)
         {
             // See: https://fixwiki.org/fixwiki/UTCTimestampDataType
-            return dateTime.ToString("yyyyMMdd-HH:mm:ss.fff");
+            return dateTime.ToString("yyyyMMdd-HH:mm:ss.fff", CultureInfo.InvariantCulture);
         }
     }
 }

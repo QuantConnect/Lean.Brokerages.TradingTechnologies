@@ -4,6 +4,7 @@
 */
 
 using System;
+using System.Globalization;
 
 namespace QuantConnect.TradingTechnologies.TT
 {
@@ -14,7 +15,7 @@ namespace QuantConnect.TradingTechnologies.TT
     {
         public static string GetNext()
         {
-            return Guid.NewGuid().ToString("N");
+            return Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
         }
     }
 }

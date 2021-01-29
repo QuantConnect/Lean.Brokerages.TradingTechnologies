@@ -4,6 +4,7 @@
 */
 
 using System;
+using System.Globalization;
 using System.Linq;
 using QuickFix;
 using QuickFix.Fields;
@@ -40,7 +41,7 @@ namespace QuantConnect.TradingTechnologies.Fix.Extensions
 
         public static void AddGroup<TGroup, TField, TEnum>(this Message message) where TGroup : Group, new() where TField : CharField, new() where TEnum : Enum
         {
-            message.AddGroup<TGroup, TField, TEnum, char>((f, v) => f.setValue(Convert.ToChar(v)));
+            message.AddGroup<TGroup, TField, TEnum, char>((f, v) => f.setValue(Convert.ToChar(v, CultureInfo.InvariantCulture)));
         }
 
         private static void AddGroup<TGroup, TField, TEnum, TFieldValue>(this FieldMap message, Action<TField, TEnum> setterAction)

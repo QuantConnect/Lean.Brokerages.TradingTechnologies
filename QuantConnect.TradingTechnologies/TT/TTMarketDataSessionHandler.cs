@@ -7,6 +7,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Threading;
 using NodaTime;
 using QuantConnect.Data.Market;
@@ -223,10 +224,10 @@ namespace QuantConnect.TradingTechnologies.TT
 
         public bool SubscribeToSymbol(Symbol symbol)
         {
-            var requestId = Interlocked.Increment(ref _nextRequestId).ToString();
+            var requestId = Interlocked.Increment(ref _nextRequestId).ToString(CultureInfo.InvariantCulture);
 
             var ticker = symbol.ID.Symbol;
-            var maturity = symbol.ID.Date.ToString("yyyyMM");
+            var maturity = symbol.ID.Date.ToString("yyyyMM", CultureInfo.InvariantCulture);
 
             var securityType = new QuantConnect.Fix.TT.FIX44.Fields.SecurityType(_symbolMapper.GetBrokerageProductType(symbol.SecurityType));
             var securityExchange = new SecurityExchange(_symbolMapper.GetBrokerageMarket(symbol.ID.Market));
@@ -263,10 +264,10 @@ namespace QuantConnect.TradingTechnologies.TT
 
         public bool UnsubscribeFromSymbol(Symbol symbol)
         {
-            var requestId = Interlocked.Increment(ref _nextRequestId).ToString();
+            var requestId = Interlocked.Increment(ref _nextRequestId).ToString(CultureInfo.InvariantCulture);
 
             var ticker = symbol.ID.Symbol;
-            var maturity = symbol.ID.Date.ToString("yyyyMM");
+            var maturity = symbol.ID.Date.ToString("yyyyMM", CultureInfo.InvariantCulture);
 
             var securityType = new QuantConnect.Fix.TT.FIX44.Fields.SecurityType(_symbolMapper.GetBrokerageProductType(symbol.SecurityType));
             var securityExchange = new SecurityExchange(_symbolMapper.GetBrokerageMarket(symbol.ID.Market));

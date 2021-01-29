@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -142,7 +143,7 @@ namespace QuantConnect.TradingTechnologies.TT.Api
         {
             // Format: app-company--guid   (guid with hyphens).
             // TODO: Determine whether of 'app' and 'company' need to be valid for
-            return "requestId=app-company--" + Guid.NewGuid().ToString("D");
+            return "requestId=app-company--" + Guid.NewGuid().ToString("D", CultureInfo.InvariantCulture);
         }
 
         private async Task<T> RequestAsync<T>(string service, string function, params string[] args) where T : class
