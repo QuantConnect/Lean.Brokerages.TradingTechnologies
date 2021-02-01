@@ -93,7 +93,7 @@ namespace QuantConnect.TradingTechnologies
 
         private bool CanSubscribe(Symbol symbol)
         {
-            if (!symbol.IsCanonical() && symbol.SecurityType != SecurityType.Future)
+            if (symbol.IsCanonical() || symbol.SecurityType != SecurityType.Future)
             {
                 return false;
             }
@@ -249,8 +249,6 @@ namespace QuantConnect.TradingTechnologies
                     orderEvent.Message += " - " + remainingQuantity + " remaining";
                 }
             }
-
-            Log.Trace($"Order event: {orderEvent}");
 
             OnOrderEvent(orderEvent);
         }

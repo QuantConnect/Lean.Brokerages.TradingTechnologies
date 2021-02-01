@@ -4,6 +4,7 @@
 */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -13,7 +14,7 @@ namespace QuantConnect.TradingTechnologies.Fix.Utils
 {
     public static class MessageUtils
     {
-        private static readonly Dictionary<Type, object> DataValues = new Dictionary<Type, object>();
+        private static readonly ConcurrentDictionary<Type, object> DataValues = new ConcurrentDictionary<Type, object>();
 
         /// <summary>
         ///     Provides a human-readable description of a field, instead of the FIX value.

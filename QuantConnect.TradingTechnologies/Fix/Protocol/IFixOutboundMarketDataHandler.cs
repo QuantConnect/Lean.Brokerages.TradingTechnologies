@@ -5,8 +5,6 @@
 
 namespace QuantConnect.TradingTechnologies.Fix.Protocol
 {
-    // TODO: Decide if the prefix 'IFixProtocol' to indicate its the FIX implementation-specific data handler.
-    // TODO: Decide if 'DataHandler'  is the best suffix to describe communication between the controller and remote FIX servers.
     /// <summary>
     ///     Defines a class that can perform actions related to market data for a specific FIX version.
     /// </summary>

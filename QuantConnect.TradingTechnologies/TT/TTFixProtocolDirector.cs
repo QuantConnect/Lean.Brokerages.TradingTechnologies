@@ -46,7 +46,7 @@ namespace QuantConnect.TradingTechnologies.TT
 
         public void OnLogon(SessionID sessionId)
         {
-            Console.WriteLine($"OnLogon(): SessionId: {sessionId}");
+            Logging.Log.Trace($"OnLogon(): Adding handler for SessionId: {sessionId}");
 
             var session = new QuickFixSession(sessionId);
             var handler = CreateSessionHandler(sessionId.SenderCompID, sessionId.TargetCompID, session);
@@ -70,9 +70,8 @@ namespace QuantConnect.TradingTechnologies.TT
 
         public void OnLogout(SessionID sessionId)
         {
-            Console.WriteLine($"OnLogout(): SessionId: {sessionId}");
+            Logging.Log.Trace($"OnLogout(): Removing handler for SessionId: {sessionId}");
 
-            Logging.Log.Trace("Removing handler for session: " + sessionId);
             _sessionHandlers.TryRemove(sessionId, out _);
         }
 

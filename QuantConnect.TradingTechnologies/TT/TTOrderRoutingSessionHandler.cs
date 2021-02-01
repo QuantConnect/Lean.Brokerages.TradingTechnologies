@@ -55,8 +55,6 @@ namespace QuantConnect.TradingTechnologies.TT
             var securityExchange = new SecurityExchange(_symbolMapper.GetBrokerageMarket(order.Symbol.ID.Market));
             var securityType = new QuantConnect.Fix.TT.FIX44.Fields.SecurityType(_symbolMapper.GetBrokerageProductType(order.Symbol.SecurityType));
 
-            var maturity = order.Symbol.ID.Date.ToString("yyyyMM", CultureInfo.InvariantCulture);
-
             var priceMultiplier = Utility.GetPriceMultiplier(order.Symbol);
 
             var ttOrder = new NewOrderSingle
@@ -66,7 +64,6 @@ namespace QuantConnect.TradingTechnologies.TT
                 // Instrument:
                 SecurityExchange = securityExchange,
                 Symbol = new QuantConnect.Fix.TT.FIX44.Fields.Symbol(order.Symbol.ID.Symbol),
-                MaturityMonthYear = new MaturityMonthYear(maturity),
                 SecurityType = securityType,
 
                 // Order info:
@@ -81,6 +78,13 @@ namespace QuantConnect.TradingTechnologies.TT
                 CustOrderHandlingInst = new CustOrderHandlingInst(CustOrderHandlingInst.ELECTRONIC),
                 OrderOrigination = new OrderOrigination(OrderOrigination.ORDER_RECEIVED_FROM_DIRECT_OR_SPONSORED_ACCESS_CUSTOMER)
             };
+
+            if (order.Symbol.SecurityType == SecurityType.Future)
+            {
+                var maturity = order.Symbol.ID.Date.ToString("yyyyMM", CultureInfo.InvariantCulture);
+
+                ttOrder.MaturityMonthYear = new MaturityMonthYear(maturity);
+            }
 
             switch (order.Type)
             {

@@ -94,6 +94,46 @@ namespace QuantConnect.TradingTechnologies
             }
         }
 
+        public string GetBrokerageMarket(string leanMarket)
+        {
+            if (!_mapLeanMarketToSecurityExchange.TryGetValue(leanMarket, out var market))
+            {
+                throw new NotSupportedException($"Unsupported LEAN Market: {leanMarket}");
+            }
+
+            return market;
+        }
+
+        public string GetBrokerageProductType(SecurityType leanSecurityType)
+        {
+            if (!_mapLeanSecurityTypeToProductType.TryGetValue(leanSecurityType, out var productType))
+            {
+                throw new NotSupportedException($"Unsupported LEAN security type: {leanSecurityType}");
+            }
+
+            return productType;
+        }
+
+        public string GetLeanMarket(string securityExchange)
+        {
+            if (!_mapSecurityExchangeToLeanMarket.TryGetValue(securityExchange, out var market))
+            {
+                throw new NotSupportedException($"Unsupported TT SecurityExchange: {securityExchange}");
+            }
+
+            return market;
+        }
+
+        public SecurityType GetLeanSecurityType(string productType)
+        {
+            if (!_mapProductTypeToLeanSecurityType.TryGetValue(productType, out var securityType))
+            {
+                throw new NotSupportedException($"Unsupported TT ProductType: {productType}");
+            }
+
+            return securityType;
+        }
+
         private void LoadProductTypesMap()
         {
             var productTypes = _apiClient.GetProductTypes().SynchronouslyAwaitTaskResult();
@@ -156,46 +196,5 @@ namespace QuantConnect.TradingTechnologies
 
             return instrument;
         }
-
-        public string GetBrokerageMarket(string leanMarket)
-        {
-            if (!_mapLeanMarketToSecurityExchange.TryGetValue(leanMarket, out var market))
-            {
-                throw new NotSupportedException($"Unsupported LEAN Market: {leanMarket}");
-            }
-
-            return market;
-        }
-
-        public string GetBrokerageProductType(SecurityType leanSecurityType)
-        {
-            if (!_mapLeanSecurityTypeToProductType.TryGetValue(leanSecurityType, out var productType))
-            {
-                throw new NotSupportedException($"Unsupported LEAN security type: {leanSecurityType}");
-            }
-
-            return productType;
-        }
-
-        public string GetLeanMarket(string securityExchange)
-        {
-            if (!_mapSecurityExchangeToLeanMarket.TryGetValue(securityExchange, out var market))
-            {
-                throw new NotSupportedException($"Unsupported TT SecurityExchange: {securityExchange}");
-            }
-
-            return market;
-        }
-
-        public SecurityType GetLeanSecurityType(string productType)
-        {
-            if (!_mapProductTypeToLeanSecurityType.TryGetValue(productType, out var securityType))
-            {
-                throw new NotSupportedException($"Unsupported TT ProductType: {productType}");
-            }
-
-            return securityType;
-        }
-
     }
 }
