@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using QuantConnect.Logging;
+using QuantConnect.Util;
 
 namespace QuantConnect.TradingTechnologies.TT.Api
 {
@@ -26,6 +27,8 @@ namespace QuantConnect.TradingTechnologies.TT.Api
         private readonly string _appKey;
         private readonly string _appSecret;
         private readonly string _environment;
+
+        private readonly RateGate _rateLimiter = new RateGate(3, TimeSpan.FromSeconds(1));
 
         private static readonly JsonSerializer Serializer = new JsonSerializer();
         private readonly HttpClient _httpClient = new HttpClient();
@@ -68,6 +71,18 @@ namespace QuantConnect.TradingTechnologies.TT.Api
         {
             var response = await RequestAsync<ProductDataResponse>("ttpds", "productdata", AddRequestId()).ConfigureAwait(false);
             return response?.ProductTypes ?? new List<ProductType>(0);
+        }
+
+        public void Dispose()
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            _disposed = true;
+            _tokenLock?.Dispose();
+            _httpClient?.Dispose();
         }
 
         /// <summary>
@@ -123,6 +138,8 @@ namespace QuantConnect.TradingTechnologies.TT.Api
 
         private async Task<TokenResponse> GetNewToken()
         {
+            CheckRateLimiting();
+
             using (var request = new HttpRequestMessage(HttpMethod.Post, CreateUrl("ttid", "token")))
             {
                 request.Headers.Add("x-api-key", _appKey);
@@ -153,6 +170,8 @@ namespace QuantConnect.TradingTechnologies.TT.Api
                 return null;
             }
 
+            CheckRateLimiting();
+
             var url = $"{CreateUrl(service, function)}?{string.Join("&", args)}";
             using (var request = new HttpRequestMessage(HttpMethod.Get, url))
             {
@@ -180,16 +199,12 @@ namespace QuantConnect.TradingTechnologies.TT.Api
             }
         }
 
-        public void Dispose()
+        private void CheckRateLimiting()
         {
-            if (_disposed)
+            if (!_rateLimiter.WaitToProceed(TimeSpan.Zero))
             {
-                return;
+                _rateLimiter.WaitToProceed();
             }
-
-            _disposed = true;
-            _tokenLock?.Dispose();
-            _httpClient?.Dispose();
         }
     }
 }

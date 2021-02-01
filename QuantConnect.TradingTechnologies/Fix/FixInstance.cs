@@ -17,7 +17,6 @@ namespace QuantConnect.TradingTechnologies.Fix
     ///     Essentially, an instance of a single QuickFIXn configuration.
     ///     This includes multiple sessions, such as in the case of TT requiring multiple for different functions.
     /// </summary>
-    // TODO: Decide on the name.
     public class FixInstance : IApplication, IDisposable
     {
         private readonly IFixProtocolDirector _protocolDirector;
