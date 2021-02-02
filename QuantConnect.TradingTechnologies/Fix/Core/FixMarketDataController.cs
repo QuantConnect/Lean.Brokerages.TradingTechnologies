@@ -17,6 +17,8 @@ namespace QuantConnect.TradingTechnologies.Fix.Core
     {
         private IFixOutboundMarketDataHandler _handler;
 
+        public event EventHandler<Tick> NewTick;
+
         public void Register(IFixOutboundMarketDataHandler handler)
         {
             if (handler == null)
@@ -57,8 +59,7 @@ namespace QuantConnect.TradingTechnologies.Fix.Core
 
         public void Receive(Tick tick)
         {
-            // TODO: Send the data back into QC.
-            Log.Trace($"Received tick: {tick}");
+            NewTick?.Invoke(this, tick);
         }
     }
 }

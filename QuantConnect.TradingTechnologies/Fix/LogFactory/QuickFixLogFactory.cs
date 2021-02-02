@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using QuantConnect.Configuration;
 using QuickFix;
 
 namespace QuantConnect.TradingTechnologies.Fix.LogFactory
@@ -21,6 +22,8 @@ namespace QuantConnect.TradingTechnologies.Fix.LogFactory
 
     public class QuickFixLogger : ILog
     {
+        private readonly bool _fixLoggingEnabled = Config.GetBool("tt-log-fix-messages");
+
         public QuickFixLogger(SessionID sessionId)
         {
             if (sessionId == null)
@@ -33,17 +36,26 @@ namespace QuantConnect.TradingTechnologies.Fix.LogFactory
 
         public void OnIncoming(string msg)
         {
-            Logging.Log.Trace("[incoming] {0}", msg);
+            if (_fixLoggingEnabled)
+            {
+                Logging.Log.Trace("[incoming] {0}", msg);
+            }
         }
 
         public void OnOutgoing(string msg)
         {
-            Logging.Log.Trace("[outgoing] {0}", msg);
+            if (_fixLoggingEnabled)
+            {
+                Logging.Log.Trace("[outgoing] {0}", msg);
+            }
         }
 
         public void OnEvent(string s)
         {
-            Logging.Log.Trace("[   event] {0}", s);
+            if (_fixLoggingEnabled)
+            {
+                Logging.Log.Trace("[   event] {0}", s);
+            }
         }
 
         public void Dispose()

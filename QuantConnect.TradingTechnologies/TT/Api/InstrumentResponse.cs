@@ -31,6 +31,28 @@ namespace QuantConnect.TradingTechnologies.TT.Api
     }
 
     [JsonObject]
+    public class InstrumentsResponse
+    {
+        [JsonProperty]
+        public string Status { get; set; }
+
+        [JsonProperty("status_message")]
+        public string StatusMessage { get; set; }
+
+        [JsonProperty]
+        public int StatusCode { get; set; }
+
+        [JsonProperty]
+        public string NextPageKey { get; set; }
+
+        [JsonProperty]
+        public string LastPage { get; set; }
+
+        [JsonProperty]
+        public List<Instrument> Instruments { get; set; }
+    }
+
+    [JsonObject]
     public class Instrument
     {
         [JsonProperty]

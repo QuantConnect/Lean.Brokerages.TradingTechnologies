@@ -8,12 +8,14 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using QuantConnect.Algorithm;
 using QuantConnect.Configuration;
 using QuantConnect.Data;
 using QuantConnect.Data.Market;
 using QuantConnect.Lean.Engine.DataFeeds;
 using QuantConnect.Logging;
 using QuantConnect.Orders;
+using QuantConnect.Packets;
 using QuantConnect.TradingTechnologies;
 using QuantConnect.TradingTechnologies.Fix;
 
@@ -23,6 +25,9 @@ namespace QuantConnect.TradingTechnologiesTests
     [Explicit("These tests require a valid TT configuration.")]
     public class TradingTechnologiesBrokerageTests
     {
+        private readonly QCAlgorithm _algorithm = new QCAlgorithm();
+        private readonly LiveNodePacket _job = new LiveNodePacket();
+
         private readonly OrderProvider _orderProvider = new OrderProvider(new List<Order>());
         private readonly AggregationManager _aggregationManager = new AggregationManager();
 
@@ -54,7 +59,7 @@ namespace QuantConnect.TradingTechnologiesTests
         [Test]
         public void ClientConnects()
         {
-            using (var brokerage = new TradingTechnologiesBrokerage(_orderProvider, _aggregationManager, _fixConfiguration))
+            using (var brokerage = CreateBrokerage())
             {
                 Assert.IsFalse(brokerage.IsConnected);
 
@@ -69,7 +74,7 @@ namespace QuantConnect.TradingTechnologiesTests
         [Test]
         public void GetsAccountHoldings()
         {
-            using (var brokerage = new TradingTechnologiesBrokerage(_orderProvider, _aggregationManager, _fixConfiguration))
+            using (var brokerage = CreateBrokerage())
             {
                 Assert.IsFalse(brokerage.IsConnected);
 
@@ -90,7 +95,7 @@ namespace QuantConnect.TradingTechnologiesTests
         [Test]
         public void ReceivesMarketData()
         {
-            using (var brokerage = new TradingTechnologiesBrokerage(_orderProvider, _aggregationManager, _fixConfiguration))
+            using (var brokerage = CreateBrokerage())
             {
                 brokerage.Connect();
                 Assert.IsTrue(brokerage.IsConnected);
@@ -132,7 +137,7 @@ namespace QuantConnect.TradingTechnologiesTests
         [Test]
         public void GetsOpenOrders()
         {
-            using (var brokerage = new TradingTechnologiesBrokerage(_orderProvider, _aggregationManager, _fixConfiguration))
+            using (var brokerage = CreateBrokerage())
             {
                 brokerage.Connect();
                 Assert.IsTrue(brokerage.IsConnected);
@@ -147,7 +152,7 @@ namespace QuantConnect.TradingTechnologiesTests
         [TestCase(-1)]
         public void SubmitsMarketOrder(int quantity)
         {
-            using (var brokerage = new TradingTechnologiesBrokerage(_orderProvider, _aggregationManager, _fixConfiguration))
+            using (var brokerage = CreateBrokerage())
             {
                 var submittedEvent = new ManualResetEvent(false);
                 var filledEvent = new ManualResetEvent(false);
@@ -180,7 +185,7 @@ namespace QuantConnect.TradingTechnologiesTests
         [TestCaseSource(nameof(_limitOrderTestCases))]
         public void SubmitsLimitOrder(int quantity, decimal limitPrice, bool isMarketable)
         {
-            using (var brokerage = new TradingTechnologiesBrokerage(_orderProvider, _aggregationManager, _fixConfiguration))
+            using (var brokerage = CreateBrokerage())
             {
                 var submittedEvent = new ManualResetEvent(false);
                 var filledEvent = new ManualResetEvent(false);
@@ -217,7 +222,7 @@ namespace QuantConnect.TradingTechnologiesTests
         [TestCaseSource(nameof(_stopMarketOrderTestCases))]
         public void SubmitsStopMarketOrder(int quantity, decimal stopPrice, bool isValid, string errorText)
         {
-            using (var brokerage = new TradingTechnologiesBrokerage(_orderProvider, _aggregationManager, _fixConfiguration))
+            using (var brokerage = CreateBrokerage())
             {
                 var submittedEvent = new ManualResetEvent(false);
 
@@ -253,7 +258,7 @@ namespace QuantConnect.TradingTechnologiesTests
         [TestCaseSource(nameof(_stopLimitOrderTestCases))]
         public void SubmitsStopLimitOrder(int quantity, decimal stopPrice, decimal limitPrice, bool isValid, string errorText)
         {
-            using (var brokerage = new TradingTechnologiesBrokerage(_orderProvider, _aggregationManager, _fixConfiguration))
+            using (var brokerage = CreateBrokerage())
             {
                 var submittedEvent = new ManualResetEvent(false);
 
@@ -289,7 +294,7 @@ namespace QuantConnect.TradingTechnologiesTests
         [Test]
         public void CancelsAllOrders()
         {
-            using (var brokerage = new TradingTechnologiesBrokerage(_orderProvider, _aggregationManager, _fixConfiguration))
+            using (var brokerage = CreateBrokerage())
             {
                 var cancelEvent = new ManualResetEvent(false);
 
@@ -321,7 +326,7 @@ namespace QuantConnect.TradingTechnologiesTests
         [Test]
         public void SubmitsBuyLimitOrderAndCancelsIt()
         {
-            using (var brokerage = new TradingTechnologiesBrokerage(_orderProvider, _aggregationManager, _fixConfiguration))
+            using (var brokerage = CreateBrokerage())
             {
                 var submittedEvent = new ManualResetEvent(false);
                 var cancelledEvent = new ManualResetEvent(false);
@@ -362,7 +367,7 @@ namespace QuantConnect.TradingTechnologiesTests
         [Test]
         public void SubmitsBuyLimitOrderAndMovesItDown()
         {
-            using (var brokerage = new TradingTechnologiesBrokerage(_orderProvider, _aggregationManager, _fixConfiguration))
+            using (var brokerage = CreateBrokerage())
             {
                 var submittedEvent = new ManualResetEvent(false);
                 var updatedEvent = new ManualResetEvent(false);
@@ -406,7 +411,7 @@ namespace QuantConnect.TradingTechnologiesTests
         [Test]
         public void SubmitsBuyLimitOrderAndMovesItDownAndCancelsIt()
         {
-            using (var brokerage = new TradingTechnologiesBrokerage(_orderProvider, _aggregationManager, _fixConfiguration))
+            using (var brokerage = CreateBrokerage())
             {
                 var submittedEvent = new ManualResetEvent(false);
                 var updatedEvent = new ManualResetEvent(false);
@@ -461,7 +466,7 @@ namespace QuantConnect.TradingTechnologiesTests
         [Test]
         public void SubmitsBuyLimitOrderAndMovesItUpToBeFilled()
         {
-            using (var brokerage = new TradingTechnologiesBrokerage(_orderProvider, _aggregationManager, _fixConfiguration))
+            using (var brokerage = CreateBrokerage())
             {
                 var submittedEvent = new ManualResetEvent(false);
                 var updatedEvent = new ManualResetEvent(false);
@@ -514,7 +519,7 @@ namespace QuantConnect.TradingTechnologiesTests
         {
             _fixConfiguration.AccountName = "XYZ";
 
-            using (var brokerage = new TradingTechnologiesBrokerage(_orderProvider, _aggregationManager, _fixConfiguration))
+            using (var brokerage = CreateBrokerage())
             {
                 var invalidEvent = new ManualResetEvent(false);
 
@@ -543,7 +548,7 @@ namespace QuantConnect.TradingTechnologiesTests
         [Test]
         public void SubmitsMarketOrderForInvalidSymbol()
         {
-            using (var brokerage = new TradingTechnologiesBrokerage(_orderProvider, _aggregationManager, _fixConfiguration))
+            using (var brokerage = CreateBrokerage())
             {
                 var invalidEvent = new ManualResetEvent(false);
 
@@ -572,7 +577,7 @@ namespace QuantConnect.TradingTechnologiesTests
         [Test]
         public void SubmitsBuyLimitOrderAndWaitsForMultipleFills()
         {
-            using (var brokerage = new TradingTechnologiesBrokerage(_orderProvider, _aggregationManager, _fixConfiguration))
+            using (var brokerage = CreateBrokerage())
             {
                 var submittedEvent = new ManualResetEvent(false);
                 var filledEvent = new ManualResetEvent(false);
@@ -606,7 +611,7 @@ namespace QuantConnect.TradingTechnologiesTests
         [Test]
         public void SubmitsBuyLimitOrderAndWaitsForPartialFillAndCancelsIt()
         {
-            using (var brokerage = new TradingTechnologiesBrokerage(_orderProvider, _aggregationManager, _fixConfiguration))
+            using (var brokerage = CreateBrokerage())
             {
                 var submittedEvent = new ManualResetEvent(false);
                 var partiallyFilledEvent = new ManualResetEvent(false);
@@ -649,7 +654,7 @@ namespace QuantConnect.TradingTechnologiesTests
         [Test]
         public void SubmitsBuyLimitOrderAndWaitsForPartialFillAndMovesItDown()
         {
-            using (var brokerage = new TradingTechnologiesBrokerage(_orderProvider, _aggregationManager, _fixConfiguration))
+            using (var brokerage = CreateBrokerage())
             {
                 var submittedEvent = new ManualResetEvent(false);
                 var partiallyFilledEvent = new ManualResetEvent(false);
@@ -695,7 +700,7 @@ namespace QuantConnect.TradingTechnologiesTests
         [Test]
         public void SubmitsBuyLimitOrderAndWaitsForPartialFillAndMovesItUpToBeFilled()
         {
-            using (var brokerage = new TradingTechnologiesBrokerage(_orderProvider, _aggregationManager, _fixConfiguration))
+            using (var brokerage = CreateBrokerage())
             {
                 var submittedEvent = new ManualResetEvent(false);
                 var partiallyFilledEvent = new ManualResetEvent(false);
@@ -829,5 +834,9 @@ namespace QuantConnect.TradingTechnologiesTests
             }, cts.Token);
         }
 
+        private TradingTechnologiesBrokerage CreateBrokerage()
+        {
+            return new TradingTechnologiesBrokerage(_algorithm, _job, _orderProvider, _aggregationManager, _fixConfiguration);
+        }
     }
 }

@@ -27,8 +27,12 @@ namespace QuantConnect.TradingTechnologies
 {
     public class TradingTechnologiesBrokerage : Brokerage, IDataQueueHandler
     {
+        private readonly IAlgorithm _algorithm;
+        private readonly LiveNodePacket _job;
         private readonly IOrderProvider _orderProvider;
         private readonly IDataAggregator _aggregator;
+
+        private bool _cashInitialized;
 
         private readonly EventBasedDataQueueHandlerSubscriptionManager _subscriptionManager;
         private readonly IFixMarketDataController _fixMarketDataController;
@@ -39,9 +43,11 @@ namespace QuantConnect.TradingTechnologies
         private readonly TradingTechnologiesSymbolMapper _symbolMapper;
         private readonly SymbolPropertiesDatabase _symbolPropertiesDatabase = SymbolPropertiesDatabase.FromDataFolder();
 
-        public TradingTechnologiesBrokerage(IOrderProvider orderProvider, IDataAggregator aggregator, FixConfiguration fixConfiguration)
+        public TradingTechnologiesBrokerage(IAlgorithm algorithm, LiveNodePacket job, IOrderProvider orderProvider, IDataAggregator aggregator, FixConfiguration fixConfiguration)
             : base("TradingTechnologies")
         {
+            _algorithm = algorithm;
+            _job = job;
             _orderProvider = orderProvider;
             _aggregator = aggregator;
 
@@ -53,6 +59,7 @@ namespace QuantConnect.TradingTechnologies
             _symbolMapper = new TradingTechnologiesSymbolMapper(_apiClient);
 
             _fixMarketDataController = new FixMarketDataController();
+            _fixMarketDataController.NewTick += OnNewTick;
 
             _fixBrokerageController = new FixBrokerageController(_symbolMapper);
             _fixBrokerageController.ExecutionReport += OnExecutionReport;
@@ -142,6 +149,11 @@ namespace QuantConnect.TradingTechnologies
 
             foreach (var position in positions)
             {
+                if (!position.NetPosition.HasValue || position.NetPosition.Value == 0)
+                {
+                    continue;
+                }
+
                 var symbol = _symbolMapper.GetLeanSymbol(position.InstrumentId);
 
                 var currencySymbol = Currencies.GetCurrencySymbol(
@@ -153,7 +165,7 @@ namespace QuantConnect.TradingTechnologies
                 {
                     Symbol = symbol,
                     Type = symbol.SecurityType,
-                    Quantity = position.NetPosition ?? 0,
+                    Quantity = position.NetPosition.Value,
                     AveragePrice = position.OpenAvgPrice / priceMultiplier ?? 0,
                     MarketPrice = position.PnlPrice / priceMultiplier ?? 0,
                     CurrencySymbol = currencySymbol
@@ -169,7 +181,23 @@ namespace QuantConnect.TradingTechnologies
         {
             // TODO: waiting for TT feedback
 
-            return new List<CashAmount>();
+            if (!_cashInitialized)
+            {
+                // really only want to return the value on the first request
+                _cashInitialized = true;
+
+                if (!_job.BrokerageData.TryGetValue("tt-initial-cash-amount", out var initialCashAmount) ||
+                    string.IsNullOrWhiteSpace(initialCashAmount) ||
+                    !_job.BrokerageData.TryGetValue("tt-initial-cash-currency", out var initialCashCurrency) ||
+                    string.IsNullOrWhiteSpace(initialCashCurrency))
+                {
+                    throw new ArgumentException("Initial TradingTechnologies cash balance not defined.");
+                }
+
+                return new List<CashAmount> { new CashAmount(Parse.Decimal(initialCashAmount), initialCashCurrency) };
+            }
+
+            return _algorithm.Portfolio.CashBook.Select(x => new CashAmount(x.Value.Amount, x.Value.Symbol)).ToList();
         }
 
         public override bool PlaceOrder(Order order)
@@ -253,5 +281,9 @@ namespace QuantConnect.TradingTechnologies
             OnOrderEvent(orderEvent);
         }
 
+        private void OnNewTick(object sender, Data.Market.Tick e)
+        {
+            _aggregator.Update(e);
+        }
     }
 }

@@ -73,6 +73,18 @@ namespace QuantConnect.TradingTechnologies.TT.Api
             return response?.ProductTypes ?? new List<ProductType>(0);
         }
 
+        public async Task<List<Product>> GetProducts(string marketId)
+        {
+            var response = await RequestAsync<ProductsResponse>("ttpds", "products", AddRequestId(), $"marketId={marketId}").ConfigureAwait(false);
+            return response?.Products ?? new List<Product>(0);
+        }
+
+        public async Task<List<Instrument>> GetInstruments(string productTypeId, string productId)
+        {
+            var response = await RequestAsync<InstrumentsResponse>("ttpds", "instruments", AddRequestId(), $"productTypeId={productTypeId}", $"productId={productId}").ConfigureAwait(false);
+            return response?.Instruments ?? new List<Instrument>(0);
+        }
+
         public void Dispose()
         {
             if (_disposed)

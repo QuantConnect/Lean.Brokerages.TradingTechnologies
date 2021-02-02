@@ -31,7 +31,7 @@ namespace QuantConnect.TradingTechnologies.TT
     {
         private readonly TradingTechnologiesSymbolMapper _symbolMapper;
         private readonly ISession _session;
-        private readonly IFixMarketDataController _fixMarketDataHandler;
+        private readonly IFixMarketDataController _fixMarketDataController;
         private int _nextRequestId;
 
         private readonly ConcurrentDictionary<string, SubscriptionEntry> _subscriptions = new ConcurrentDictionary<string, SubscriptionEntry>();
@@ -39,13 +39,12 @@ namespace QuantConnect.TradingTechnologies.TT
         // exchange time zones by symbol
         private readonly Dictionary<Symbol, DateTimeZone> _symbolExchangeTimeZones = new Dictionary<Symbol, DateTimeZone>();
 
-        // TODO: Decide whether handlers should receive individual controllers, or if they can receive the director and request controllers from it.
-        public TTMarketDataSessionHandler(TradingTechnologiesSymbolMapper symbolMapper, ISession session, IFixMarketDataController fixMarketDataHandler)
+        public TTMarketDataSessionHandler(TradingTechnologiesSymbolMapper symbolMapper, ISession session, IFixMarketDataController fixMarketDataController)
         {
             _symbolMapper = symbolMapper;
             _session = session ?? throw new ArgumentNullException(nameof(session));
-            _fixMarketDataHandler = fixMarketDataHandler ?? throw new ArgumentNullException(nameof(fixMarketDataHandler));
-            _fixMarketDataHandler.Register(this);
+            _fixMarketDataController = fixMarketDataController ?? throw new ArgumentNullException(nameof(fixMarketDataController));
+            _fixMarketDataController.Register(this);
         }
 
         protected override void OnRecoveryCompleted()
@@ -330,7 +329,7 @@ namespace QuantConnect.TradingTechnologies.TT
                     AskSize = subscriptionEntry.AskSize
                 };
 
-                _fixMarketDataHandler.Receive(tick);
+                _fixMarketDataController.Receive(tick);
             }
         }
 
@@ -347,7 +346,7 @@ namespace QuantConnect.TradingTechnologies.TT
                 Quantity = subscriptionEntry.LastSize
             };
 
-            _fixMarketDataHandler.Receive(tick);
+            _fixMarketDataController.Receive(tick);
         }
 
         /// <summary>
@@ -364,7 +363,6 @@ namespace QuantConnect.TradingTechnologies.TT
 
             return time.ConvertFromUtc(exchangeTimeZone);
         }
-
 
         private class SubscriptionEntry
         {

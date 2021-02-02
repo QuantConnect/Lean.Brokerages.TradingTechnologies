@@ -54,7 +54,10 @@ namespace QuantConnect.TradingTechnologies
             { "tt-order-routing-sender-comp-id", Config.Get("tt-order-routing-sender-comp-id") },
             { "tt-order-routing-target-comp-id", Config.Get("tt-order-routing-target-comp-id") },
             { "tt-order-routing-host", Config.Get("tt-order-routing-host") },
-            { "tt-order-routing-port", Config.Get("tt-order-routing-port") }
+            { "tt-order-routing-port", Config.Get("tt-order-routing-port") },
+
+            { "tt-initial-cash-amount", Config.Get("tt-initial-cash-amount") },
+            { "tt-initial-cash-currency", Config.Get("tt-initial-cash-currency") }
         };
 
         /// <summary>
@@ -102,6 +105,8 @@ namespace QuantConnect.TradingTechnologies
             }
 
             var instance = new TradingTechnologiesBrokerage(
+                algorithm,
+                job,
                 algorithm.Transactions,
                 Composer.Instance.GetExportedValueByTypeName<IDataAggregator>(Config.Get("data-aggregator", "QuantConnect.Lean.Engine.DataFeeds.AggregationManager")),
                 fixConfiguration);

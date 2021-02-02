@@ -3,6 +3,7 @@
 * Lean Algorithmic Trading Engine v2.2 Copyright 2015 QuantConnect Corporation.
 */
 
+using System;
 using QuantConnect.Data.Market;
 using QuantConnect.TradingTechnologies.Fix.Protocol;
 
@@ -13,6 +14,8 @@ namespace QuantConnect.TradingTechnologies.Fix.Core
     /// </summary>
     public interface IFixMarketDataController
     {
+        event EventHandler<Tick> NewTick;
+
         /// <summary>
         ///     Registers a market data handler to this controller.
         /// </summary>
