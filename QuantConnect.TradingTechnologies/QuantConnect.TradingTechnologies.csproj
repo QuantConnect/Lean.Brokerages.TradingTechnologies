@@ -5,6 +5,8 @@
     <ProjectGuid>{0671E19C-3DA4-4346-89CA-43E4D337D4CE}</ProjectGuid>
     <TargetFramework>net462</TargetFramework>
     <AssemblyTitle>QuantConnect.TradingTechnologies</AssemblyTitle>
+    <AssemblyName>QuantConnect.TradingTechnologies</AssemblyName>
+    <OutputType>dll</OutputType>
     <Product>QuantConnect.TradingTechnologies</Product>
     <Copyright>Copyright ©  2020</Copyright>
     <OutputPath>bin\$(Configuration)\</OutputPath>
