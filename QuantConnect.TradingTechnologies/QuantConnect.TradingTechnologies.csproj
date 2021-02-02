@@ -6,7 +6,7 @@
     <TargetFramework>net462</TargetFramework>
     <AssemblyTitle>QuantConnect.TradingTechnologies</AssemblyTitle>
     <AssemblyName>QuantConnect.TradingTechnologies</AssemblyName>
-    <OutputType>dll</OutputType>
+    <OutputType>Library</OutputType>
     <Product>QuantConnect.TradingTechnologies</Product>
     <Copyright>Copyright ©  2020</Copyright>
     <OutputPath>bin\$(Configuration)\</OutputPath>
