@@ -133,7 +133,7 @@ namespace QuantConnect.TradingTechnologies.Fix.Core
             }
 
             var ticker = er.Symbol.getValue();
-            var market = _symbolMapper.GetLeanMarket(er.SecurityExchange.getValue());
+            var market = _symbolMapper.GetLeanMarket(er.SecurityExchange.getValue(), ticker);
             var securityType = _symbolMapper.GetLeanSecurityType(er.SecurityType.getValue());
 
             Symbol symbol;
