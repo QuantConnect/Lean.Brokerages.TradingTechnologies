@@ -78,7 +78,7 @@ namespace QuantConnect.TradingTechnologiesTests
             {
                 var symbolMapper = new TradingTechnologiesSymbolMapper(apiClient);
 
-                var market = symbolMapper.GetLeanMarket(securityExchange, ticker);
+                var market = symbolMapper.GetLeanMarket(SecurityType.Future, securityExchange, ticker);
 
                 Assert.AreEqual(expectedMarket, market);
             }

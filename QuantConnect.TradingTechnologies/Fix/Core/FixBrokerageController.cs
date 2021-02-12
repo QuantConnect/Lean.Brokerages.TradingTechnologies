@@ -133,8 +133,8 @@ namespace QuantConnect.TradingTechnologies.Fix.Core
             }
 
             var ticker = er.Symbol.getValue();
-            var market = _symbolMapper.GetLeanMarket(er.SecurityExchange.getValue(), ticker);
             var securityType = _symbolMapper.GetLeanSecurityType(er.SecurityType.getValue());
+            var market = _symbolMapper.GetLeanMarket(securityType, er.SecurityExchange.getValue(), ticker);
 
             Symbol symbol;
             if (securityType == SecurityType.Future)

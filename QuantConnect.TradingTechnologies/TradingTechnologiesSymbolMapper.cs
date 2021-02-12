@@ -10,7 +10,6 @@ using System.Linq;
 using QuantConnect.Brokerages;
 using QuantConnect.Securities;
 using QuantConnect.TradingTechnologies.TT.Api;
-using QuantConnect.Util;
 
 namespace QuantConnect.TradingTechnologies
 {
@@ -50,12 +49,6 @@ namespace QuantConnect.TradingTechnologies
         // TT InstrumentId -> TT Instrument
         private readonly Dictionary<string, Instrument> _instruments = new Dictionary<string, Instrument>();
 
-        // CME Group tickers
-        private HashSet<string> _cmeTickers;
-        private HashSet<string> _comexTickers;
-        private HashSet<string> _nymexTickers;
-        private HashSet<string> _cbotTickers;
-
         public TradingTechnologiesSymbolMapper(TTApiClient apiClient)
         {
             _apiClient = apiClient;
@@ -73,7 +66,6 @@ namespace QuantConnect.TradingTechnologies
 
             LoadProductTypesMap();
             LoadMarketsMap();
-            LoadCmeGroupTickers();
         }
 
         public string GetBrokerageSymbol(Symbol symbol)
@@ -96,7 +88,7 @@ namespace QuantConnect.TradingTechnologies
             var market = GetMarket(instrument.MarketId);
             if (market == Market.CME)
             {
-                market = GetLeanMarket("CME", ticker);
+                market = GetLeanMarket(securityType, "CME", ticker);
             }
 
             switch (securityType)
@@ -133,30 +125,15 @@ namespace QuantConnect.TradingTechnologies
             return productType;
         }
 
-        public string GetLeanMarket(string securityExchange, string ticker)
+        public string GetLeanMarket(SecurityType securityType, string securityExchange, string ticker)
         {
             // TT groups all CME Group exchanges under the same security exchange,
             // so we use the symbol properties database to find the correct LEAN market
             if (securityExchange == "CME")
             {
-                if (_cmeTickers.Contains(ticker))
+                if (_symbolPropertiesDatabase.TryGetMarket(ticker, securityType, out var leanMarket))
                 {
-                    return Market.CME;
-                }
-
-                if (_comexTickers.Contains(ticker))
-                {
-                    return Market.COMEX;
-                }
-
-                if (_nymexTickers.Contains(ticker))
-                {
-                    return Market.NYMEX;
-                }
-
-                if (_cbotTickers.Contains(ticker))
-                {
-                    return Market.CBOT;
+                    return leanMarket;
                 }
             }
 
@@ -202,33 +179,6 @@ namespace QuantConnect.TradingTechnologies
                     _mapMarkets.Add(Convert.ToInt32(market.Id, CultureInfo.InvariantCulture), leanMarket);
                 }
             }
-        }
-
-        private void LoadCmeGroupTickers()
-        {
-            _cmeTickers =
-                _symbolPropertiesDatabase
-                    .GetSymbolPropertiesList(Market.CME)
-                    .Select(x => x.Key.Symbol)
-                    .ToHashSet();
-
-            _comexTickers =
-                _symbolPropertiesDatabase
-                    .GetSymbolPropertiesList(Market.COMEX)
-                    .Select(x => x.Key.Symbol)
-                    .ToHashSet();
-
-            _nymexTickers =
-                _symbolPropertiesDatabase
-                    .GetSymbolPropertiesList(Market.NYMEX)
-                    .Select(x => x.Key.Symbol)
-                    .ToHashSet();
-
-            _cbotTickers =
-                _symbolPropertiesDatabase
-                    .GetSymbolPropertiesList(Market.CBOT)
-                    .Select(x => x.Key.Symbol)
-                    .ToHashSet();
         }
 
         private SecurityType GetSecurityType(int productTypeId)
