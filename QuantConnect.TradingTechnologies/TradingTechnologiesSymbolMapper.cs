@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using QuantConnect.Brokerages;
+using QuantConnect.Securities;
 using QuantConnect.TradingTechnologies.TT.Api;
 
 namespace QuantConnect.TradingTechnologies
@@ -15,6 +16,7 @@ namespace QuantConnect.TradingTechnologies
     public class TradingTechnologiesSymbolMapper : ISymbolMapper
     {
         private readonly TTApiClient _apiClient;
+        private readonly SymbolPropertiesDatabase _symbolPropertiesDatabase = SymbolPropertiesDatabase.FromDataFolder();
 
         // TT SecurityExchange -> Lean market
         private readonly Dictionary<string, string> _mapSecurityExchangeToLeanMarket = new Dictionary<string, string>
@@ -54,6 +56,11 @@ namespace QuantConnect.TradingTechnologies
             _mapLeanMarketToSecurityExchange = _mapSecurityExchangeToLeanMarket
                 .ToDictionary(x => x.Value, x => x.Key);
 
+            // Add CME Group mappings manually
+            _mapLeanMarketToSecurityExchange.Add(Market.COMEX, "CME");
+            _mapLeanMarketToSecurityExchange.Add(Market.NYMEX, "CME");
+            _mapLeanMarketToSecurityExchange.Add(Market.CBOT, "CME");
+
             _mapLeanSecurityTypeToProductType = _mapProductTypeToLeanSecurityType
                 .ToDictionary(x => x.Value, x => x.Key);
 
@@ -76,9 +83,13 @@ namespace QuantConnect.TradingTechnologies
         {
             var instrument = GetInstrument(instrumentId);
 
+            var ticker = instrument.ProductSymbol;
             var securityType = GetSecurityType(instrument.ProductTypeId);
             var market = GetMarket(instrument.MarketId);
-            var ticker = instrument.ProductSymbol;
+            if (market == Market.CME)
+            {
+                market = GetLeanMarket(securityType, "CME", ticker);
+            }
 
             switch (securityType)
             {
@@ -114,8 +125,18 @@ namespace QuantConnect.TradingTechnologies
             return productType;
         }
 
-        public string GetLeanMarket(string securityExchange)
+        public string GetLeanMarket(SecurityType securityType, string securityExchange, string ticker)
         {
+            // TT groups all CME Group exchanges under the same security exchange,
+            // so we use the symbol properties database to find the correct LEAN market
+            if (securityExchange == "CME")
+            {
+                if (_symbolPropertiesDatabase.TryGetMarket(ticker, securityType, out var leanMarket))
+                {
+                    return leanMarket;
+                }
+            }
+
             if (!_mapSecurityExchangeToLeanMarket.TryGetValue(securityExchange, out var market))
             {
                 throw new NotSupportedException($"Unsupported TT SecurityExchange: {securityExchange}");
