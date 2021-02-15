@@ -20,6 +20,14 @@ namespace QuantConnect.TradingTechnologiesTests
             Assert.AreEqual(expectedPriceMultiplier, priceMultiplier);
         }
 
+        [TestCaseSource(nameof(_getMaturityMonthYear))]
+        public void ReturnsCorrectMaturityMonthYear(Symbol symbol, string expectedMaturityMonthYear)
+        {
+            var maturityMonthYear = Utility.GetMaturityMonthYear(symbol).getValue();
+
+            Assert.AreEqual(expectedMaturityMonthYear, maturityMonthYear);
+        }
+
         private static readonly object[] _getPriceMultiplierTestCases =
         {
             new TestCaseData(Symbol.CreateFuture("GC", Market.CME, new DateTime(2021, 1, 31)), 10m),
@@ -33,6 +41,13 @@ namespace QuantConnect.TradingTechnologiesTests
             new TestCaseData(Symbol.CreateFuture("6E", Market.CME, new DateTime(2021, 3, 19)), 100000m),
 
             new TestCaseData(Symbol.CreateFuture("6J", Market.CME, new DateTime(2021, 3, 19)), 10000000m)
+        };
+
+        private static readonly object[] _getMaturityMonthYear =
+        {
+            new TestCaseData(Symbol.CreateFuture("ES", Market.CME, new DateTime(2021, 3, 19)), "202103"),
+            new TestCaseData(Symbol.CreateFuture("GC", Market.CME, new DateTime(2021, 3, 29)), "202103"),
+            new TestCaseData(Symbol.CreateFuture("CL", Market.CME, new DateTime(2021, 2, 22)), "202103")
         };
     }
 }

@@ -139,5 +139,14 @@ namespace QuantConnect.TradingTechnologies.Fix.Utils
             throw new NotSupportedException($"Unsupported TimeInForce: {timeInForce.GetType().Name}");
         }
 
+        public static MaturityMonthYear GetMaturityMonthYear(Symbol symbol)
+        {
+            var ticker = SymbolRepresentation.GenerateFutureTicker(symbol.ID.Symbol, symbol.ID.Date);
+            var properties = SymbolRepresentation.ParseFutureTicker(ticker);
+
+            var maturity = $"{2000 + properties.ExpirationYearShort:D4}{properties.ExpirationMonth:D2}";
+
+            return new MaturityMonthYear(maturity);
+        }
     }
 }

@@ -226,12 +226,11 @@ namespace QuantConnect.TradingTechnologies.TT
             var requestId = Interlocked.Increment(ref _nextRequestId).ToString(CultureInfo.InvariantCulture);
 
             var ticker = symbol.ID.Symbol;
-            var maturity = symbol.ID.Date.ToString("yyyyMM", CultureInfo.InvariantCulture);
 
             var securityType = new QuantConnect.Fix.TT.FIX44.Fields.SecurityType(_symbolMapper.GetBrokerageProductType(symbol.SecurityType));
             var securityExchange = new SecurityExchange(_symbolMapper.GetBrokerageMarket(symbol.ID.Market));
 
-            Logging.Log.Trace($"Subscribing to: {ticker}-{maturity}-{securityType.getValue()}-{securityExchange.getValue()}, RequestId: {requestId}");
+            Logging.Log.Trace($"Subscribing to: {ticker}-{symbol.Value}-{securityType.getValue()}-{securityExchange.getValue()}, RequestId: {requestId}");
 
             var marketDataRequest = new MarketDataRequest
             {
@@ -250,10 +249,15 @@ namespace QuantConnect.TradingTechnologies.TT
             var symbolsGroup = new MarketDataRequest.NoRelatedSymGroup
             {
                 Symbol = new QuantConnect.Fix.TT.FIX44.Fields.Symbol(ticker),
-                MaturityMonthYear = new MaturityMonthYear(maturity),
                 SecurityType = securityType,
                 SecurityExchange = securityExchange
             };
+
+            if (symbol.SecurityType == SecurityType.Future)
+            {
+                symbolsGroup.MaturityMonthYear = Utility.GetMaturityMonthYear(symbol);
+            }
+
             marketDataRequest.AddGroup(symbolsGroup);
 
             _subscriptions.TryAdd(requestId, new SubscriptionEntry { Symbol = symbol });
@@ -266,12 +270,11 @@ namespace QuantConnect.TradingTechnologies.TT
             var requestId = Interlocked.Increment(ref _nextRequestId).ToString(CultureInfo.InvariantCulture);
 
             var ticker = symbol.ID.Symbol;
-            var maturity = symbol.ID.Date.ToString("yyyyMM", CultureInfo.InvariantCulture);
 
             var securityType = new QuantConnect.Fix.TT.FIX44.Fields.SecurityType(_symbolMapper.GetBrokerageProductType(symbol.SecurityType));
             var securityExchange = new SecurityExchange(_symbolMapper.GetBrokerageMarket(symbol.ID.Market));
 
-            Logging.Log.Trace($"Unsubscribing from: {ticker}-{maturity}-{securityType.getValue()}-{securityExchange.getValue()}, RequestId: {requestId}");
+            Logging.Log.Trace($"Unsubscribing from: {ticker}-{symbol.Value}-{securityType.getValue()}-{securityExchange.getValue()}, RequestId: {requestId}");
 
             var marketDataRequest = new MarketDataRequest
             {
@@ -286,10 +289,15 @@ namespace QuantConnect.TradingTechnologies.TT
             var symbolsGroup = new MarketDataRequest.NoRelatedSymGroup
             {
                 Symbol = new QuantConnect.Fix.TT.FIX44.Fields.Symbol(ticker),
-                MaturityMonthYear = new MaturityMonthYear(maturity),
                 SecurityType = securityType,
                 SecurityExchange = securityExchange
             };
+
+            if (symbol.SecurityType == SecurityType.Future)
+            {
+                symbolsGroup.MaturityMonthYear = Utility.GetMaturityMonthYear(symbol);
+            }
+
             marketDataRequest.AddGroup(symbolsGroup);
 
             var subscribeRequestId = string.Empty;
@@ -377,6 +385,5 @@ namespace QuantConnect.TradingTechnologies.TT
             public decimal LastPrice { get; set; }
             public decimal LastSize { get; set; }
         }
-
     }
 }
