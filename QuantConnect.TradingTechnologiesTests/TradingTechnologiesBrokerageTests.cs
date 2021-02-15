@@ -836,7 +836,7 @@ namespace QuantConnect.TradingTechnologiesTests
 
         private TradingTechnologiesBrokerage CreateBrokerage()
         {
-            return new TradingTechnologiesBrokerage(_algorithm, _job, _orderProvider, _aggregationManager, _fixConfiguration);
+            return new TradingTechnologiesBrokerage(_algorithm, _job, _orderProvider, _aggregationManager, _fixConfiguration, true);
         }
     }
 }
