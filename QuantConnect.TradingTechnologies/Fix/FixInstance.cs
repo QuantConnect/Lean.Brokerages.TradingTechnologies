@@ -32,14 +32,14 @@ namespace QuantConnect.TradingTechnologies.Fix
                         .All(session => session != null && session.IsLoggedOn);
         }
 
-        public FixInstance(IFixProtocolDirector protocolDirector, FixConfiguration fixConfiguration)
+        public FixInstance(IFixProtocolDirector protocolDirector, FixConfiguration fixConfiguration, bool logFixMessages)
         {
             _protocolDirector = protocolDirector ?? throw new ArgumentNullException(nameof(protocolDirector));
 
             var settings = fixConfiguration.GetSessionSettings();
 
             var storeFactory = new FileStoreFactory(settings);
-            var logFactory = new QuickFixLogFactory();
+            var logFactory = new QuickFixLogFactory(logFixMessages);
             _acceptor = new SocketInitiator(this, storeFactory, settings, logFactory, protocolDirector.MessageFactory);
         }
 
