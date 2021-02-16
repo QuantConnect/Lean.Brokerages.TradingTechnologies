@@ -141,6 +141,11 @@ namespace QuantConnect.TradingTechnologies.Fix.Utils
 
         public static MaturityMonthYear GetMaturityMonthYear(Symbol symbol)
         {
+            if (symbol.SecurityType != SecurityType.Future)
+            {
+                throw new NotSupportedException("GetMaturityMonthYear() can only be called for the Future security type.");
+            }
+
             var ticker = SymbolRepresentation.GenerateFutureTicker(symbol.ID.Symbol, symbol.ID.Date);
             var properties = SymbolRepresentation.ParseFutureTicker(ticker);
 
