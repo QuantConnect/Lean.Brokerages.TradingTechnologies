@@ -43,7 +43,7 @@ namespace QuantConnect.TradingTechnologies
         private readonly TradingTechnologiesSymbolMapper _symbolMapper;
         private readonly SymbolPropertiesDatabase _symbolPropertiesDatabase = SymbolPropertiesDatabase.FromDataFolder();
 
-        public TradingTechnologiesBrokerage(IAlgorithm algorithm, LiveNodePacket job, IOrderProvider orderProvider, IDataAggregator aggregator, FixConfiguration fixConfiguration)
+        public TradingTechnologiesBrokerage(IAlgorithm algorithm, LiveNodePacket job, IOrderProvider orderProvider, IDataAggregator aggregator, FixConfiguration fixConfiguration, bool logFixMessages)
             : base("TradingTechnologies")
         {
             _algorithm = algorithm;
@@ -66,7 +66,7 @@ namespace QuantConnect.TradingTechnologies
 
             var fixProtocolDirector = new TTFixProtocolDirector(_symbolMapper, fixConfiguration, _fixMarketDataController, _fixBrokerageController);
 
-            _fixInstance = new FixInstance(fixProtocolDirector, fixConfiguration);
+            _fixInstance = new FixInstance(fixProtocolDirector, fixConfiguration, logFixMessages);
         }
 
         /// <summary>

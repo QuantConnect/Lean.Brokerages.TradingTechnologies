@@ -57,7 +57,9 @@ namespace QuantConnect.TradingTechnologies
             { "tt-order-routing-port", Config.Get("tt-order-routing-port") },
 
             { "tt-initial-cash-amount", Config.Get("tt-initial-cash-amount") },
-            { "tt-initial-cash-currency", Config.Get("tt-initial-cash-currency") }
+            { "tt-initial-cash-currency", Config.Get("tt-initial-cash-currency") },
+
+            { "tt-log-fix-messages", Config.Get("tt-log-fix-messages") }
         };
 
         /// <summary>
@@ -98,6 +100,8 @@ namespace QuantConnect.TradingTechnologies
                 OrderRoutingPort = Read<string>(job.BrokerageData, "tt-order-routing-port", errors)
             };
 
+            var logFixMessages = Read<bool>(job.BrokerageData, "tt-log-fix-messages", errors);
+
             if (errors.Count != 0)
             {
                 // if we had errors then we can't create the instance
@@ -109,7 +113,8 @@ namespace QuantConnect.TradingTechnologies
                 job,
                 algorithm.Transactions,
                 Composer.Instance.GetExportedValueByTypeName<IDataAggregator>(Config.Get("data-aggregator", "QuantConnect.Lean.Engine.DataFeeds.AggregationManager")),
-                fixConfiguration);
+                fixConfiguration,
+                logFixMessages);
 
             Composer.Instance.AddPart<IDataQueueHandler>(instance);
 
