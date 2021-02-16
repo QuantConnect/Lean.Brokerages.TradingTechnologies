@@ -4,7 +4,6 @@
 */
 
 using System;
-using System.Globalization;
 using QuantConnect.Fix.TT.FIX44.Fields;
 using QuantConnect.Fix.TT.FIX44.Messages;
 using QuantConnect.Orders;
@@ -81,9 +80,7 @@ namespace QuantConnect.TradingTechnologies.TT
 
             if (order.Symbol.SecurityType == SecurityType.Future)
             {
-                var maturity = order.Symbol.ID.Date.ToString("yyyyMM", CultureInfo.InvariantCulture);
-
-                ttOrder.MaturityMonthYear = new MaturityMonthYear(maturity);
+                ttOrder.MaturityMonthYear = Utility.GetMaturityMonthYear(order.Symbol);
             }
 
             switch (order.Type)
