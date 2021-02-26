@@ -45,7 +45,7 @@ namespace QuantConnect.TradingTechnologies.Fix.LogFactory
         {
             if (_fixLoggingEnabled)
             {
-                Logging.Log.Trace("[incoming] {0}", msg);
+                Logging.Log.Trace($"[incoming] {msg.Replace('\x1', '|')}", true);
             }
         }
 
@@ -53,7 +53,7 @@ namespace QuantConnect.TradingTechnologies.Fix.LogFactory
         {
             if (_fixLoggingEnabled)
             {
-                Logging.Log.Trace("[outgoing] {0}", msg);
+                Logging.Log.Trace($"[outgoing] {msg.Replace('\x1', '|')}", true);
             }
         }
 
@@ -61,7 +61,7 @@ namespace QuantConnect.TradingTechnologies.Fix.LogFactory
         {
             if (_fixLoggingEnabled)
             {
-                Logging.Log.Trace("[   event] {0}", s);
+                Logging.Log.Trace($"[   event] {s.Replace('\x1', '|')}", true);
             }
         }
 

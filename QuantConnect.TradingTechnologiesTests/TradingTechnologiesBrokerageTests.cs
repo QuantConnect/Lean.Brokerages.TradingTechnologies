@@ -56,6 +56,12 @@ namespace QuantConnect.TradingTechnologiesTests
         private readonly Symbol _invalidSymbol = Symbol.CreateFuture("XY", Market.CME, new DateTime(2021, 3, 19));
         //private readonly Symbol _symbolGc = Symbol.CreateFuture("GC", Market.CME, new DateTime(2021, 1, 31));
 
+        [SetUp]
+        public void Setup()
+        {
+            Log.LogHandler = new NUnitLogHandler();
+        }
+
         [Test]
         public void ClientConnects()
         {
