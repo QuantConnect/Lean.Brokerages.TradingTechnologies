@@ -533,7 +533,8 @@ namespace QuantConnect.TradingTechnologiesTests
                 {
                     if (e.Status == OrderStatus.Invalid)
                     {
-                        Assert.That(e.Message.EndsWith($"Invalid account {_fixConfiguration.AccountName}"));
+                        Assert.That(e.Message.EndsWith($"Invalid account {_fixConfiguration.AccountName}") ||
+                                    e.Message.EndsWith("Trading Technologies Order Event"));
 
                         invalidEvent.Set();
                     }
@@ -562,7 +563,7 @@ namespace QuantConnect.TradingTechnologiesTests
                 {
                     if (e.Status == OrderStatus.Invalid)
                     {
-                        Assert.That(e.Message.Contains("Lookup by name failed"));
+                        Assert.That(e.Message.Contains("Lookup by name failed") || e.Message.Contains("No instrument found"));
 
                         invalidEvent.Set();
                     }
@@ -756,7 +757,7 @@ namespace QuantConnect.TradingTechnologiesTests
             }
         }
 
-        private const decimal BidPrice = 3785.25m;
+        private const decimal BidPrice = 3837.75m;
         private const decimal TickSize = 0.25m;
         private const int OffsetTicks = 5;
 
