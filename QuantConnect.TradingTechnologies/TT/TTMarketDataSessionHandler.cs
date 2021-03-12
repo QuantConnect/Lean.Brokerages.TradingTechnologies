@@ -228,7 +228,7 @@ namespace QuantConnect.TradingTechnologies.TT
             var ticker = symbol.ID.Symbol;
 
             var securityType = new QuantConnect.Fix.TT.FIX44.Fields.SecurityType(_symbolMapper.GetBrokerageProductType(symbol.SecurityType));
-            var securityExchange = new SecurityExchange(_symbolMapper.GetBrokerageMarket(symbol.ID.Market));
+            var securityExchange = new SecurityExchange(_symbolMapper.GetBrokerageMarket(symbol.ID.Market, symbol.SecurityType));
 
             Logging.Log.Trace($"Subscribing to: {ticker}-{symbol.Value}-{securityType.getValue()}-{securityExchange.getValue()}, RequestId: {requestId}");
 
@@ -255,7 +255,7 @@ namespace QuantConnect.TradingTechnologies.TT
 
             if (symbol.SecurityType == SecurityType.Future)
             {
-                symbolsGroup.MaturityMonthYear = Utility.GetMaturityMonthYear(symbol);
+                symbolsGroup.MaturityDate = Utility.GetMaturityDate(symbol);
             }
 
             marketDataRequest.AddGroup(symbolsGroup);
@@ -272,7 +272,7 @@ namespace QuantConnect.TradingTechnologies.TT
             var ticker = symbol.ID.Symbol;
 
             var securityType = new QuantConnect.Fix.TT.FIX44.Fields.SecurityType(_symbolMapper.GetBrokerageProductType(symbol.SecurityType));
-            var securityExchange = new SecurityExchange(_symbolMapper.GetBrokerageMarket(symbol.ID.Market));
+            var securityExchange = new SecurityExchange(_symbolMapper.GetBrokerageMarket(symbol.ID.Market, symbol.SecurityType));
 
             Logging.Log.Trace($"Unsubscribing from: {ticker}-{symbol.Value}-{securityType.getValue()}-{securityExchange.getValue()}, RequestId: {requestId}");
 
@@ -295,7 +295,7 @@ namespace QuantConnect.TradingTechnologies.TT
 
             if (symbol.SecurityType == SecurityType.Future)
             {
-                symbolsGroup.MaturityMonthYear = Utility.GetMaturityMonthYear(symbol);
+                symbolsGroup.MaturityDate = Utility.GetMaturityDate(symbol);
             }
 
             marketDataRequest.AddGroup(symbolsGroup);

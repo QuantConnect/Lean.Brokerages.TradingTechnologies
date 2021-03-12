@@ -51,7 +51,7 @@ namespace QuantConnect.TradingTechnologies.TT
         {
             var side = new Side(order.Direction == OrderDirection.Buy ? Side.BUY : Side.SELL);
 
-            var securityExchange = new SecurityExchange(_symbolMapper.GetBrokerageMarket(order.Symbol.ID.Market));
+            var securityExchange = new SecurityExchange(_symbolMapper.GetBrokerageMarket(order.Symbol.ID.Market, order.Symbol.SecurityType));
             var securityType = new QuantConnect.Fix.TT.FIX44.Fields.SecurityType(_symbolMapper.GetBrokerageProductType(order.Symbol.SecurityType));
 
             var priceMultiplier = Utility.GetPriceMultiplier(order.Symbol);
@@ -69,7 +69,7 @@ namespace QuantConnect.TradingTechnologies.TT
                 OrderQty = new OrderQty(order.AbsoluteQuantity),
                 Side = side,
                 OrdType = new OrdType(Utility.ConvertOrderType(order.Type)),
-                TimeInForce = Utility.ConvertTimeInForce(order.TimeInForce),
+                TimeInForce = Utility.ConvertTimeInForce(order.TimeInForce, order.Type),
 
                 // Account details:
                 Account = new Account(_account),
@@ -80,7 +80,7 @@ namespace QuantConnect.TradingTechnologies.TT
 
             if (order.Symbol.SecurityType == SecurityType.Future)
             {
-                ttOrder.MaturityMonthYear = Utility.GetMaturityMonthYear(order.Symbol);
+                ttOrder.MaturityDate = Utility.GetMaturityDate(order.Symbol);
             }
 
             switch (order.Type)

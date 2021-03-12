@@ -61,6 +61,9 @@ namespace QuantConnect.TradingTechnologies
             _mapLeanMarketToSecurityExchange.Add(Market.NYMEX, "CME");
             _mapLeanMarketToSecurityExchange.Add(Market.CBOT, "CME");
 
+            // TODO: remove when Market.CFE is added to LEAN
+            _mapSecurityExchangeToLeanMarket.Add("CFE", Market.CBOE);
+
             _mapLeanSecurityTypeToProductType = _mapProductTypeToLeanSecurityType
                 .ToDictionary(x => x.Value, x => x.Key);
 
@@ -105,11 +108,17 @@ namespace QuantConnect.TradingTechnologies
             }
         }
 
-        public string GetBrokerageMarket(string leanMarket)
+        public string GetBrokerageMarket(string leanMarket, SecurityType leanSecurityType)
         {
             if (!_mapLeanMarketToSecurityExchange.TryGetValue(leanMarket, out var market))
             {
                 throw new NotSupportedException($"Unsupported LEAN Market: {leanMarket}");
+            }
+
+            // TODO: remove when Market.CFE is added to LEAN
+            if (leanMarket == Market.CBOE && leanSecurityType == SecurityType.Future)
+            {
+                market = "CFE";
             }
 
             return market;

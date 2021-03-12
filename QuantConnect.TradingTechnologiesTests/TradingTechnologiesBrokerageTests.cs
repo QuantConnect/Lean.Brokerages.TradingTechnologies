@@ -55,6 +55,8 @@ namespace QuantConnect.TradingTechnologiesTests
         private readonly Symbol _symbolEs = Symbol.CreateFuture("ES", Market.CME, new DateTime(2021, 3, 19));
         private readonly Symbol _invalidSymbol = Symbol.CreateFuture("XY", Market.CME, new DateTime(2021, 3, 19));
         //private readonly Symbol _symbolGc = Symbol.CreateFuture("GC", Market.CME, new DateTime(2021, 1, 31));
+        private readonly Symbol _symbolVx = Symbol.CreateFuture("VX", Market.CBOE, new DateTime(2021, 3, 17));
+        private readonly Symbol _symbolDx = Symbol.CreateFuture("DX", Market.ICE, new DateTime(2021, 3, 15));
 
         [SetUp]
         public void Setup()
@@ -92,6 +94,7 @@ namespace QuantConnect.TradingTechnologiesTests
                 {
                     Log.Trace($"Holding: {holding}");
                 }
+                Log.Trace($"Holdings: {holdings.Count}");
 
                 brokerage.Disconnect();
                 Assert.IsFalse(brokerage.IsConnected);
@@ -123,7 +126,7 @@ namespace QuantConnect.TradingTechnologiesTests
                     (tick) => {
                         if (tick != null)
                         {
-                            Log.Trace("{0}: {1} - {2} / {3}", tick.Time.ToStringInvariant("yyyy-MM-dd HH:mm:ss.fff"), tick.Symbol, (tick as Tick)?.BidPrice, (tick as Tick)?.AskPrice);
+                            Log.Trace("{0}: {1} - Bid:{2} / Ask:{3} - Last:{4} Qty:{5}", tick.Time.ToStringInvariant("yyyy-MM-dd HH:mm:ss.fff"), tick.Symbol, (tick as Tick)?.BidPrice, (tick as Tick)?.AskPrice, (tick as Tick)?.Value, (tick as Tick)?.Quantity);
                         }
                     });
 

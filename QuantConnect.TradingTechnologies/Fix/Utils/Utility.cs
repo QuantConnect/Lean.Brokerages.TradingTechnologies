@@ -124,10 +124,16 @@ namespace QuantConnect.TradingTechnologies.Fix.Utils
             }
         }
 
-        public static QuantConnect.Fix.TT.FIX44.Fields.TimeInForce ConvertTimeInForce(TimeInForce timeInForce)
+        public static QuantConnect.Fix.TT.FIX44.Fields.TimeInForce ConvertTimeInForce(TimeInForce timeInForce, OrderType orderType)
         {
             if (timeInForce == TimeInForce.GoodTilCanceled)
             {
+                if (orderType == OrderType.Market)
+                {
+                    // some exchanges do not accept GTC with market orders
+                    return new QuantConnect.Fix.TT.FIX44.Fields.TimeInForce(QuantConnect.Fix.TT.FIX44.Fields.TimeInForce.DAY);
+                }
+
                 return new QuantConnect.Fix.TT.FIX44.Fields.TimeInForce(QuantConnect.Fix.TT.FIX44.Fields.TimeInForce.GOOD_TILL_CANCEL);
             }
 
@@ -139,7 +145,7 @@ namespace QuantConnect.TradingTechnologies.Fix.Utils
             throw new NotSupportedException($"Unsupported TimeInForce: {timeInForce.GetType().Name}");
         }
 
-        public static MaturityMonthYear GetMaturityMonthYear(Symbol symbol)
+        public static MaturityDate GetMaturityDate(Symbol symbol)
         {
             if (symbol.SecurityType != SecurityType.Future)
             {
@@ -149,9 +155,9 @@ namespace QuantConnect.TradingTechnologies.Fix.Utils
             var ticker = SymbolRepresentation.GenerateFutureTicker(symbol.ID.Symbol, symbol.ID.Date);
             var properties = SymbolRepresentation.ParseFutureTicker(ticker);
 
-            var maturity = $"{2000 + properties.ExpirationYearShort:D4}{properties.ExpirationMonth:D2}";
+            var maturity = $"{2000 + properties.ExpirationYearShort:D4}{properties.ExpirationMonth:D2}{properties.ExpirationDay:D2}";
 
-            return new MaturityMonthYear(maturity);
+            return new MaturityDate(maturity);
         }
     }
 }

@@ -33,19 +33,21 @@ namespace QuantConnect.TradingTechnologiesTests
             }
         }
 
-        [TestCase(Market.CME, "CME")]
-        [TestCase(Market.COMEX, "CME")]
-        [TestCase(Market.NYMEX, "CME")]
-        [TestCase(Market.CBOT, "CME")]
-        [TestCase(Market.CBOE, "CBOE")]
-        [TestCase(Market.ICE, "ICE")]
-        public void GetBrokerageMarket(string leanMarket, string expectedMarket)
+        [TestCase(Market.CME, SecurityType.Future, "CME")]
+        [TestCase(Market.COMEX, SecurityType.Future, "CME")]
+        [TestCase(Market.NYMEX, SecurityType.Future, "CME")]
+        [TestCase(Market.CBOT, SecurityType.Future, "CME")]
+        // TODO: update when Market.CFE is added to LEAN
+        [TestCase(Market.CBOE, SecurityType.Future, "CFE")]
+        [TestCase(Market.ICE, SecurityType.Future, "ICE")]
+        [TestCase(Market.CBOE, SecurityType.Option, "CBOE")]
+        public void GetBrokerageMarket(string leanMarket, SecurityType leanSecurityType, string expectedMarket)
         {
             using (var apiClient = new TTApiClient(_appKey, _appSecret, _environment))
             {
                 var symbolMapper = new TradingTechnologiesSymbolMapper(apiClient);
 
-                var market = symbolMapper.GetBrokerageMarket(leanMarket);
+                var market = symbolMapper.GetBrokerageMarket(leanMarket, leanSecurityType);
 
                 Assert.AreEqual(expectedMarket, market);
             }
@@ -70,7 +72,8 @@ namespace QuantConnect.TradingTechnologiesTests
         [TestCase("CME", "GC", Market.COMEX)]
         [TestCase("CME", "CL", Market.NYMEX)]
         [TestCase("CME", "ZB", Market.CBOT)]
-        [TestCase("CBOE", "VX", Market.CBOE)]
+        // TODO: update when Market.CFE is added to LEAN
+        [TestCase("CFE", "VX", Market.CBOE)]
         [TestCase("ICE", "DX", Market.ICE)]
         public void GetLeanMarket(string securityExchange, string ticker, string expectedMarket)
         {
@@ -106,7 +109,12 @@ namespace QuantConnect.TradingTechnologiesTests
 
             new TestCaseData("1073353202605093065", "GC", Market.COMEX, SecurityType.Future, "GC29H21"),
 
-            new TestCaseData("18435539731961972115", "CL", Market.NYMEX, SecurityType.Future, "CL22H21")
+            new TestCaseData("18435539731961972115", "CL", Market.NYMEX, SecurityType.Future, "CL22H21"),
+
+            // TODO: update when Market.CFE is added to LEAN
+            new TestCaseData("17539691338672951049", "VX", Market.CBOE, SecurityType.Future, "VX17H21"),
+
+            new TestCaseData("16180764321245570431", "DX", Market.ICE, SecurityType.Future, "DX15H21"),
         };
 
 
