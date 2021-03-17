@@ -159,15 +159,15 @@ namespace QuantConnect.TradingTechnologies
                 var currencySymbol = Currencies.GetCurrencySymbol(
                     _symbolPropertiesDatabase.GetSymbolProperties(symbol.ID.Market, symbol, symbol.SecurityType, Currencies.USD).QuoteCurrency);
 
-                var priceMultiplier = Utility.GetPriceMultiplier(symbol);
+                var displayFactor = _symbolMapper.GetDisplayFactor(symbol);
 
                 var holding = new Holding
                 {
                     Symbol = symbol,
                     Type = symbol.SecurityType,
                     Quantity = position.NetPosition.Value,
-                    AveragePrice = position.OpenAvgPrice / priceMultiplier ?? 0,
-                    MarketPrice = position.PnlPrice / priceMultiplier ?? 0,
+                    AveragePrice = position.OpenAvgPrice * displayFactor ?? 0,
+                    MarketPrice = position.PnlPrice * displayFactor ?? 0,
                     CurrencySymbol = currencySymbol
                 };
 
@@ -302,13 +302,13 @@ namespace QuantConnect.TradingTechnologies
 
             if (orderStatus == OrderStatus.Filled || orderStatus == OrderStatus.PartiallyFilled)
             {
-                var priceMultiplier = Utility.GetPriceMultiplier(order.Symbol);
+                var displayFactor = _symbolMapper.GetDisplayFactor(order.Symbol);
 
                 var filledQuantity = e.LastShares.getValue();
                 var remainingQuantity = order.AbsoluteQuantity - e.CumQty.getValue();
 
                 orderEvent.FillQuantity = filledQuantity * (order.Direction == OrderDirection.Buy ? 1 : -1);
-                orderEvent.FillPrice = e.LastPx.getValue() / priceMultiplier;
+                orderEvent.FillPrice = e.LastPx.getValue() * displayFactor;
 
                 if (remainingQuantity > 0)
                 {

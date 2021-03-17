@@ -52,7 +52,7 @@ namespace QuantConnect.TradingTechnologies.Fix
                 var start = DateTime.UtcNow;
                 while (!IsConnected() || !_protocolDirector.AreSessionsReady())
                 {
-                    if (DateTime.UtcNow > start.AddSeconds(30))
+                    if (DateTime.UtcNow > start.AddSeconds(60))
                     {
                         throw new TimeoutException("Timeout initializing FIX sessions.");
                     }

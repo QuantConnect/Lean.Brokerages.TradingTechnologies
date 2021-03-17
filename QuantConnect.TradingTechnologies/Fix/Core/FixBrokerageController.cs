@@ -132,7 +132,7 @@ namespace QuantConnect.TradingTechnologies.Fix.Core
                 throw new ArgumentNullException(nameof(er));
             }
 
-            var ticker = er.Symbol.getValue();
+            var ticker = _symbolMapper.GetLeanTicker(er.Symbol.getValue());
             var securityType = _symbolMapper.GetLeanSecurityType(er.SecurityType.getValue());
             var market = _symbolMapper.GetLeanMarket(securityType, er.SecurityExchange.getValue(), ticker);
 
@@ -148,7 +148,7 @@ namespace QuantConnect.TradingTechnologies.Fix.Core
                 throw new NotSupportedException($"Unsupported security type: {securityType}");
             }
 
-            var priceMultiplier = Utility.GetPriceMultiplier(symbol);
+            var displayFactor = _symbolMapper.GetDisplayFactor(symbol);
 
             var orderQuantity = er.OrderQty.getValue();
             var orderSide = er.Side.getValue();
@@ -170,22 +170,22 @@ namespace QuantConnect.TradingTechnologies.Fix.Core
 
                 case OrderType.Limit:
                     {
-                        var limitPrice = er.Price.getValue() / priceMultiplier;
+                        var limitPrice = er.Price.getValue() * displayFactor;
                         order = new LimitOrder(symbol, orderQuantity, limitPrice, time);
                     }
                     break;
 
                 case OrderType.StopMarket:
                     {
-                        var stopPrice = er.StopPx.getValue() / priceMultiplier;
+                        var stopPrice = er.StopPx.getValue() * displayFactor;
                         order = new LimitOrder(symbol, orderQuantity, stopPrice, time);
                     }
                     break;
 
                 case OrderType.StopLimit:
                     {
-                        var limitPrice = er.Price.getValue() / priceMultiplier;
-                        var stopPrice = er.StopPx.getValue() / priceMultiplier;
+                        var limitPrice = er.Price.getValue() * displayFactor;
+                        var stopPrice = er.StopPx.getValue() * displayFactor;
                         order = new StopLimitOrder(symbol, orderQuantity, stopPrice, limitPrice, time);
                     }
                     break;

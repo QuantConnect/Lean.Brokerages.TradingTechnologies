@@ -255,7 +255,15 @@ namespace QuantConnect.TradingTechnologies.TT
 
             if (symbol.SecurityType == SecurityType.Future)
             {
-                symbolsGroup.MaturityDate = Utility.GetMaturityDate(symbol);
+                // TODO: update when Market.CFE is added to LEAN
+                if (symbol.ID.Market == Market.CBOE)
+                {
+                    symbolsGroup.MaturityDate = Utility.GetMaturityDate(symbol);
+                }
+                else
+                {
+                    symbolsGroup.MaturityMonthYear = Utility.GetMaturityMonthYear(symbol);
+                }
             }
 
             marketDataRequest.AddGroup(symbolsGroup);
@@ -295,7 +303,15 @@ namespace QuantConnect.TradingTechnologies.TT
 
             if (symbol.SecurityType == SecurityType.Future)
             {
-                symbolsGroup.MaturityDate = Utility.GetMaturityDate(symbol);
+                // TODO: update when Market.CFE is added to LEAN
+                if (symbol.ID.Market == Market.CBOE)
+                {
+                    symbolsGroup.MaturityDate = Utility.GetMaturityDate(symbol);
+                }
+                else
+                {
+                    symbolsGroup.MaturityMonthYear = Utility.GetMaturityMonthYear(symbol);
+                }
             }
 
             marketDataRequest.AddGroup(symbolsGroup);
@@ -324,16 +340,16 @@ namespace QuantConnect.TradingTechnologies.TT
                 subscriptionEntry.AskPrice > 0 && subscriptionEntry.AskSize > 0 &&
                 subscriptionEntry.BidPrice < subscriptionEntry.AskPrice)
             {
-                var priceMultiplier = Utility.GetPriceMultiplier(subscriptionEntry.Symbol);
+                var displayFactor = _symbolMapper.GetDisplayFactor(subscriptionEntry.Symbol);
 
                 var tick = new Tick
                 {
                     TickType = TickType.Quote,
                     EndTime = GetTickTime(subscriptionEntry.Symbol, DateTime.UtcNow),
                     Symbol = subscriptionEntry.Symbol,
-                    BidPrice = subscriptionEntry.BidPrice / priceMultiplier,
+                    BidPrice = subscriptionEntry.BidPrice * displayFactor,
                     BidSize = subscriptionEntry.BidSize,
-                    AskPrice = subscriptionEntry.AskPrice / priceMultiplier,
+                    AskPrice = subscriptionEntry.AskPrice * displayFactor,
                     AskSize = subscriptionEntry.AskSize
                 };
 
@@ -343,14 +359,14 @@ namespace QuantConnect.TradingTechnologies.TT
 
         private void EmitTradeTick(SubscriptionEntry subscriptionEntry)
         {
-            var priceMultiplier = Utility.GetPriceMultiplier(subscriptionEntry.Symbol);
+            var displayFactor = _symbolMapper.GetDisplayFactor(subscriptionEntry.Symbol);
 
             var tick = new Tick
             {
                 TickType = TickType.Trade,
                 EndTime = GetTickTime(subscriptionEntry.Symbol, DateTime.UtcNow),
                 Symbol = subscriptionEntry.Symbol,
-                Value = subscriptionEntry.LastPrice / priceMultiplier,
+                Value = subscriptionEntry.LastPrice * displayFactor,
                 Quantity = subscriptionEntry.LastSize
             };
 
