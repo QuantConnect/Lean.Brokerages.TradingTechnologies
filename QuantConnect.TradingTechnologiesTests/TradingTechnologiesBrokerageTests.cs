@@ -54,11 +54,10 @@ namespace QuantConnect.TradingTechnologiesTests
 
         private static readonly Symbol _invalidSymbol = Symbol.CreateFuture("XY", Market.CME, new DateTime(2021, 3, 19));
 
-        private static readonly Symbol _symbolEs = Symbol.CreateFuture("ES", Market.CME, new DateTime(2021, 3, 19));
+        private static readonly Symbol _symbolEs = Symbol.CreateFuture("ES", Market.CME, new DateTime(2021, 6, 18));
         private static readonly Symbol _symbolCl = Symbol.CreateFuture("CL", Market.NYMEX, new DateTime(2021, 3, 22));
-        //private static readonly Symbol _symbolGc = Symbol.CreateFuture("GC", Market.COMEX, new DateTime(2021, 3, 19));
         // TODO: update when Market.CFE is added to LEAN
-        private static readonly Symbol _symbolVx = Symbol.CreateFuture("VX", Market.CBOE, new DateTime(2021, 3, 17));
+        private static readonly Symbol _symbolVx = Symbol.CreateFuture("VX", Market.CBOE, new DateTime(2021, 4, 21));
         private static readonly Symbol _symbolB = Symbol.CreateFuture("B", Market.ICE, new DateTime(2021, 3, 31));
 
         [SetUp]
@@ -795,10 +794,10 @@ namespace QuantConnect.TradingTechnologiesTests
 
         private readonly Dictionary<Symbol, decimal> _bidPrices = new Dictionary<Symbol, decimal>
         {
-            { _symbolEs, 3945.75m },
+            { _symbolEs, 3933.25m },
             { _symbolCl, 65.48m },
-            { _symbolVx, 26.55m },
-            { _symbolB, 69.43m },
+            { _symbolVx, 29.45m },
+            { _symbolB, 68.24m },
         };
 
         private static readonly Dictionary<Symbol, decimal> _tickSizes = new Dictionary<Symbol, decimal>
@@ -853,42 +852,62 @@ namespace QuantConnect.TradingTechnologiesTests
         {
             // Buy above market price
             new TestCaseData(_symbolEs, 1, OffsetTicks, true, ""),
+            new TestCaseData(_symbolVx, 1, OffsetTicks, false, "Unsupported order type."),
 
             // Sell below market price
             new TestCaseData(_symbolEs, -1, -OffsetTicks, true, ""),
+            new TestCaseData(_symbolVx, -1, -OffsetTicks, false, "Unsupported order type."),
 
             // Buy below market price
             new TestCaseData(_symbolEs, 1, -OffsetTicks, false,
                 "Buy order stop price must be above last trade price"),
+            new TestCaseData(_symbolVx, 1, -OffsetTicks, false, "Unsupported order type."),
 
             // Sell above market price
             new TestCaseData(_symbolEs, -1, OffsetTicks, false,
-                "Sell order stop price must be below last trade price")
+                "Sell order stop price must be below last trade price"),
+            new TestCaseData(_symbolVx, -1, OffsetTicks, false, "Unsupported order type.")
         };
 
         private static readonly object[] _stopLimitOrderTestCases =
         {
             // Buy above market price
             new TestCaseData(_symbolEs, 1, OffsetTicks, OffsetTicks * 2, true, ""),
+            new TestCaseData(_symbolVx, 1, OffsetTicks, OffsetTicks * 2, true, ""),
+
+            // Buy above market price
+            new TestCaseData(_symbolEs, 1, OffsetTicks * 2, OffsetTicks, false,
+                "Stop price maxi-mini must be greater than or equal to trigger price"),
+            new TestCaseData(_symbolVx, 1, OffsetTicks * 2, OffsetTicks, true, ""),
 
             // Sell below market price
             new TestCaseData(_symbolEs, -1, -OffsetTicks, -OffsetTicks * 2, true, ""),
+            new TestCaseData(_symbolVx, -1, -OffsetTicks, -OffsetTicks * 2, true, ""),
+
+            // Sell below market price
+            new TestCaseData(_symbolEs, -1, -OffsetTicks * 2, -OffsetTicks, false,
+                "Stop price maxi-mini must be smaller than or equal to trigger price"),
+            new TestCaseData(_symbolVx, -1, -OffsetTicks * 2, -OffsetTicks, true, ""),
 
             // Buy below market price
             new TestCaseData(_symbolEs, 1, -OffsetTicks * 2, -OffsetTicks, false,
                 "Buy order stop price must be above last trade price"),
+            new TestCaseData(_symbolVx, 1, -OffsetTicks * 2, -OffsetTicks, true, ""),
 
             // Sell above market price
             new TestCaseData(_symbolEs, -1, OffsetTicks * 2, OffsetTicks, false,
                 "Sell order stop price must be below last trade price"),
+            new TestCaseData(_symbolVx, -1, OffsetTicks * 2, OffsetTicks, true, ""),
 
             // Buy below market price
             new TestCaseData(_symbolEs, 1, -OffsetTicks, -OffsetTicks * 2, false,
                 "Stop price maxi-mini must be greater than or equal to trigger price"),
+            new TestCaseData(_symbolVx, 1, -OffsetTicks, -OffsetTicks * 2, true, ""),
 
             // Sell above market price
             new TestCaseData(_symbolEs, -1, OffsetTicks, OffsetTicks * 2, false,
-                "Stop price maxi-mini must be smaller than or equal to trigger price")
+                "Stop price maxi-mini must be smaller than or equal to trigger price"),
+            new TestCaseData(_symbolVx, -1, OffsetTicks, OffsetTicks * 2, true, "")
         };
 
         private static void ProcessFeed(IEnumerator<BaseData> enumerator, CancellationTokenSource cts, Action<BaseData> callback = null)

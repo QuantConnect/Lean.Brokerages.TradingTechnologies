@@ -237,7 +237,17 @@ namespace QuantConnect.TradingTechnologies
                     throw new NotSupportedException($"GetInstrumentId(): no instruments found - ProductTypeId: {product.ProductTypeId}, ProductId: {product.Id}");
                 }
 
-                var instrument = instruments[0];
+                var instrument = instruments.FirstOrDefault(x =>
+                {
+                    var date = (int) (x.ExpirationDate / 1000000);
+                    var expirationDate = new DateTime(date / 10000, date / 100 % 100, date % 100);
+                    return expirationDate == symbol.ID.Date;
+                });
+                if (instrument == null)
+                {
+                    throw new NotSupportedException($"GetInstrumentId(): expiration date not found - ExpirationDate: {symbol.ID.Date:yyyy-MM-dd}, Symbol: {ticker}");
+                }
+
                 if (!_instruments.ContainsKey(instrument.Id))
                 {
                     _instruments.Add(instrument.Id, instrument);

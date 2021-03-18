@@ -160,6 +160,7 @@ namespace QuantConnect.TradingTechnologiesTests
 
             // TODO: update when Market.CFE is added to LEAN
             new TestCaseData("17539691338672951049", "VX", Market.CBOE, SecurityType.Future, "VX17H21", "20210317"),
+            new TestCaseData("4240879582712226511", "VX", Market.CBOE, SecurityType.Future, "VX21J21", "20210421"),
 
             new TestCaseData("16180764321245570431", "DX", Market.ICE, SecurityType.Future, "DX15H21", "20210315"),
 
@@ -174,16 +175,16 @@ namespace QuantConnect.TradingTechnologiesTests
 
             new TestCaseData(Symbol.CreateFuture("CL", Market.NYMEX, new DateTime(2021, 3, 22)), 0.01m),
 
-            new TestCaseData(Symbol.CreateFuture("CSC", Market.CME, new DateTime(2021, 3, 19)), 0.001m),
+            new TestCaseData(Symbol.CreateFuture("CSC", Market.CME, new DateTime(2021, 3, 30)), 0.001m),
 
-            new TestCaseData(Symbol.CreateFuture("6B", Market.CME, new DateTime(2021, 3, 19)), 0.0001m),
+            new TestCaseData(Symbol.CreateFuture("6B", Market.CME, new DateTime(2021, 4, 19)), 0.0001m),
 
-            new TestCaseData(Symbol.CreateFuture("6E", Market.CME, new DateTime(2021, 3, 19)), 0.0001m),
+            new TestCaseData(Symbol.CreateFuture("6E", Market.CME, new DateTime(2021, 4, 19)), 0.0001m),
 
-            new TestCaseData(Symbol.CreateFuture("6J", Market.CME, new DateTime(2021, 3, 19)), 0.000001m),
+            new TestCaseData(Symbol.CreateFuture("6J", Market.CME, new DateTime(2021, 4, 19)), 0.000001m),
 
             // TODO: update when Market.CFE is added to LEAN
-            new TestCaseData(Symbol.CreateFuture("VX", Market.CBOE, new DateTime(2021, 3, 17)), 1m),
+            new TestCaseData(Symbol.CreateFuture("VX", Market.CBOE, new DateTime(2021, 4, 21)), 1m),
 
             new TestCaseData(Symbol.CreateFuture("B", Market.ICE, new DateTime(2021, 3, 31)), 1m)
         };
