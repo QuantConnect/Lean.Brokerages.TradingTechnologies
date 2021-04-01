@@ -20,14 +20,15 @@ namespace QuantConnect.TradingTechnologies.Fix
     public class FixInstance : IApplication, IDisposable
     {
         private readonly IFixProtocolDirector _protocolDirector;
-        private readonly SocketInitiator _acceptor;
+        private readonly FixConfiguration _fixConfiguration;
+        private readonly SocketInitiator _initiator;
 
         private bool _disposed;
 
         public bool IsConnected()
         {
-            return !_acceptor.IsStopped &&
-                   _acceptor.GetSessionIDs()
+            return !_initiator.IsStopped &&
+                   _initiator.GetSessionIDs()
                         .Select(Session.LookupSession)
                         .All(session => session != null && session.IsLoggedOn);
         }
@@ -35,19 +36,20 @@ namespace QuantConnect.TradingTechnologies.Fix
         public FixInstance(IFixProtocolDirector protocolDirector, FixConfiguration fixConfiguration, bool logFixMessages)
         {
             _protocolDirector = protocolDirector ?? throw new ArgumentNullException(nameof(protocolDirector));
+            _fixConfiguration = fixConfiguration;
 
-            var settings = fixConfiguration.GetSessionSettings();
+            var settings = fixConfiguration.GetDefaultSessionSettings();
 
             var storeFactory = new FileStoreFactory(settings);
             var logFactory = new QuickFixLogFactory(logFixMessages);
-            _acceptor = new SocketInitiator(this, storeFactory, settings, logFactory, protocolDirector.MessageFactory);
+            _initiator = new SocketInitiator(this, storeFactory, settings, logFactory, protocolDirector.MessageFactory);
         }
 
         public void Initialise()
         {
-            if (_acceptor.IsStopped)
+            if (_initiator.IsStopped)
             {
-                _acceptor.Start();
+                _initiator.Start();
 
                 var start = DateTime.UtcNow;
                 while (!IsConnected() || !_protocolDirector.AreSessionsReady())
@@ -59,6 +61,29 @@ namespace QuantConnect.TradingTechnologies.Fix
 
                     Thread.Sleep(1000);
                 }
+            }
+        }
+
+        public void AddMarketDataSession()
+        {
+            var marketDataSessionId = new SessionID(
+                _fixConfiguration.FixVersionString,
+                _fixConfiguration.MarketDataSenderCompId,
+                _fixConfiguration.MarketDataTargetCompId);
+
+            var settings = _fixConfiguration.GetMarketDataSessionSettings();
+
+            _initiator.AddSession(marketDataSessionId, settings);
+
+            var start = DateTime.UtcNow;
+            while (!IsConnected() || !_protocolDirector.AreSessionsReady())
+            {
+                if (DateTime.UtcNow > start.AddSeconds(60))
+                {
+                    throw new TimeoutException("Timeout initializing FIX sessions.");
+                }
+
+                Thread.Sleep(1000);
             }
         }
 
@@ -97,9 +122,9 @@ namespace QuantConnect.TradingTechnologies.Fix
 
         public void Terminate()
         {
-            if (!_acceptor.IsStopped)
+            if (!_initiator.IsStopped)
             {
-                _acceptor.Stop();
+                _initiator.Stop();
             }
         }
 
@@ -111,7 +136,7 @@ namespace QuantConnect.TradingTechnologies.Fix
             }
 
             _disposed = true;
-            _acceptor.Dispose();
+            _initiator.Dispose();
         }
     }
 }

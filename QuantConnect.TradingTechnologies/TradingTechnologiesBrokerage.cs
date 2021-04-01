@@ -33,6 +33,7 @@ namespace QuantConnect.TradingTechnologies
         private readonly IDataAggregator _aggregator;
 
         private bool _cashInitialized;
+        private bool _isDataQueueHandlerInitialized;
 
         private readonly EventBasedDataQueueHandlerSubscriptionManager _subscriptionManager;
         private readonly IFixMarketDataController _fixMarketDataController;
@@ -77,6 +78,13 @@ namespace QuantConnect.TradingTechnologies
         /// <returns>The new enumerator for this subscription request</returns>
         public IEnumerator<BaseData> Subscribe(SubscriptionDataConfig dataConfig, EventHandler newDataAvailableHandler)
         {
+            if (!_isDataQueueHandlerInitialized)
+            {
+                _isDataQueueHandlerInitialized = true;
+
+                _fixInstance.AddMarketDataSession();
+            }
+
             if (!CanSubscribe(dataConfig.Symbol))
             {
                 return Enumerable.Empty<BaseData>().GetEnumerator();
