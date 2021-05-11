@@ -52,9 +52,13 @@ namespace QuantConnect.TradingTechnologiesTests
             OrderRoutingPort = Config.Get("tt-order-routing-port")
         };
 
-        private readonly Symbol _symbolEs = Symbol.CreateFuture("ES", Market.CME, new DateTime(2021, 3, 19));
-        private readonly Symbol _invalidSymbol = Symbol.CreateFuture("XY", Market.CME, new DateTime(2021, 3, 19));
-        //private readonly Symbol _symbolGc = Symbol.CreateFuture("GC", Market.CME, new DateTime(2021, 1, 31));
+        private static readonly Symbol _invalidSymbol = Symbol.CreateFuture("XY", Market.CME, new DateTime(2021, 3, 19));
+
+        private static readonly Symbol _symbolEs = Symbol.CreateFuture("ES", Market.CME, new DateTime(2021, 6, 18));
+        private static readonly Symbol _symbolCl = Symbol.CreateFuture("CL", Market.NYMEX, new DateTime(2021, 3, 22));
+        // TODO: update when Market.CFE is added to LEAN
+        private static readonly Symbol _symbolVx = Symbol.CreateFuture("VX", Market.CBOE, new DateTime(2021, 4, 21));
+        private static readonly Symbol _symbolB = Symbol.CreateFuture("B", Market.ICE, new DateTime(2021, 3, 31));
 
         [SetUp]
         public void Setup()
@@ -92,6 +96,7 @@ namespace QuantConnect.TradingTechnologiesTests
                 {
                     Log.Trace($"Holding: {holding}");
                 }
+                Log.Trace($"Holdings: {holdings.Count}");
 
                 brokerage.Disconnect();
                 Assert.IsFalse(brokerage.IsConnected);
@@ -123,11 +128,11 @@ namespace QuantConnect.TradingTechnologiesTests
                     (tick) => {
                         if (tick != null)
                         {
-                            Log.Trace("{0}: {1} - {2} / {3}", tick.Time.ToStringInvariant("yyyy-MM-dd HH:mm:ss.fff"), tick.Symbol, (tick as Tick)?.BidPrice, (tick as Tick)?.AskPrice);
+                            Log.Trace("{0}: {1} - Bid:{2} / Ask:{3} - Last:{4} Qty:{5}", tick.Time.ToStringInvariant("yyyy-MM-dd HH:mm:ss.fff"), tick.Symbol, (tick as Tick)?.BidPrice, (tick as Tick)?.AskPrice, (tick as Tick)?.Value, (tick as Tick)?.Quantity);
                         }
                     });
 
-                Thread.Sleep(20000);
+                Thread.Sleep(60000);
 
                 brokerage.Unsubscribe(dataConfig);
 
@@ -154,9 +159,8 @@ namespace QuantConnect.TradingTechnologiesTests
             }
         }
 
-        [TestCase(1)]
-        [TestCase(-1)]
-        public void SubmitsMarketOrder(int quantity)
+        [TestCaseSource(nameof(_marketOrderTestCases))]
+        public void SubmitsMarketOrder(Symbol symbol, int quantity)
         {
             using (var brokerage = CreateBrokerage())
             {
@@ -178,7 +182,7 @@ namespace QuantConnect.TradingTechnologiesTests
                 brokerage.Connect();
                 Assert.IsTrue(brokerage.IsConnected);
 
-                var order = new MarketOrder(_symbolEs, quantity, DateTime.UtcNow);
+                var order = new MarketOrder(symbol, quantity, DateTime.UtcNow);
                 _orderProvider.Add(order);
 
                 Assert.IsTrue(brokerage.PlaceOrder(order));
@@ -189,7 +193,7 @@ namespace QuantConnect.TradingTechnologiesTests
         }
 
         [TestCaseSource(nameof(_limitOrderTestCases))]
-        public void SubmitsLimitOrder(int quantity, decimal limitPrice, bool isMarketable)
+        public void SubmitsLimitOrder(Symbol symbol, int quantity, int limitPriceOffsetTicks, bool isMarketable)
         {
             using (var brokerage = CreateBrokerage())
             {
@@ -211,7 +215,9 @@ namespace QuantConnect.TradingTechnologiesTests
                 brokerage.Connect();
                 Assert.IsTrue(brokerage.IsConnected);
 
-                var order = new LimitOrder(_symbolEs, quantity, limitPrice, DateTime.UtcNow);
+                var limitPrice = _bidPrices[symbol] + _tickSizes[symbol] * limitPriceOffsetTicks;
+
+                var order = new LimitOrder(symbol, quantity, limitPrice, DateTime.UtcNow);
                 _orderProvider.Add(order);
 
                 Assert.IsTrue(brokerage.PlaceOrder(order));
@@ -226,7 +232,7 @@ namespace QuantConnect.TradingTechnologiesTests
         }
 
         [TestCaseSource(nameof(_stopMarketOrderTestCases))]
-        public void SubmitsStopMarketOrder(int quantity, decimal stopPrice, bool isValid, string errorText)
+        public void SubmitsStopMarketOrder(Symbol symbol, int quantity, int stopPriceOffsetTicks, bool isValid, string errorText)
         {
             using (var brokerage = CreateBrokerage())
             {
@@ -252,7 +258,9 @@ namespace QuantConnect.TradingTechnologiesTests
                 brokerage.Connect();
                 Assert.IsTrue(brokerage.IsConnected);
 
-                var order = new StopMarketOrder(_symbolEs, quantity, stopPrice, DateTime.UtcNow);
+                var stopPrice = _bidPrices[symbol] + _tickSizes[symbol] * stopPriceOffsetTicks;
+
+                var order = new StopMarketOrder(symbol, quantity, stopPrice, DateTime.UtcNow);
                 _orderProvider.Add(order);
 
                 Assert.IsTrue(brokerage.PlaceOrder(order));
@@ -262,7 +270,7 @@ namespace QuantConnect.TradingTechnologiesTests
         }
 
         [TestCaseSource(nameof(_stopLimitOrderTestCases))]
-        public void SubmitsStopLimitOrder(int quantity, decimal stopPrice, decimal limitPrice, bool isValid, string errorText)
+        public void SubmitsStopLimitOrder(Symbol symbol, int quantity, int stopPriceOffsetTicks, int limitPriceOffsetTicks, bool isValid, string errorText)
         {
             using (var brokerage = CreateBrokerage())
             {
@@ -288,7 +296,10 @@ namespace QuantConnect.TradingTechnologiesTests
                 brokerage.Connect();
                 Assert.IsTrue(brokerage.IsConnected);
 
-                var order = new StopLimitOrder(_symbolEs, quantity, stopPrice, limitPrice, DateTime.UtcNow);
+                var stopPrice = _bidPrices[symbol] + _tickSizes[symbol] * stopPriceOffsetTicks;
+                var limitPrice = _bidPrices[symbol] + _tickSizes[symbol] * limitPriceOffsetTicks;
+
+                var order = new StopLimitOrder(symbol, quantity, stopPrice, limitPrice, DateTime.UtcNow);
                 _orderProvider.Add(order);
 
                 Assert.IsTrue(brokerage.PlaceOrder(order));
@@ -332,6 +343,8 @@ namespace QuantConnect.TradingTechnologiesTests
         [Test]
         public void SubmitsBuyLimitOrderAndCancelsIt()
         {
+            var symbol = _symbolEs;
+
             using (var brokerage = CreateBrokerage())
             {
                 var submittedEvent = new ManualResetEvent(false);
@@ -353,9 +366,9 @@ namespace QuantConnect.TradingTechnologiesTests
                 Assert.IsTrue(brokerage.IsConnected);
 
                 const int quantity = 1;
-                const decimal limitPrice = BidPrice - TickSize * OffsetTicks;
+                var limitPrice = _bidPrices[symbol] - _tickSizes[symbol] * OffsetTicks;
 
-                var order = new LimitOrder(_symbolEs, quantity, limitPrice, DateTime.UtcNow);
+                var order = new LimitOrder(symbol, quantity, limitPrice, DateTime.UtcNow);
                 _orderProvider.Add(order);
 
                 Assert.IsTrue(brokerage.PlaceOrder(order));
@@ -373,6 +386,8 @@ namespace QuantConnect.TradingTechnologiesTests
         [Test]
         public void SubmitsBuyLimitOrderAndMovesItDown()
         {
+            var symbol = _symbolEs;
+
             using (var brokerage = CreateBrokerage())
             {
                 var submittedEvent = new ManualResetEvent(false);
@@ -394,9 +409,9 @@ namespace QuantConnect.TradingTechnologiesTests
                 Assert.IsTrue(brokerage.IsConnected);
 
                 const int quantity = 1;
-                const decimal limitPrice = BidPrice - TickSize * OffsetTicks;
+                var limitPrice = _bidPrices[symbol] - _tickSizes[symbol] * OffsetTicks;
 
-                var order = new LimitOrder(_symbolEs, quantity, limitPrice, DateTime.UtcNow);
+                var order = new LimitOrder(symbol, quantity, limitPrice, DateTime.UtcNow);
                 _orderProvider.Add(order);
 
                 Assert.IsTrue(brokerage.PlaceOrder(order));
@@ -405,7 +420,7 @@ namespace QuantConnect.TradingTechnologiesTests
 
                 Thread.Sleep(5000);
 
-                const decimal newLimitPrice = BidPrice - TickSize * (OffsetTicks + 2);
+                var newLimitPrice = _bidPrices[symbol] - _tickSizes[symbol] * (OffsetTicks + 2);
                 var request = new UpdateOrderRequest(DateTime.UtcNow, order.Id, new UpdateOrderFields { LimitPrice = newLimitPrice });
                 order.ApplyUpdateOrderRequest(request);
                 Assert.IsTrue(brokerage.UpdateOrder(order));
@@ -417,6 +432,8 @@ namespace QuantConnect.TradingTechnologiesTests
         [Test]
         public void SubmitsBuyLimitOrderAndMovesItDownAndCancelsIt()
         {
+            var symbol = _symbolEs;
+
             using (var brokerage = CreateBrokerage())
             {
                 var submittedEvent = new ManualResetEvent(false);
@@ -443,9 +460,9 @@ namespace QuantConnect.TradingTechnologiesTests
                 Assert.IsTrue(brokerage.IsConnected);
 
                 const int quantity = 1;
-                const decimal limitPrice = BidPrice - TickSize * OffsetTicks;
+                var limitPrice = _bidPrices[symbol] - _tickSizes[symbol] * OffsetTicks;
 
-                var order = new LimitOrder(_symbolEs, quantity, limitPrice, DateTime.UtcNow);
+                var order = new LimitOrder(symbol, quantity, limitPrice, DateTime.UtcNow);
                 _orderProvider.Add(order);
 
                 Assert.IsTrue(brokerage.PlaceOrder(order));
@@ -454,7 +471,7 @@ namespace QuantConnect.TradingTechnologiesTests
 
                 Thread.Sleep(5000);
 
-                const decimal newLimitPrice = BidPrice - TickSize * (OffsetTicks + 2);
+                var newLimitPrice = _bidPrices[symbol] - _tickSizes[symbol] * (OffsetTicks + 2);
                 var request = new UpdateOrderRequest(DateTime.UtcNow, order.Id, new UpdateOrderFields { LimitPrice = newLimitPrice });
                 order.ApplyUpdateOrderRequest(request);
                 Assert.IsTrue(brokerage.UpdateOrder(order));
@@ -472,6 +489,8 @@ namespace QuantConnect.TradingTechnologiesTests
         [Test]
         public void SubmitsBuyLimitOrderAndMovesItUpToBeFilled()
         {
+            var symbol = _symbolEs;
+
             using (var brokerage = CreateBrokerage())
             {
                 var submittedEvent = new ManualResetEvent(false);
@@ -498,9 +517,9 @@ namespace QuantConnect.TradingTechnologiesTests
                 Assert.IsTrue(brokerage.IsConnected);
 
                 const int quantity = 1;
-                const decimal limitPrice = BidPrice - TickSize * OffsetTicks;
+                var limitPrice = _bidPrices[symbol] - _tickSizes[symbol] * OffsetTicks;
 
-                var order = new LimitOrder(_symbolEs, quantity, limitPrice, DateTime.UtcNow);
+                var order = new LimitOrder(symbol, quantity, limitPrice, DateTime.UtcNow);
                 _orderProvider.Add(order);
 
                 Assert.IsTrue(brokerage.PlaceOrder(order));
@@ -509,7 +528,7 @@ namespace QuantConnect.TradingTechnologiesTests
 
                 Thread.Sleep(5000);
 
-                const decimal newLimitPrice = BidPrice + TickSize * OffsetTicks;
+                var newLimitPrice = _bidPrices[symbol] + _tickSizes[symbol] * OffsetTicks;
                 var request = new UpdateOrderRequest(DateTime.UtcNow, order.Id, new UpdateOrderFields { LimitPrice = newLimitPrice });
                 order.ApplyUpdateOrderRequest(request);
                 Assert.IsTrue(brokerage.UpdateOrder(order));
@@ -523,6 +542,8 @@ namespace QuantConnect.TradingTechnologiesTests
         [Test]
         public void SubmitsMarketOrderForInvalidAccount()
         {
+            var symbol = _symbolEs;
+
             _fixConfiguration.AccountName = "XYZ";
 
             using (var brokerage = CreateBrokerage())
@@ -533,7 +554,8 @@ namespace QuantConnect.TradingTechnologiesTests
                 {
                     if (e.Status == OrderStatus.Invalid)
                     {
-                        Assert.That(e.Message.EndsWith($"Invalid account {_fixConfiguration.AccountName}"));
+                        Assert.That(e.Message.EndsWith($"Invalid account {_fixConfiguration.AccountName}") ||
+                                    e.Message.EndsWith("Trading Technologies Order Event"));
 
                         invalidEvent.Set();
                     }
@@ -542,7 +564,7 @@ namespace QuantConnect.TradingTechnologiesTests
                 brokerage.Connect();
                 Assert.IsTrue(brokerage.IsConnected);
 
-                var order = new MarketOrder(_symbolEs, 1, DateTime.UtcNow);
+                var order = new MarketOrder(symbol, 1, DateTime.UtcNow);
                 _orderProvider.Add(order);
 
                 Assert.IsTrue(brokerage.PlaceOrder(order));
@@ -554,6 +576,8 @@ namespace QuantConnect.TradingTechnologiesTests
         [Test]
         public void SubmitsMarketOrderForInvalidSymbol()
         {
+            var symbol = _invalidSymbol;
+
             using (var brokerage = CreateBrokerage())
             {
                 var invalidEvent = new ManualResetEvent(false);
@@ -562,7 +586,7 @@ namespace QuantConnect.TradingTechnologiesTests
                 {
                     if (e.Status == OrderStatus.Invalid)
                     {
-                        Assert.That(e.Message.Contains("Lookup by name failed"));
+                        Assert.That(e.Message.Contains("Lookup by name failed") || e.Message.Contains("No instrument found"));
 
                         invalidEvent.Set();
                     }
@@ -571,7 +595,7 @@ namespace QuantConnect.TradingTechnologiesTests
                 brokerage.Connect();
                 Assert.IsTrue(brokerage.IsConnected);
 
-                var order = new MarketOrder(_invalidSymbol, 1, DateTime.UtcNow);
+                var order = new MarketOrder(symbol, 1, DateTime.UtcNow);
                 _orderProvider.Add(order);
 
                 Assert.IsTrue(brokerage.PlaceOrder(order));
@@ -583,6 +607,8 @@ namespace QuantConnect.TradingTechnologiesTests
         [Test]
         public void SubmitsBuyLimitOrderAndWaitsForMultipleFills()
         {
+            var symbol = _symbolEs;
+
             using (var brokerage = CreateBrokerage())
             {
                 var submittedEvent = new ManualResetEvent(false);
@@ -603,7 +629,8 @@ namespace QuantConnect.TradingTechnologiesTests
                 brokerage.Connect();
                 Assert.IsTrue(brokerage.IsConnected);
 
-                var order = new LimitOrder(_symbolEs, 10, BidPrice, DateTime.UtcNow);
+                var limitPrice = _bidPrices[symbol];
+                var order = new LimitOrder(symbol, 10, limitPrice, DateTime.UtcNow);
                 _orderProvider.Add(order);
 
                 Assert.IsTrue(brokerage.PlaceOrder(order));
@@ -617,6 +644,8 @@ namespace QuantConnect.TradingTechnologiesTests
         [Test]
         public void SubmitsBuyLimitOrderAndWaitsForPartialFillAndCancelsIt()
         {
+            var symbol = _symbolEs;
+
             using (var brokerage = CreateBrokerage())
             {
                 var submittedEvent = new ManualResetEvent(false);
@@ -642,7 +671,8 @@ namespace QuantConnect.TradingTechnologiesTests
                 brokerage.Connect();
                 Assert.IsTrue(brokerage.IsConnected);
 
-                var order = new LimitOrder(_symbolEs, 10, BidPrice, DateTime.UtcNow);
+                var limitPrice = _bidPrices[symbol];
+                var order = new LimitOrder(symbol, 10, limitPrice, DateTime.UtcNow);
                 _orderProvider.Add(order);
 
                 Assert.IsTrue(brokerage.PlaceOrder(order));
@@ -660,6 +690,8 @@ namespace QuantConnect.TradingTechnologiesTests
         [Test]
         public void SubmitsBuyLimitOrderAndWaitsForPartialFillAndMovesItDown()
         {
+            var symbol = _symbolEs;
+
             using (var brokerage = CreateBrokerage())
             {
                 var submittedEvent = new ManualResetEvent(false);
@@ -685,7 +717,8 @@ namespace QuantConnect.TradingTechnologiesTests
                 brokerage.Connect();
                 Assert.IsTrue(brokerage.IsConnected);
 
-                var order = new LimitOrder(_symbolEs, 10, BidPrice, DateTime.UtcNow);
+                var limitPrice = _bidPrices[symbol];
+                var order = new LimitOrder(symbol, 10, limitPrice, DateTime.UtcNow);
                 _orderProvider.Add(order);
 
                 Assert.IsTrue(brokerage.PlaceOrder(order));
@@ -694,7 +727,7 @@ namespace QuantConnect.TradingTechnologiesTests
 
                 Assert.IsTrue(partiallyFilledEvent.WaitOne(TimeSpan.FromSeconds(60)));
 
-                const decimal newLimitPrice = BidPrice - TickSize * OffsetTicks;
+                var newLimitPrice = limitPrice - _tickSizes[symbol] * OffsetTicks;
                 var request = new UpdateOrderRequest(DateTime.UtcNow, order.Id, new UpdateOrderFields { LimitPrice = newLimitPrice });
                 order.ApplyUpdateOrderRequest(request);
                 Assert.IsTrue(brokerage.UpdateOrder(order));
@@ -706,6 +739,8 @@ namespace QuantConnect.TradingTechnologiesTests
         [Test]
         public void SubmitsBuyLimitOrderAndWaitsForPartialFillAndMovesItUpToBeFilled()
         {
+            var symbol = _symbolEs;
+
             using (var brokerage = CreateBrokerage())
             {
                 var submittedEvent = new ManualResetEvent(false);
@@ -736,7 +771,8 @@ namespace QuantConnect.TradingTechnologiesTests
                 brokerage.Connect();
                 Assert.IsTrue(brokerage.IsConnected);
 
-                var order = new LimitOrder(_symbolEs, 10, BidPrice, DateTime.UtcNow);
+                var limitPrice = _bidPrices[symbol];
+                var order = new LimitOrder(symbol, 10, limitPrice, DateTime.UtcNow);
                 _orderProvider.Add(order);
 
                 Assert.IsTrue(brokerage.PlaceOrder(order));
@@ -745,7 +781,7 @@ namespace QuantConnect.TradingTechnologiesTests
 
                 Assert.IsTrue(partiallyFilledEvent.WaitOne(TimeSpan.FromSeconds(60)));
 
-                const decimal newLimitPrice = BidPrice + TickSize * OffsetTicks;
+                var newLimitPrice = limitPrice + _tickSizes[symbol] * OffsetTicks;
                 var request = new UpdateOrderRequest(DateTime.UtcNow, order.Id, new UpdateOrderFields { LimitPrice = newLimitPrice });
                 order.ApplyUpdateOrderRequest(request);
                 Assert.IsTrue(brokerage.UpdateOrder(order));
@@ -756,65 +792,122 @@ namespace QuantConnect.TradingTechnologiesTests
             }
         }
 
-        private const decimal BidPrice = 3785.25m;
-        private const decimal TickSize = 0.25m;
-        private const int OffsetTicks = 5;
+        private readonly Dictionary<Symbol, decimal> _bidPrices = new Dictionary<Symbol, decimal>
+        {
+            { _symbolEs, 3933.25m },
+            { _symbolCl, 65.48m },
+            { _symbolVx, 29.45m },
+            { _symbolB, 68.24m },
+        };
+
+        private static readonly Dictionary<Symbol, decimal> _tickSizes = new Dictionary<Symbol, decimal>
+        {
+            { _symbolEs, 0.25m },
+            { _symbolCl, 0.01m },
+            { _symbolVx, 0.05m },
+            { _symbolB, 0.01m }
+        };
+
+        private const int OffsetTicks = 10;
+
+        private static object[] _marketOrderTestCases =
+        {
+            // Buy
+            new TestCaseData(_symbolEs, 1),
+            new TestCaseData(_symbolCl, 1),
+            new TestCaseData(_symbolVx, 1),
+            new TestCaseData(_symbolB, 1),
+
+            // Sell
+            new TestCaseData(_symbolEs, -1),
+            new TestCaseData(_symbolCl, -1),
+            new TestCaseData(_symbolVx, -1),
+            new TestCaseData(_symbolB, -1)
+        };
 
         private static readonly object[] _limitOrderTestCases =
         {
             // Buy below market price
-            new TestCaseData(1, BidPrice - TickSize * OffsetTicks, false),
+            new TestCaseData(_symbolEs, 1, -OffsetTicks, false),
+            new TestCaseData(_symbolCl, 1, -OffsetTicks, false),
+            new TestCaseData(_symbolVx, 1, -OffsetTicks, false),
 
             // Sell above market price
-            new TestCaseData(-1, BidPrice + TickSize * OffsetTicks, false),
+            new TestCaseData(_symbolEs, -1, OffsetTicks, false),
+            new TestCaseData(_symbolCl, -1, OffsetTicks, false),
+            new TestCaseData(_symbolVx, -1, OffsetTicks, false),
 
             // Buy above market price
-            new TestCaseData(1, BidPrice + TickSize * OffsetTicks, true),
+            new TestCaseData(_symbolEs, 1, OffsetTicks, true),
+            new TestCaseData(_symbolCl, 1, OffsetTicks, true),
+            new TestCaseData(_symbolVx, 1, OffsetTicks, true),
 
             // Sell below market price
-            new TestCaseData(-1, BidPrice - TickSize * OffsetTicks, true)
+            new TestCaseData(_symbolEs, -1, -OffsetTicks, true),
+            new TestCaseData(_symbolCl, -1, -OffsetTicks, true),
+            new TestCaseData(_symbolVx, -1, -OffsetTicks, true)
         };
 
         private static readonly object[] _stopMarketOrderTestCases =
         {
             // Buy above market price
-            new TestCaseData(1, BidPrice + TickSize * OffsetTicks, true, ""),
+            new TestCaseData(_symbolEs, 1, OffsetTicks, true, ""),
+            new TestCaseData(_symbolVx, 1, OffsetTicks, false, "Unsupported order type."),
 
             // Sell below market price
-            new TestCaseData(-1, BidPrice - TickSize * OffsetTicks, true, ""),
+            new TestCaseData(_symbolEs, -1, -OffsetTicks, true, ""),
+            new TestCaseData(_symbolVx, -1, -OffsetTicks, false, "Unsupported order type."),
 
             // Buy below market price
-            new TestCaseData(1, BidPrice - TickSize * OffsetTicks, false,
+            new TestCaseData(_symbolEs, 1, -OffsetTicks, false,
                 "Buy order stop price must be above last trade price"),
+            new TestCaseData(_symbolVx, 1, -OffsetTicks, false, "Unsupported order type."),
 
             // Sell above market price
-            new TestCaseData(-1, BidPrice + TickSize * OffsetTicks, false,
-                "Sell order stop price must be below last trade price")
+            new TestCaseData(_symbolEs, -1, OffsetTicks, false,
+                "Sell order stop price must be below last trade price"),
+            new TestCaseData(_symbolVx, -1, OffsetTicks, false, "Unsupported order type.")
         };
 
         private static readonly object[] _stopLimitOrderTestCases =
         {
             // Buy above market price
-            new TestCaseData(1, BidPrice + TickSize * OffsetTicks, BidPrice + TickSize * OffsetTicks * 2, true, ""),
+            new TestCaseData(_symbolEs, 1, OffsetTicks, OffsetTicks * 2, true, ""),
+            new TestCaseData(_symbolVx, 1, OffsetTicks, OffsetTicks * 2, true, ""),
+
+            // Buy above market price
+            new TestCaseData(_symbolEs, 1, OffsetTicks * 2, OffsetTicks, false,
+                "Stop price maxi-mini must be greater than or equal to trigger price"),
+            new TestCaseData(_symbolVx, 1, OffsetTicks * 2, OffsetTicks, true, ""),
 
             // Sell below market price
-            new TestCaseData(-1, BidPrice - TickSize * OffsetTicks, BidPrice - TickSize * OffsetTicks * 2, true, ""),
+            new TestCaseData(_symbolEs, -1, -OffsetTicks, -OffsetTicks * 2, true, ""),
+            new TestCaseData(_symbolVx, -1, -OffsetTicks, -OffsetTicks * 2, true, ""),
+
+            // Sell below market price
+            new TestCaseData(_symbolEs, -1, -OffsetTicks * 2, -OffsetTicks, false,
+                "Stop price maxi-mini must be smaller than or equal to trigger price"),
+            new TestCaseData(_symbolVx, -1, -OffsetTicks * 2, -OffsetTicks, true, ""),
 
             // Buy below market price
-            new TestCaseData(1, BidPrice - TickSize * OffsetTicks * 2, BidPrice - TickSize * OffsetTicks, false,
+            new TestCaseData(_symbolEs, 1, -OffsetTicks * 2, -OffsetTicks, false,
                 "Buy order stop price must be above last trade price"),
+            new TestCaseData(_symbolVx, 1, -OffsetTicks * 2, -OffsetTicks, true, ""),
 
             // Sell above market price
-            new TestCaseData(-1, BidPrice + TickSize * OffsetTicks * 2, BidPrice + TickSize * OffsetTicks, false,
+            new TestCaseData(_symbolEs, -1, OffsetTicks * 2, OffsetTicks, false,
                 "Sell order stop price must be below last trade price"),
+            new TestCaseData(_symbolVx, -1, OffsetTicks * 2, OffsetTicks, true, ""),
 
             // Buy below market price
-            new TestCaseData(1, BidPrice - TickSize * OffsetTicks, BidPrice - TickSize * OffsetTicks * 2, false,
+            new TestCaseData(_symbolEs, 1, -OffsetTicks, -OffsetTicks * 2, false,
                 "Stop price maxi-mini must be greater than or equal to trigger price"),
+            new TestCaseData(_symbolVx, 1, -OffsetTicks, -OffsetTicks * 2, true, ""),
 
             // Sell above market price
-            new TestCaseData(-1, BidPrice + TickSize * OffsetTicks, BidPrice + TickSize * OffsetTicks * 2, false,
-                "Stop price maxi-mini must be smaller than or equal to trigger price")
+            new TestCaseData(_symbolEs, -1, OffsetTicks, OffsetTicks * 2, false,
+                "Stop price maxi-mini must be smaller than or equal to trigger price"),
+            new TestCaseData(_symbolVx, -1, OffsetTicks, OffsetTicks * 2, true, "")
         };
 
         private static void ProcessFeed(IEnumerator<BaseData> enumerator, CancellationTokenSource cts, Action<BaseData> callback = null)

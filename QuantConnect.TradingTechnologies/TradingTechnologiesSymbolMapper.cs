@@ -49,6 +49,15 @@ namespace QuantConnect.TradingTechnologies
         // TT InstrumentId -> TT Instrument
         private readonly Dictionary<string, Instrument> _instruments = new Dictionary<string, Instrument>();
 
+        // LEAN symbol --> TT InstrumentId
+        private readonly Dictionary<Symbol, string> _mapSymbolToInstrumentId = new Dictionary<Symbol, string>();
+
+        // LEAN ticker --> TT ticker
+        private readonly Dictionary<string, string> _tickerMappings = new Dictionary<string, string>
+        {
+            { "B", "BRN" }
+        };
+
         public TradingTechnologiesSymbolMapper(TTApiClient apiClient)
         {
             _apiClient = apiClient;
@@ -61,6 +70,9 @@ namespace QuantConnect.TradingTechnologies
             _mapLeanMarketToSecurityExchange.Add(Market.NYMEX, "CME");
             _mapLeanMarketToSecurityExchange.Add(Market.CBOT, "CME");
 
+            // TODO: remove when Market.CFE is added to LEAN
+            _mapSecurityExchangeToLeanMarket.Add("CFE", Market.CBOE);
+
             _mapLeanSecurityTypeToProductType = _mapProductTypeToLeanSecurityType
                 .ToDictionary(x => x.Value, x => x.Key);
 
@@ -70,12 +82,14 @@ namespace QuantConnect.TradingTechnologies
 
         public string GetBrokerageSymbol(Symbol symbol)
         {
+            // unused
             throw new NotSupportedException();
         }
 
         public Symbol GetLeanSymbol(string brokerageSymbol, SecurityType securityType, string market,
             DateTime expirationDate = default(DateTime), decimal strike = 0, OptionRight optionRight = OptionRight.Call)
         {
+            // unused
             throw new NotSupportedException();
         }
 
@@ -83,7 +97,7 @@ namespace QuantConnect.TradingTechnologies
         {
             var instrument = GetInstrument(instrumentId);
 
-            var ticker = instrument.ProductSymbol;
+            var ticker = GetLeanTicker(instrument.ProductSymbol);
             var securityType = GetSecurityType(instrument.ProductTypeId);
             var market = GetMarket(instrument.MarketId);
             if (market == Market.CME)
@@ -97,7 +111,7 @@ namespace QuantConnect.TradingTechnologies
                     var expiryDate = GetFutureExpirationDate(instrument.ExpirationDate);
                     return Symbol.CreateFuture(ticker, market, expiryDate);
 
-                // TODO: add support for US Equities and Options (when testing environment available)
+                // TODO: US Equities and Options not supported by TT for now
                 case SecurityType.Equity:
                 case SecurityType.Option:
                 default:
@@ -105,11 +119,17 @@ namespace QuantConnect.TradingTechnologies
             }
         }
 
-        public string GetBrokerageMarket(string leanMarket)
+        public string GetBrokerageMarket(string leanMarket, SecurityType leanSecurityType)
         {
             if (!_mapLeanMarketToSecurityExchange.TryGetValue(leanMarket, out var market))
             {
                 throw new NotSupportedException($"Unsupported LEAN Market: {leanMarket}");
+            }
+
+            // TODO: remove when Market.CFE is added to LEAN
+            if (leanMarket == Market.CBOE && leanSecurityType == SecurityType.Future)
+            {
+                market = "CFE";
             }
 
             return market;
@@ -155,6 +175,126 @@ namespace QuantConnect.TradingTechnologies
             return securityType;
         }
 
+        public decimal GetDisplayFactor(Symbol symbol)
+        {
+            if (symbol.SecurityType == SecurityType.Future)
+            {
+                var instrumentId = GetInstrumentId(symbol);
+                var instrument = GetInstrument(instrumentId);
+
+                return instrument.DisplayFactor;
+            }
+
+            throw new NotSupportedException($"GetPriceMultiplier(): Unsupported security type: {symbol.SecurityType}");
+        }
+
+        public string GetBrokerageTicker(Symbol symbol)
+        {
+            var ticker = symbol.ID.Symbol;
+
+            if (_tickerMappings.TryGetValue(ticker, out var mappedTicker))
+            {
+                ticker = mappedTicker;
+            }
+
+            return ticker;
+        }
+
+        public string GetLeanTicker(string brokerageTicker)
+        {
+            var leanTicker = brokerageTicker;
+
+            var mapping = _tickerMappings.FirstOrDefault(x => x.Value == brokerageTicker);
+            if (mapping.Key != null)
+            {
+                leanTicker = mapping.Key;
+            }
+
+            return leanTicker;
+        }
+
+        private string GetInstrumentId(Symbol symbol)
+        {
+            if (!_mapSymbolToInstrumentId.TryGetValue(symbol, out var instrumentId))
+            {
+                var marketId = GetMarketId(symbol.ID.Market);
+
+                var products = _apiClient.GetProducts(marketId).SynchronouslyAwaitTaskResult();
+
+                var productTypeId = GetProductTypeId(symbol.SecurityType);
+
+                var ticker = GetBrokerageTicker(symbol);
+
+                var product = products.FirstOrDefault(x => x.ProductTypeId == productTypeId && x.Symbol == ticker);
+                if (product == null)
+                {
+                    throw new NotSupportedException($"GetInstrumentId(): product not found - ProductTypeId: {productTypeId}, Symbol: {ticker}");
+                }
+
+                var instruments = _apiClient.GetInstruments(product.ProductTypeId, product.Id).SynchronouslyAwaitTaskResult();
+                if (instruments.Count == 0)
+                {
+                    throw new NotSupportedException($"GetInstrumentId(): no instruments found - ProductTypeId: {product.ProductTypeId}, ProductId: {product.Id}");
+                }
+
+                var instrument = instruments.FirstOrDefault(x =>
+                {
+                    var date = (int) (x.ExpirationDate / 1000000);
+                    var expirationDate = new DateTime(date / 10000, date / 100 % 100, date % 100);
+                    return expirationDate == symbol.ID.Date;
+                });
+                if (instrument == null)
+                {
+                    throw new NotSupportedException($"GetInstrumentId(): expiration date not found - ExpirationDate: {symbol.ID.Date:yyyy-MM-dd}, Symbol: {ticker}");
+                }
+
+                if (!_instruments.ContainsKey(instrument.Id))
+                {
+                    _instruments.Add(instrument.Id, instrument);
+                }
+
+                instrumentId = instrument.Id;
+
+                _mapSymbolToInstrumentId.Add(symbol, instrumentId);
+            }
+
+            return instrumentId;
+        }
+
+        private string GetMarketId(string market)
+        {
+            // TODO: remove when Market.CFE is added to LEAN
+            if (market == Market.CBOE)
+            {
+                return "93"; // TT CFE
+            }
+
+            // TT groups all CME Group exchanges under the same security exchange
+            if (market == Market.COMEX || market == Market.NYMEX || market == Market.CBOT)
+            {
+                market = Market.CME;
+            }
+
+            var entry = _mapMarkets.FirstOrDefault(x => x.Value == market);
+            if (entry.Value == null)
+            {
+                throw new NotSupportedException($"GetMarketId(): unsupported Lean market: {market}");
+            }
+
+            return entry.Key.ToStringInvariant();
+        }
+
+        private string GetProductTypeId(SecurityType securityType)
+        {
+            var entry = _mapProductTypes.FirstOrDefault(x => x.Value == securityType);
+            if (entry.Value == default)
+            {
+                throw new NotSupportedException($"GetProductTypeId(): unsupported Security type: {securityType}");
+            }
+
+            return entry.Key.ToStringInvariant();
+        }
+
         private void LoadProductTypesMap()
         {
             var productTypes = _apiClient.GetProductTypes().SynchronouslyAwaitTaskResult();
@@ -177,6 +317,11 @@ namespace QuantConnect.TradingTechnologies
                 if (_mapSecurityExchangeToLeanMarket.TryGetValue(market.Name, out var leanMarket))
                 {
                     _mapMarkets.Add(Convert.ToInt32(market.Id, CultureInfo.InvariantCulture), leanMarket);
+                }
+                // TODO: remove when Market.CFE is added to LEAN
+                else if (market.Name == "CFE")
+                {
+                    _mapMarkets.Add(Convert.ToInt32(market.Id, CultureInfo.InvariantCulture), Market.CBOE);
                 }
             }
         }

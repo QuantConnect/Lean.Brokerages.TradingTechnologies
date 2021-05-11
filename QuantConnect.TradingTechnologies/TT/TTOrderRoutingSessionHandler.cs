@@ -51,10 +51,11 @@ namespace QuantConnect.TradingTechnologies.TT
         {
             var side = new Side(order.Direction == OrderDirection.Buy ? Side.BUY : Side.SELL);
 
-            var securityExchange = new SecurityExchange(_symbolMapper.GetBrokerageMarket(order.Symbol.ID.Market));
+            var ticker = _symbolMapper.GetBrokerageTicker(order.Symbol);
+            var securityExchange = new SecurityExchange(_symbolMapper.GetBrokerageMarket(order.Symbol.ID.Market, order.Symbol.SecurityType));
             var securityType = new QuantConnect.Fix.TT.FIX44.Fields.SecurityType(_symbolMapper.GetBrokerageProductType(order.Symbol.SecurityType));
 
-            var priceMultiplier = Utility.GetPriceMultiplier(order.Symbol);
+            var displayFactor = _symbolMapper.GetDisplayFactor(order.Symbol);
 
             var ttOrder = new NewOrderSingle
             {
@@ -62,14 +63,14 @@ namespace QuantConnect.TradingTechnologies.TT
 
                 // Instrument:
                 SecurityExchange = securityExchange,
-                Symbol = new QuantConnect.Fix.TT.FIX44.Fields.Symbol(order.Symbol.ID.Symbol),
+                Symbol = new QuantConnect.Fix.TT.FIX44.Fields.Symbol(ticker),
                 SecurityType = securityType,
 
                 // Order info:
                 OrderQty = new OrderQty(order.AbsoluteQuantity),
                 Side = side,
                 OrdType = new OrdType(Utility.ConvertOrderType(order.Type)),
-                TimeInForce = Utility.ConvertTimeInForce(order.TimeInForce),
+                TimeInForce = Utility.ConvertTimeInForce(order.TimeInForce, order.Type),
 
                 // Account details:
                 Account = new Account(_account),
@@ -80,22 +81,30 @@ namespace QuantConnect.TradingTechnologies.TT
 
             if (order.Symbol.SecurityType == SecurityType.Future)
             {
-                ttOrder.MaturityMonthYear = Utility.GetMaturityMonthYear(order.Symbol);
+                // TODO: update when Market.CFE is added to LEAN
+                if (order.Symbol.ID.Market == Market.CBOE)
+                {
+                    ttOrder.MaturityDate = Utility.GetMaturityDate(order.Symbol);
+                }
+                else
+                {
+                    ttOrder.MaturityMonthYear = Utility.GetMaturityMonthYear(order.Symbol);
+                }
             }
 
             switch (order.Type)
             {
                 case OrderType.Limit:
-                    ttOrder.Price = new Price(((LimitOrder)order).LimitPrice * priceMultiplier);
+                    ttOrder.Price = new Price(((LimitOrder)order).LimitPrice / displayFactor);
                     break;
 
                 case OrderType.StopMarket:
-                    ttOrder.StopPx = new StopPx(((StopMarketOrder)order).StopPrice * priceMultiplier);
+                    ttOrder.StopPx = new StopPx(((StopMarketOrder)order).StopPrice / displayFactor);
                     break;
 
                 case OrderType.StopLimit:
-                    ttOrder.StopPx = new StopPx(((StopLimitOrder)order).StopPrice * priceMultiplier);
-                    ttOrder.Price = new Price(((StopLimitOrder)order).LimitPrice * priceMultiplier);
+                    ttOrder.StopPx = new StopPx(((StopLimitOrder)order).StopPrice / displayFactor);
+                    ttOrder.Price = new Price(((StopLimitOrder)order).LimitPrice / displayFactor);
                     break;
             }
 
@@ -112,24 +121,24 @@ namespace QuantConnect.TradingTechnologies.TT
                 OrigClOrdID = new OrigClOrdID(order.BrokerId[0])
             };
 
-            var priceMultiplier = Utility.GetPriceMultiplier(order.Symbol);
+            var displayFactor = _symbolMapper.GetDisplayFactor(order.Symbol);
 
             switch (order.Type)
             {
                 case OrderType.Limit:
                     request.OrderQty = new OrderQty(order.AbsoluteQuantity);
-                    request.Price = new Price(((LimitOrder)order).LimitPrice * priceMultiplier);
+                    request.Price = new Price(((LimitOrder)order).LimitPrice / displayFactor);
                     break;
 
                 case OrderType.StopMarket:
                     request.OrderQty = new OrderQty(order.AbsoluteQuantity);
-                    request.StopPx = new StopPx(((StopMarketOrder)order).StopPrice * priceMultiplier);
+                    request.StopPx = new StopPx(((StopMarketOrder)order).StopPrice / displayFactor);
                     break;
 
                 case OrderType.StopLimit:
                     request.OrderQty = new OrderQty(order.AbsoluteQuantity);
-                    request.StopPx = new StopPx(((StopLimitOrder)order).StopPrice * priceMultiplier);
-                    request.Price = new Price(((StopLimitOrder)order).LimitPrice * priceMultiplier);
+                    request.StopPx = new StopPx(((StopLimitOrder)order).StopPrice / displayFactor);
+                    request.Price = new Price(((StopLimitOrder)order).LimitPrice / displayFactor);
                     break;
             }
 

@@ -34,7 +34,7 @@ namespace QuantConnect.TradingTechnologies.Fix
         public string OrderRoutingHost { get; set; }
         public string OrderRoutingPort { get; set; }
 
-        public SessionSettings GetSessionSettings()
+        public SessionSettings GetDefaultSessionSettings()
         {
             // http://www.quickfixengine.org/quickfix/doc/html/configuration.html
 
@@ -58,15 +58,6 @@ namespace QuantConnect.TradingTechnologies.Fix
 
             settings.Set(defaultDic);
 
-            var marketDataDic = new Dictionary();
-            marketDataDic.SetString("SenderCompID", MarketDataSenderCompId);
-            marketDataDic.SetString("TargetCompID", MarketDataTargetCompId);
-            marketDataDic.SetString("SocketConnectHost", MarketDataHost);
-            marketDataDic.SetString("SocketConnectPort", MarketDataPort);
-
-            var marketDataSessionId = new SessionID(FixVersionString, MarketDataSenderCompId, MarketDataTargetCompId);
-            settings.Set(marketDataSessionId, marketDataDic);
-
             var orderRoutingDic = new Dictionary();
             orderRoutingDic.SetString("SenderCompID", OrderRoutingSenderCompId);
             orderRoutingDic.SetString("TargetCompID", OrderRoutingTargetCompId);
@@ -77,6 +68,17 @@ namespace QuantConnect.TradingTechnologies.Fix
             settings.Set(orderRoutingSessionId, orderRoutingDic);
 
             return settings;
+        }
+
+        public Dictionary GetMarketDataSessionSettings()
+        {
+            var marketDataDic = new Dictionary();
+            marketDataDic.SetString("SenderCompID", MarketDataSenderCompId);
+            marketDataDic.SetString("TargetCompID", MarketDataTargetCompId);
+            marketDataDic.SetString("SocketConnectHost", MarketDataHost);
+            marketDataDic.SetString("SocketConnectPort", MarketDataPort);
+
+            return marketDataDic;
         }
     }
 }

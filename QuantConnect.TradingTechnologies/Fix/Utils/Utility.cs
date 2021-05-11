@@ -7,31 +7,12 @@ using System;
 using QuantConnect.Fix.TT.FIX44.Fields;
 using QuantConnect.Fix.TT.FIX44.Messages;
 using QuantConnect.Orders;
-using QuantConnect.Securities;
 using TimeInForce = QuantConnect.Orders.TimeInForce;
 
 namespace QuantConnect.TradingTechnologies.Fix.Utils
 {
     public static class Utility
     {
-        private static readonly SymbolPropertiesDatabase _symbolPropertiesDatabase = SymbolPropertiesDatabase.FromDataFolder();
-
-        public static decimal GetPriceMultiplier(Symbol symbol)
-        {
-            if (symbol.SecurityType == SecurityType.Future)
-            {
-                if (_symbolPropertiesDatabase.TryGetMarket(symbol.ID.Symbol, symbol.SecurityType, out var market))
-                {
-                    var symbolProperties = _symbolPropertiesDatabase.GetSymbolProperties(market, symbol, symbol.SecurityType, Currencies.USD);
-                    var decimalPlaces = (int)BitConverter.GetBytes(decimal.GetBits(symbolProperties.MinimumPriceVariation)[3])[2];
-
-                    return (int)Math.Pow(10, decimalPlaces);
-                }
-            }
-
-            return 100;
-        }
-
         public static OrderStatus ConvertOrderStatus(ExecutionReport execution)
         {
             var execType = execution.ExecType.getValue();
@@ -124,10 +105,16 @@ namespace QuantConnect.TradingTechnologies.Fix.Utils
             }
         }
 
-        public static QuantConnect.Fix.TT.FIX44.Fields.TimeInForce ConvertTimeInForce(TimeInForce timeInForce)
+        public static QuantConnect.Fix.TT.FIX44.Fields.TimeInForce ConvertTimeInForce(TimeInForce timeInForce, OrderType orderType)
         {
             if (timeInForce == TimeInForce.GoodTilCanceled)
             {
+                if (orderType == OrderType.Market)
+                {
+                    // some exchanges do not accept GTC with market orders
+                    return new QuantConnect.Fix.TT.FIX44.Fields.TimeInForce(QuantConnect.Fix.TT.FIX44.Fields.TimeInForce.DAY);
+                }
+
                 return new QuantConnect.Fix.TT.FIX44.Fields.TimeInForce(QuantConnect.Fix.TT.FIX44.Fields.TimeInForce.GOOD_TILL_CANCEL);
             }
 
@@ -152,6 +139,19 @@ namespace QuantConnect.TradingTechnologies.Fix.Utils
             var maturity = $"{2000 + properties.ExpirationYearShort:D4}{properties.ExpirationMonth:D2}";
 
             return new MaturityMonthYear(maturity);
+        }
+
+        // only used for CFE (VX)
+        public static MaturityDate GetMaturityDate(Symbol symbol)
+        {
+            if (symbol.SecurityType != SecurityType.Future)
+            {
+                throw new NotSupportedException("GetMaturityDate() can only be called for the Future security type.");
+            }
+
+            var expirationDate = $"{symbol.ID.Date.Year:D4}{symbol.ID.Date.Month:D2}{symbol.ID.Date.Day:D2}";
+
+            return new MaturityDate(expirationDate);
         }
     }
 }
