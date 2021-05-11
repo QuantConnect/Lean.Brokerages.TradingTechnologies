@@ -25,6 +25,7 @@ using BaseData = QuantConnect.Data.BaseData;
 
 namespace QuantConnect.TradingTechnologies
 {
+    [BrokerageFactory(typeof(TradingTechnologiesBrokerageFactory))]
     public class TradingTechnologiesBrokerage : Brokerage, IDataQueueHandler, IDataQueueUniverseProvider
     {
         private readonly IAlgorithm _algorithm;
