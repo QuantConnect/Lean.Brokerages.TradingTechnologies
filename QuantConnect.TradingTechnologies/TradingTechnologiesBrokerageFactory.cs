@@ -19,6 +19,7 @@ namespace QuantConnect.TradingTechnologies
     /// <summary>
     /// Provides an implementations of <see cref="IBrokerageFactory"/> that produces a <see cref="TradingTechnologiesBrokerage"/>
     /// </summary>
+    [BrokerageFactory(typeof(TradingTechnologiesBrokerage))]
     public class TradingTechnologiesBrokerageFactory : BrokerageFactory
     {
         /// <summary>
