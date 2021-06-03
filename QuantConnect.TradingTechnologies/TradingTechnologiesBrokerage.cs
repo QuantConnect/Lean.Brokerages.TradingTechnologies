@@ -173,7 +173,6 @@ namespace QuantConnect.TradingTechnologies
                 var holding = new Holding
                 {
                     Symbol = symbol,
-                    Type = symbol.SecurityType,
                     Quantity = position.NetPosition.Value,
                     AveragePrice = position.OpenAvgPrice * displayFactor ?? 0,
                     MarketPrice = position.PnlPrice * displayFactor ?? 0,
