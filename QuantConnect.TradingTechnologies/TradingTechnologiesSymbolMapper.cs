@@ -81,13 +81,13 @@ namespace QuantConnect.TradingTechnologies
             LoadMarketsMap();
 
             Log.Trace("TradingTechnologiesSymbolMapper(): LeanSecurityTypeToProductType: " +
-                      $" {string.Join(",", _mapLeanSecurityTypeToProductType.Select(pair => $"{pair.Key}:{pair.Value}"))}");
+                      $"{string.Join(",", _mapLeanSecurityTypeToProductType.Select(pair => $"{pair.Key}:{pair.Value}"))}");
             Log.Trace("TradingTechnologiesSymbolMapper(): SecurityExchangeToLeanMarket: " +
-                      $" {string.Join(",", _mapSecurityExchangeToLeanMarket.Select(pair => $"{pair.Key}:{pair.Value}"))}");
+                      $"{string.Join(",", _mapSecurityExchangeToLeanMarket.Select(pair => $"{pair.Key}:{pair.Value}"))}");
             Log.Trace("TradingTechnologiesSymbolMapper(): LeanMarketToSecurityExchange: " +
-                      $" {string.Join(",", _mapLeanMarketToSecurityExchange.Select(pair => $"{pair.Key}:{pair.Value}"))}");
+                      $"{string.Join(",", _mapLeanMarketToSecurityExchange.Select(pair => $"{pair.Key}:{pair.Value}"))}");
             Log.Trace("TradingTechnologiesSymbolMapper(): Markets: " +
-                      $" {string.Join(",", _mapMarkets.Select(pair => $"{pair.Key}:{pair.Value}"))}");
+                      $"{string.Join(",", _mapMarkets.Select(pair => $"{pair.Key}:{pair.Value}"))}");
         }
 
         public string GetBrokerageSymbol(Symbol symbol)
@@ -326,7 +326,6 @@ namespace QuantConnect.TradingTechnologies
             {
                 var id = Convert.ToInt32(market.Id, CultureInfo.InvariantCulture);
                 var name = market.Name.ToUpperInvariant();
-
                 if (_mapSecurityExchangeToLeanMarket.TryGetValue(name, out var leanMarket))
                 {
                     _mapMarkets.Add(id, leanMarket);

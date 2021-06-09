@@ -179,6 +179,7 @@ namespace QuantConnect.TradingTechnologies.TT.Api
         {
             if (!await HasToken().ConfigureAwait(false))
             {
+                Log.Error($"RequestAsync({service}, {function}): failed because no token is available");
                 return null;
             }
 
