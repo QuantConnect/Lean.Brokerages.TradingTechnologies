@@ -33,7 +33,6 @@ namespace QuantConnect.TradingTechnologies
         private readonly IOrderProvider _orderProvider;
         private readonly IDataAggregator _aggregator;
 
-        private bool _cashInitialized;
         private bool _isDataQueueHandlerInitialized;
 
         private readonly EventBasedDataQueueHandlerSubscriptionManager _subscriptionManager;
@@ -187,25 +186,7 @@ namespace QuantConnect.TradingTechnologies
 
         public override List<CashAmount> GetCashBalance()
         {
-            // TODO: waiting for TT feedback
-
-            if (!_cashInitialized)
-            {
-                // really only want to return the value on the first request
-                _cashInitialized = true;
-
-                if (!_job.BrokerageData.TryGetValue("tt-initial-cash-amount", out var initialCashAmount) ||
-                    string.IsNullOrWhiteSpace(initialCashAmount) ||
-                    !_job.BrokerageData.TryGetValue("tt-initial-cash-currency", out var initialCashCurrency) ||
-                    string.IsNullOrWhiteSpace(initialCashCurrency))
-                {
-                    throw new ArgumentException("Initial TradingTechnologies cash balance not defined.");
-                }
-
-                return new List<CashAmount> { new CashAmount(Parse.Decimal(initialCashAmount), initialCashCurrency) };
-            }
-
-            return _algorithm.Portfolio.CashBook.Select(x => new CashAmount(x.Value.Amount, x.Value.Symbol)).ToList();
+            return GetCashBalance(_job.BrokerageData, _algorithm.Portfolio.CashBook);
         }
 
         public override bool PlaceOrder(Order order)
