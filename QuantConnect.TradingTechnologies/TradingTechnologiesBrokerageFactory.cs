@@ -56,8 +56,7 @@ namespace QuantConnect.TradingTechnologies
             { "tt-order-routing-host", Config.Get("tt-order-routing-host") },
             { "tt-order-routing-port", Config.Get("tt-order-routing-port") },
 
-            { "tt-initial-cash-amount", Config.Get("tt-initial-cash-amount") },
-            { "tt-initial-cash-currency", Config.Get("tt-initial-cash-currency") },
+            { "live-cash-balance", Config.Get("live-cash-balance") },
 
             { "tt-log-fix-messages", Config.Get("tt-log-fix-messages") }
         };
