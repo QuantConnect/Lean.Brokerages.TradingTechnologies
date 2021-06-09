@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using QuantConnect.Brokerages;
+using QuantConnect.Logging;
 using QuantConnect.Securities;
 using QuantConnect.TradingTechnologies.TT.Api;
 
@@ -78,6 +79,15 @@ namespace QuantConnect.TradingTechnologies
 
             LoadProductTypesMap();
             LoadMarketsMap();
+
+            Log.Trace("TradingTechnologiesSymbolMapper(): LeanSecurityTypeToProductType: " +
+                      $" {string.Join(",", _mapLeanSecurityTypeToProductType.Select(pair => $"{pair.Key}:{pair.Value}"))}");
+            Log.Trace("TradingTechnologiesSymbolMapper(): SecurityExchangeToLeanMarket: " +
+                      $" {string.Join(",", _mapSecurityExchangeToLeanMarket.Select(pair => $"{pair.Key}:{pair.Value}"))}");
+            Log.Trace("TradingTechnologiesSymbolMapper(): LeanMarketToSecurityExchange: " +
+                      $" {string.Join(",", _mapLeanMarketToSecurityExchange.Select(pair => $"{pair.Key}:{pair.Value}"))}");
+            Log.Trace("TradingTechnologiesSymbolMapper(): Markets: " +
+                      $" {string.Join(",", _mapMarkets.Select(pair => $"{pair.Key}:{pair.Value}"))}");
         }
 
         public string GetBrokerageSymbol(Symbol symbol)
@@ -314,14 +324,17 @@ namespace QuantConnect.TradingTechnologies
 
             foreach (var market in markets)
             {
-                if (_mapSecurityExchangeToLeanMarket.TryGetValue(market.Name, out var leanMarket))
+                var id = Convert.ToInt32(market.Id, CultureInfo.InvariantCulture);
+                var name = market.Name.ToUpperInvariant();
+
+                if (_mapSecurityExchangeToLeanMarket.TryGetValue(name, out var leanMarket))
                 {
-                    _mapMarkets.Add(Convert.ToInt32(market.Id, CultureInfo.InvariantCulture), leanMarket);
+                    _mapMarkets.Add(id, leanMarket);
                 }
                 // TODO: remove when Market.CFE is added to LEAN
-                else if (market.Name == "CFE")
+                else if (name == "CFE")
                 {
-                    _mapMarkets.Add(Convert.ToInt32(market.Id, CultureInfo.InvariantCulture), Market.CBOE);
+                    _mapMarkets.Add(id, Market.CBOE);
                 }
             }
         }
