@@ -101,6 +101,22 @@ namespace QuantConnect.TradingTechnologies.Fix.Core
             _handler = handler;
         }
 
+        public void Unregister(IFixOutboundBrokerageHandler handler)
+        {
+            if (handler == null)
+            {
+                throw new ArgumentNullException(nameof(handler));
+            }
+
+            if (_handler == null || handler != _handler)
+            {
+                throw new Exception(
+                    $"The handler has not been registered: {handler.GetType().FullName}#{handler.GetHashCode()}");
+            }
+
+            _handler = null;
+        }
+
         public void Receive(ExecutionReport execution)
         {
             if (execution == null)

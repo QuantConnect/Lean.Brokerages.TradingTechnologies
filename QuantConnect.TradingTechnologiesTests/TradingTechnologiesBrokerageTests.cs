@@ -18,6 +18,11 @@ using QuantConnect.Orders;
 using QuantConnect.Packets;
 using QuantConnect.TradingTechnologies;
 using QuantConnect.TradingTechnologies.Fix;
+using QuantConnect.TradingTechnologies.Fix.Core;
+using QuantConnect.TradingTechnologies.TT;
+using QuantConnect.TradingTechnologies.TT.Api;
+using QuickFix;
+using Log = QuantConnect.Logging.Log;
 
 namespace QuantConnect.TradingTechnologiesTests
 {
@@ -790,6 +795,28 @@ namespace QuantConnect.TradingTechnologiesTests
 
                 Assert.IsTrue(filledEvent.WaitOne(TimeSpan.FromSeconds(5)));
             }
+        }
+
+        [Test]
+        public void CanLogonAfterLogout()
+        {
+            using var apiClient = new TTApiClient(_fixConfiguration.RestAppKey, _fixConfiguration.RestAppSecret, _fixConfiguration.RestEnvironment);
+            var symbolMapper = new TradingTechnologiesSymbolMapper(apiClient);
+
+            var marketDataController = new FixMarketDataController();
+            using var brokerageController = new FixBrokerageController(symbolMapper);
+            var fixProtocolDirector = new TTFixProtocolDirector(symbolMapper, _fixConfiguration, marketDataController, brokerageController);
+
+            using var fixInstance = new FixInstance(fixProtocolDirector, _fixConfiguration, true);
+            fixInstance.Initialise();
+
+            var sessionId = new SessionID(_fixConfiguration.FixVersionString, _fixConfiguration.OrderRoutingSenderCompId, _fixConfiguration.OrderRoutingTargetCompId);
+
+            fixInstance.OnLogout(sessionId);
+
+            fixInstance.OnLogon(sessionId);
+
+            fixInstance.Terminate();
         }
 
         private readonly Dictionary<Symbol, decimal> _bidPrices = new Dictionary<Symbol, decimal>
