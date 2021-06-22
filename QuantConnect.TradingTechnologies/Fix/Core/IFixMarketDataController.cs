@@ -23,6 +23,12 @@ namespace QuantConnect.TradingTechnologies.Fix.Core
         void Register(IFixOutboundMarketDataHandler handler);
 
         /// <summary>
+        ///     Unregisters a market data handler from this controller.
+        /// </summary>
+        /// <param name="handler">Handler to register</param>
+        void Unregister(IFixOutboundMarketDataHandler handler);
+
+        /// <summary>
         ///     Subscribe to market data for a symbol.
         /// </summary>
         /// <param name="input">(Demonstrative).  Console input. Will be replaced by QC objects.</param>

@@ -72,7 +72,18 @@ namespace QuantConnect.TradingTechnologies.TT
         {
             Logging.Log.Trace($"OnLogout(): Removing handler for SessionId: {sessionId}");
 
-            _sessionHandlers.TryRemove(sessionId, out _);
+            if (_sessionHandlers.TryRemove(sessionId, out var handler))
+            {
+                if (sessionId.SenderCompID == _fixConfiguration.MarketDataSenderCompId && sessionId.TargetCompID == _fixConfiguration.MarketDataTargetCompId)
+                {
+                    _fixMarketDataController.Unregister((IFixOutboundMarketDataHandler)handler);
+                }
+
+                if (sessionId.SenderCompID == _fixConfiguration.OrderRoutingSenderCompId && sessionId.TargetCompID == _fixConfiguration.OrderRoutingTargetCompId)
+                {
+                    _fixBrokerageController.Unregister((IFixOutboundBrokerageHandler)handler);
+                }
+            }
         }
 
         public void Handle(Message msg, SessionID sessionId)

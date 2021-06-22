@@ -25,6 +25,12 @@ namespace QuantConnect.TradingTechnologies.Fix.Core
         void Register(IFixOutboundBrokerageHandler handler);
 
         /// <summary>
+        ///     Unregisters a brokerage handler from this controller.
+        /// </summary>
+        /// <param name="handler">Handler to register</param>
+        void Unregister(IFixOutboundBrokerageHandler handler);
+
+        /// <summary>
         ///     Receive an order status update.
         /// </summary>
         /// <param name="orderEvent">Order event</param>
