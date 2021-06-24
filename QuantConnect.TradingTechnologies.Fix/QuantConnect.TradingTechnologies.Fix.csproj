@@ -5,12 +5,13 @@
     <ProjectGuid>{2E71AA9C-0EEE-4390-85DF-4021440F14C0}</ProjectGuid>
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyTitle>QuantConnect.TradingTechnologies.Fix</AssemblyTitle>
+    <AssemblyName>QuantConnect.TradingTechnologies.Fix</AssemblyName>
     <Product>QuantConnect.TradingTechnologies.Fix</Product>
-    <Copyright>Copyright ©  2020</Copyright>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <CodeAnalysisRuleSet>..\..\Lean\QuantConnect.ruleset</CodeAnalysisRuleSet>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -20,6 +21,9 @@
     <DebugType>pdbonly</DebugType>
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Lean\Common\Properties\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="QuickFix.Net.NETCore" Version="1.8.1" />
   </ItemGroup>
