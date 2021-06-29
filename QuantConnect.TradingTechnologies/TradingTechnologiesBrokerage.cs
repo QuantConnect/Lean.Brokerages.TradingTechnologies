@@ -5,8 +5,16 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Security.Cryptography;
+using System.Text;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using QuantConnect.Brokerages;
+using QuantConnect.Configuration;
 using QuantConnect.Data;
 using QuantConnect.Fix.TT.FIX44.Messages;
 using QuantConnect.Interfaces;
@@ -15,12 +23,14 @@ using QuantConnect.Orders;
 using QuantConnect.Orders.Fees;
 using QuantConnect.Packets;
 using QuantConnect.Securities;
+using QuantConnect.Api;
 using QuantConnect.TradingTechnologies.Fix;
 using QuantConnect.TradingTechnologies.Fix.Core;
 using QuantConnect.TradingTechnologies.Fix.Utils;
 using QuantConnect.TradingTechnologies.TT;
 using QuantConnect.TradingTechnologies.TT.Api;
 using QuantConnect.Util;
+using RestSharp;
 using BaseData = QuantConnect.Data.BaseData;
 
 namespace QuantConnect.TradingTechnologies
@@ -68,6 +78,9 @@ namespace QuantConnect.TradingTechnologies
             var fixProtocolDirector = new TTFixProtocolDirector(_symbolMapper, fixConfiguration, _fixMarketDataController, _fixBrokerageController);
 
             _fixInstance = new FixInstance(fixProtocolDirector, fixConfiguration, logFixMessages);
+
+            // call home
+            ValidateSubscription();
         }
 
         /// <summary>
@@ -311,6 +324,150 @@ namespace QuantConnect.TradingTechnologies
         private void OnNewTick(object sender, Data.Market.Tick e)
         {
             _aggregator.Update(e);
+        }
+
+        private class OrganizationReadResponse : Api.RestResponse
+        {
+            [JsonProperty(PropertyName = "organization")]
+            public JsonObject Organization;
+        }
+
+        /// <summary>
+        /// Validate the user of this project has permission to be using it via our web API.
+        /// </summary>
+        private static void ValidateSubscription()
+        {
+            try
+            {
+                var productId = 45; // TT Product ID
+                var userId = Config.GetInt("job-user-id");
+                var token = Config.Get("api-access-token");
+                var organizationId = Config.Get("job-organization-id", null);
+                // Verify we can authenticate with this user and token
+                var api = new ApiConnection(userId, token);
+                if (!api.Connected)
+                {
+                    throw new ArgumentException("Invalid api user id or token, cannot authenticate subscription.");
+                }
+                // Compile the information we want to send when validating
+                var information = new Dictionary<string, object>()
+                {
+                    {"userId", userId},
+                    {"token", token},
+                    {"productId", productId},
+                    {"machineName", Environment.MachineName},
+                    {"userName", Environment.UserName},
+                    {"domainName", Environment.UserDomainName},
+                    {"os", Environment.OSVersion}
+                };
+                // IP and Mac Address Information
+                try
+                {
+                    var interfaceDictionary = new List<Dictionary<string, object>>();
+                    foreach (var nic in NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up))
+                    {
+                        var interfaceInformation = new Dictionary<string, object>();
+                        // Get UnicastAddresses
+                        var addresses = nic.GetIPProperties().UnicastAddresses
+                            .Select(uniAddress => uniAddress.Address)
+                            .Where(address => !IPAddress.IsLoopback(address)).Select(x => x.ToString());
+                        // If this interface has non-loopback addresses, we will include it
+                        if (!addresses.IsNullOrEmpty())
+                        {
+                            interfaceInformation.Add("unicastAddresses", addresses);
+                            // Get MAC address
+                            interfaceInformation.Add("MAC", nic.GetPhysicalAddress().ToString());
+                            // Add Interface name
+                            interfaceInformation.Add("name", nic.Name);
+                            // Add these to our dictionary
+                            interfaceDictionary.Add(interfaceInformation);
+                        }
+                    }
+                    information.Add("networkInterfaces", interfaceDictionary);
+                }
+                catch (Exception)
+                {
+                    // NOP, not necessary to crash if fails to extract and add this information
+                }
+                // Include our OrganizationId is specified
+                if (organizationId != null)
+                {
+                    information.Add("organizationId", organizationId);
+                }
+                var request = new RestRequest("organizations/read", Method.POST) { RequestFormat = DataFormat.Json };
+                request.AddParameter("application/json", JsonConvert.SerializeObject(information), ParameterType.RequestBody);
+                api.TryRequest(request, out OrganizationReadResponse result);
+                if (!result.Success)
+                {
+                    throw new InvalidOperationException($"Request for subscriptions from web failed, Response Errors : {string.Join(',', result.Errors)}");
+                }
+                // Fetch the information we need from the response
+                string encryptedData = null;
+                if (result.Organization["products"] is JArray products)
+                {
+                    // Get our product category we expect this under
+                    var modulesProducts = products.FirstOrDefault(x => x["name"]?.Value<string>() == "Modules")?["items"];
+                    if (modulesProducts is JArray productItems)
+                    {
+                        // Find the specific product we are looking for
+                        var subscription = productItems.FirstOrDefault(x => x["productId"]?.Value<int>() == productId);
+                        if (subscription != null)
+                        {
+                            encryptedData = subscription["license"]?.Value<string>();
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException("Not subscribed to this product.");
+                        }
+                    }
+                }
+                // Decrypt the data we received
+                DateTime? expirationDate = null;
+                bool? isValid = null;
+                if (encryptedData != null)
+                {
+                    // Fetch the org id from the response if we are null, we need it to generate our validation key
+                    organizationId ??= (result.Organization["id"] as JToken)?.Value<string>();
+                    // Create our combination key
+                    var password = $"{token}-{organizationId}";
+                    var key = SHA256.HashData(Encoding.UTF8.GetBytes(password));
+                    // Split the data
+                    var info = encryptedData.Split("::");
+                    var buffer = Convert.FromBase64String(info[0]);
+                    var iv = Convert.FromBase64String(info[1]);
+                    // Decrypt our information
+                    using var aes = new AesManaged();
+                    ICryptoTransform decryptor = aes.CreateDecryptor(key, iv);
+                    using var memoryStream = new MemoryStream(buffer);
+                    using var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read);
+                    using var streamReader = new StreamReader(cryptoStream);
+                    var decryptedData = streamReader.ReadToEnd();
+                    if (!decryptedData.IsNullOrEmpty())
+                    {
+                        var jsonInfo = JsonConvert.DeserializeObject<JObject>(decryptedData);
+                        expirationDate = jsonInfo["expiration"]?.Value<DateTime>();
+                        isValid = jsonInfo["isValid"]?.Value<bool>();
+                    }
+                }
+                // Validate our conditions
+                if (!expirationDate.HasValue || !isValid.HasValue)
+                {
+                    throw new InvalidOperationException($"Failed to validate subscription.");
+                }
+                if (expirationDate < DateTime.Now)
+                {
+                    throw new ArgumentException($"Your subscription expired {expirationDate}, please renew in order to use this product.");
+                }
+                if (!isValid.Value)
+                {
+                    throw new ArgumentException($"Your subscription is not valid, please check your product subscriptions on our website.");
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"ValidateSubscription(): Failed during validation, shutting down. Error : {e.Message}");
+                Environment.Exit(1);
+            }
         }
     }
 }
