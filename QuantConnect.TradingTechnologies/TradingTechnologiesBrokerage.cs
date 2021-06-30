@@ -339,7 +339,7 @@ namespace QuantConnect.TradingTechnologies
         {
             try
             {
-                var productId = 45; // TT Product ID
+                var productId = 64;
                 var userId = Config.GetInt("job-user-id");
                 var token = Config.Get("api-access-token");
                 var organizationId = Config.Get("job-organization-id", null);
