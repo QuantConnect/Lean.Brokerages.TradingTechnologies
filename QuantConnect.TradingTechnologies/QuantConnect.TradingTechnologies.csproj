@@ -39,9 +39,10 @@
     <ProjectReference Include="..\QuantConnect.TradingTechnologies.Fix\QuantConnect.TradingTechnologies.Fix.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="TT\TT-FIX44.xml">
+    <None Update="TT\TT-FIX44.xml" Pack="True">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+    </None>
   </ItemGroup>
   <Target Name="_ExactProjectReferencesVersion" AfterTargets="_GetProjectReferenceVersions">
     <ItemGroup>
