@@ -29,13 +29,10 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="NodaTime" Version="3.0.5" />
+    <PackageReference Include="QuantConnect.Brokerages" Version="2.5.*" />
     <PackageReference Include="QuickFix.Net.NETCore" Version="1.8.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Lean\Brokerages\QuantConnect.Brokerages.csproj" />
-    <ProjectReference Include="..\..\Lean\Common\QuantConnect.csproj" />
-    <ProjectReference Include="..\..\Lean\Configuration\QuantConnect.Configuration.csproj" />
-    <ProjectReference Include="..\..\Lean\Logging\QuantConnect.Logging.csproj" />
     <ProjectReference Include="..\QuantConnect.TradingTechnologies.Fix\QuantConnect.TradingTechnologies.Fix.csproj" />
   </ItemGroup>
   <ItemGroup>
@@ -44,15 +41,4 @@
       <PackageCopyToOutput>true</PackageCopyToOutput>
     </None>
   </ItemGroup>
-  <Target Name="_ExactProjectReferencesVersion" AfterTargets="_GetProjectReferenceVersions">
-    <ItemGroup>
-      <_ProjectReferencesWithExactVersions Include="@(_ProjectReferencesWithVersions)">
-        <ProjectVersion>[%(_ProjectReferencesWithVersions.ProjectVersion), $([MSBuild]::Add($([System.Text.RegularExpressions.Regex]::Match('%(_ProjectReferencesWithVersions.ProjectVersion)', '^\d+').Value), '1')))</ProjectVersion>
-      </_ProjectReferencesWithExactVersions>
-    </ItemGroup>
-    <ItemGroup>
-      <_ProjectReferencesWithVersions Remove="@(_ProjectReferencesWithVersions)" />
-      <_ProjectReferencesWithVersions Include="@(_ProjectReferencesWithExactVersions)" />
-    </ItemGroup>
-  </Target>
 </Project>

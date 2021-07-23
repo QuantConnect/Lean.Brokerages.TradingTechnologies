@@ -12,7 +12,6 @@
     <AssemblyTitle>QuantConnect.TradingTechnologiesTests</AssemblyTitle>
     <Product>QuantConnect.TradingTechnologiesTests</Product>
     <Copyright>Copyright ©  2020</Copyright>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
     <CodeAnalysisRuleSet>..\..\Lean\QuantConnect.ruleset</CodeAnalysisRuleSet>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
@@ -32,13 +31,10 @@
     <PackageReference Include="NUnit" Version="3.12.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
+    <PackageReference Include="QuantConnect.Lean.Engine" Version="2.5.*" />
+    <PackageReference Include="QuantConnect.Brokerages" Version="2.5.*" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Lean\Brokerages\QuantConnect.Brokerages.csproj" />
-    <ProjectReference Include="..\..\Lean\Common\QuantConnect.csproj" />
-    <ProjectReference Include="..\..\Lean\Configuration\QuantConnect.Configuration.csproj" />
-    <ProjectReference Include="..\..\Lean\Engine\QuantConnect.Lean.Engine.csproj" />
-    <ProjectReference Include="..\..\Lean\Logging\QuantConnect.Logging.csproj" />
     <ProjectReference Include="..\QuantConnect.TradingTechnologies\QuantConnect.TradingTechnologies.csproj" />
   </ItemGroup>
 </Project>
