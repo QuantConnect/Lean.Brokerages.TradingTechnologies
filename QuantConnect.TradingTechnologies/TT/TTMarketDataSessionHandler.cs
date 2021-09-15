@@ -255,8 +255,7 @@ namespace QuantConnect.TradingTechnologies.TT
 
             if (symbol.SecurityType == SecurityType.Future)
             {
-                // TODO: update when Market.CFE is added to LEAN
-                if (symbol.ID.Market == Market.CBOE)
+                if (symbol.ID.Market == Market.CFE)
                 {
                     symbolsGroup.MaturityDate = Utility.GetMaturityDate(symbol);
                 }
@@ -303,8 +302,7 @@ namespace QuantConnect.TradingTechnologies.TT
 
             if (symbol.SecurityType == SecurityType.Future)
             {
-                // TODO: update when Market.CFE is added to LEAN
-                if (symbol.ID.Market == Market.CBOE)
+                if (symbol.ID.Market == Market.CFE)
                 {
                     symbolsGroup.MaturityDate = Utility.GetMaturityDate(symbol);
                 }

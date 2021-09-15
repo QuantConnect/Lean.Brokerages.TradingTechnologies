@@ -57,13 +57,12 @@ namespace QuantConnect.TradingTechnologiesTests
             OrderRoutingPort = Config.Get("tt-order-routing-port")
         };
 
-        private static readonly Symbol _invalidSymbol = Symbol.CreateFuture("XY", Market.CME, new DateTime(2021, 3, 19));
+        private static readonly Symbol _invalidSymbol = Symbol.CreateFuture("XY", Market.CME, new DateTime(2021, 9, 17));
 
-        private static readonly Symbol _symbolEs = Symbol.CreateFuture("ES", Market.CME, new DateTime(2021, 6, 18));
-        private static readonly Symbol _symbolCl = Symbol.CreateFuture("CL", Market.NYMEX, new DateTime(2021, 3, 22));
-        // TODO: update when Market.CFE is added to LEAN
-        private static readonly Symbol _symbolVx = Symbol.CreateFuture("VX", Market.CBOE, new DateTime(2021, 4, 21));
-        private static readonly Symbol _symbolB = Symbol.CreateFuture("B", Market.ICE, new DateTime(2021, 3, 31));
+        private static readonly Symbol _symbolEs = Symbol.CreateFuture("ES", Market.CME, new DateTime(2021, 9, 17));
+        private static readonly Symbol _symbolCl = Symbol.CreateFuture("CL", Market.NYMEX, new DateTime(2021, 9, 21));
+        private static readonly Symbol _symbolVx = Symbol.CreateFuture("VX", Market.CFE, new DateTime(2021, 10, 20));
+        private static readonly Symbol _symbolB = Symbol.CreateFuture("B", Market.ICE, new DateTime(2021, 9, 30));
 
         [SetUp]
         public void Setup()

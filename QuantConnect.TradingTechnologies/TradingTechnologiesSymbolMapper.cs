@@ -24,6 +24,7 @@ namespace QuantConnect.TradingTechnologies
         {
             { "CME", Market.CME },
             { "CBOE", Market.CBOE },
+            { "CFE", Market.CFE },
             { "ICE", Market.ICE }
         };
 
@@ -70,9 +71,6 @@ namespace QuantConnect.TradingTechnologies
             _mapLeanMarketToSecurityExchange.Add(Market.COMEX, "CME");
             _mapLeanMarketToSecurityExchange.Add(Market.NYMEX, "CME");
             _mapLeanMarketToSecurityExchange.Add(Market.CBOT, "CME");
-
-            // TODO: remove when Market.CFE is added to LEAN
-            _mapSecurityExchangeToLeanMarket.Add("CFE", Market.CBOE);
 
             _mapLeanSecurityTypeToProductType = _mapProductTypeToLeanSecurityType
                 .ToDictionary(x => x.Value, x => x.Key);
@@ -136,12 +134,6 @@ namespace QuantConnect.TradingTechnologies
                 throw new NotSupportedException($"Unsupported LEAN Market: {leanMarket}");
             }
 
-            // TODO: remove when Market.CFE is added to LEAN
-            if (leanMarket == Market.CBOE && leanSecurityType == SecurityType.Future)
-            {
-                market = "CFE";
-            }
-
             return market;
         }
 
@@ -195,7 +187,7 @@ namespace QuantConnect.TradingTechnologies
                 return instrument.DisplayFactor;
             }
 
-            throw new NotSupportedException($"GetPriceMultiplier(): Unsupported security type: {symbol.SecurityType}");
+            throw new NotSupportedException($"GetDisplayFactor(): Unsupported security type: {symbol.SecurityType}");
         }
 
         public string GetBrokerageTicker(Symbol symbol)
@@ -273,12 +265,6 @@ namespace QuantConnect.TradingTechnologies
 
         private string GetMarketId(string market)
         {
-            // TODO: remove when Market.CFE is added to LEAN
-            if (market == Market.CBOE)
-            {
-                return "93"; // TT CFE
-            }
-
             // TT groups all CME Group exchanges under the same security exchange
             if (market == Market.COMEX || market == Market.NYMEX || market == Market.CBOT)
             {
@@ -329,11 +315,6 @@ namespace QuantConnect.TradingTechnologies
                 if (_mapSecurityExchangeToLeanMarket.TryGetValue(name, out var leanMarket))
                 {
                     _mapMarkets.Add(id, leanMarket);
-                }
-                // TODO: remove when Market.CFE is added to LEAN
-                else if (name == "CFE")
-                {
-                    _mapMarkets.Add(id, Market.CBOE);
                 }
             }
         }
