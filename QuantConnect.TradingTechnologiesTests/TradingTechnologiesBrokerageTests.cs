@@ -965,3 +965,4 @@ namespace QuantConnect.TradingTechnologiesTests
         }
     }
 }
+
