@@ -38,8 +38,7 @@ namespace QuantConnect.TradingTechnologiesTests
 
         private static readonly object[] _getMaturityDate =
         {
-            // TODO: update when Market.CFE is added to LEAN
-            new TestCaseData(Symbol.CreateFuture("VX", Market.CBOE, new DateTime(2021, 3, 17)), "20210317")
+            new TestCaseData(Symbol.CreateFuture("VX", Market.CFE, new DateTime(2021, 3, 17)), "20210317")
         };
     }
 }

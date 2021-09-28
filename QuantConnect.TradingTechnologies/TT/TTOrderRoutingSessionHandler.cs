@@ -81,8 +81,7 @@ namespace QuantConnect.TradingTechnologies.TT
 
             if (order.Symbol.SecurityType == SecurityType.Future)
             {
-                // TODO: update when Market.CFE is added to LEAN
-                if (order.Symbol.ID.Market == Market.CBOE)
+                if (order.Symbol.ID.Market == Market.CFE)
                 {
                     ttOrder.MaturityDate = Utility.GetMaturityDate(order.Symbol);
                 }
