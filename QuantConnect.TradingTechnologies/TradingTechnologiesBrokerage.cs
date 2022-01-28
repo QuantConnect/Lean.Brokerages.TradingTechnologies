@@ -326,10 +326,12 @@ namespace QuantConnect.TradingTechnologies
             _aggregator.Update(e);
         }
 
-        private class OrganizationReadResponse : Api.RestResponse
+        private class ModulesReadLicenseRead : Api.RestResponse
         {
-            [JsonProperty(PropertyName = "organization")]
-            public JsonObject Organization;
+            [JsonProperty(PropertyName = "license")]
+            public string License;
+            [JsonProperty(PropertyName = "organizationId")]
+            public string OrganizationId;
         }
 
         /// <summary>
@@ -352,8 +354,6 @@ namespace QuantConnect.TradingTechnologies
                 // Compile the information we want to send when validating
                 var information = new Dictionary<string, object>()
                 {
-                    {"userId", userId},
-                    {"token", token},
                     {"productId", productId},
                     {"machineName", Environment.MachineName},
                     {"userName", Environment.UserName},
@@ -390,44 +390,30 @@ namespace QuantConnect.TradingTechnologies
                     // NOP, not necessary to crash if fails to extract and add this information
                 }
                 // Include our OrganizationId is specified
-                if (organizationId != null)
+                if (!string.IsNullOrEmpty(organizationId))
                 {
                     information.Add("organizationId", organizationId);
                 }
-                var request = new RestRequest("organizations/read", Method.POST) { RequestFormat = DataFormat.Json };
+                var request = new RestRequest("modules/license/read", Method.POST) { RequestFormat = DataFormat.Json };
                 request.AddParameter("application/json", JsonConvert.SerializeObject(information), ParameterType.RequestBody);
-                api.TryRequest(request, out OrganizationReadResponse result);
+                api.TryRequest(request, out ModulesReadLicenseRead result);
                 if (!result.Success)
                 {
                     throw new InvalidOperationException($"Request for subscriptions from web failed, Response Errors : {string.Join(',', result.Errors)}");
                 }
-                // Fetch the information we need from the response
-                string encryptedData = null;
-                if (result.Organization["products"] is JArray products)
-                {
-                    // Get our product category we expect this under
-                    var modulesProducts = products.FirstOrDefault(x => x["name"]?.Value<string>() == "Modules")?["items"];
-                    if (modulesProducts is JArray productItems)
-                    {
-                        // Find the specific product we are looking for
-                        var subscription = productItems.FirstOrDefault(x => x["productId"]?.Value<int>() == productId);
-                        if (subscription != null)
-                        {
-                            encryptedData = subscription["license"]?.Value<string>();
-                        }
-                        else
-                        {
-                            throw new InvalidOperationException("Not subscribed to this product.");
-                        }
-                    }
-                }
+
+                var encryptedData = result.License;
                 // Decrypt the data we received
                 DateTime? expirationDate = null;
+                long? stamp = null;
                 bool? isValid = null;
                 if (encryptedData != null)
                 {
                     // Fetch the org id from the response if we are null, we need it to generate our validation key
-                    organizationId ??= (result.Organization["id"] as JToken)?.Value<string>();
+                    if (string.IsNullOrEmpty(organizationId))
+                    {
+                        organizationId = result.OrganizationId;
+                    }
                     // Create our combination key
                     var password = $"{token}-{organizationId}";
                     var key = SHA256.HashData(Encoding.UTF8.GetBytes(password));
@@ -437,7 +423,7 @@ namespace QuantConnect.TradingTechnologies
                     var iv = Convert.FromBase64String(info[1]);
                     // Decrypt our information
                     using var aes = new AesManaged();
-                    ICryptoTransform decryptor = aes.CreateDecryptor(key, iv);
+                    var decryptor = aes.CreateDecryptor(key, iv);
                     using var memoryStream = new MemoryStream(buffer);
                     using var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read);
                     using var streamReader = new StreamReader(cryptoStream);
@@ -447,20 +433,28 @@ namespace QuantConnect.TradingTechnologies
                         var jsonInfo = JsonConvert.DeserializeObject<JObject>(decryptedData);
                         expirationDate = jsonInfo["expiration"]?.Value<DateTime>();
                         isValid = jsonInfo["isValid"]?.Value<bool>();
+                        stamp = jsonInfo["stamped"]?.Value<int>();
                     }
                 }
                 // Validate our conditions
-                if (!expirationDate.HasValue || !isValid.HasValue)
+                if (!expirationDate.HasValue || !isValid.HasValue || !stamp.HasValue)
                 {
-                    throw new InvalidOperationException($"Failed to validate subscription.");
+                    throw new InvalidOperationException("Failed to validate subscription.");
                 }
-                if (expirationDate < DateTime.Now)
+
+                var nowUtc = DateTime.UtcNow;
+                var timeSpan = nowUtc - Time.UnixTimeStampToDateTime(stamp.Value);
+                if (timeSpan > TimeSpan.FromHours(12))
                 {
-                    throw new ArgumentException($"Your subscription expired {expirationDate}, please renew in order to use this product.");
+                    throw new InvalidOperationException("Invalid API response.");
                 }
                 if (!isValid.Value)
                 {
                     throw new ArgumentException($"Your subscription is not valid, please check your product subscriptions on our website.");
+                }
+                if (expirationDate < nowUtc)
+                {
+                    throw new ArgumentException($"Your subscription expired {expirationDate}, please renew in order to use this product.");
                 }
             }
             catch (Exception e)
