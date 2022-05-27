@@ -36,7 +36,7 @@ using BaseData = QuantConnect.Data.BaseData;
 namespace QuantConnect.TradingTechnologies
 {
     [BrokerageFactory(typeof(TradingTechnologiesBrokerageFactory))]
-    public class TradingTechnologiesBrokerage : Brokerage, IDataQueueHandler, IDataQueueUniverseProvider
+    public class TradingTechnologiesBrokerage : Brokerage, IDataQueueHandler
     {
         private readonly IAlgorithm _algorithm;
         private readonly LiveNodePacket _job;
@@ -230,44 +230,6 @@ namespace QuantConnect.TradingTechnologies
         public override void Dispose()
         {
             _fixInstance.DisposeSafely();
-        }
-
-        public IEnumerable<Symbol> LookupSymbols(Symbol symbol, bool includeExpired, string securityCurrency = null)
-        {
-            if (symbol.SecurityType == SecurityType.Future)
-            {
-                // TODO: fetch from TT REST API
-
-                //var productTypeId = _symbolMapper.GetBrokerageProductTypeId(symbol.SecurityType);
-                //var marketId = _symbolMapper.GetBrokerageMarketId(symbol.ID.Market);
-
-                //var products = _apiClient.GetProducts(marketId).SynchronouslyAwaitTaskResult();
-
-                //var product = products
-                //    .FirstOrDefault(x => x.Symbol == symbol.ID.Symbol && x.ProductTypeId == productTypeId);
-
-                //if (product != null)
-                //{
-                //    var instruments = _apiClient.GetInstruments(product.ProductTypeId, product.Id).SynchronouslyAwaitTaskResult();
-
-                //    foreach (var instrument in instruments)
-                //    {
-                //        var expiryDate = DateTime.ParseExact(
-                //            instrument.ExpirationDate.ToString(CultureInfo.InvariantCulture),
-                //            "yyyyMMddHHmmss",
-                //            CultureInfo.InvariantCulture).Date;
-
-                //        yield return Symbol.CreateFuture(symbol.ID.Symbol, symbol.ID.Market, expiryDate);
-                //    }
-                //}
-            }
-
-            return Enumerable.Empty<Symbol>();
-        }
-
-        public bool CanPerformSelection()
-        {
-            return true;
         }
 
         private void OnExecutionReport(object sender, ExecutionReport e)
