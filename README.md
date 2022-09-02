@@ -161,6 +161,7 @@ The following table describes the available order types for each asset class tha
 For local deployment, the algorithm needs to download the following datasets:
 
 - [US Futures Security Master](https://www.quantconnect.com/datasets/quantconnect-us-futures-security-master) provided by QuantConnect
+- [US Futures](https://www.quantconnect.com/datasets/algoseek-us-futures)
 
 ## Brokerage Model
 
