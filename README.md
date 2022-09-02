@@ -13,6 +13,14 @@ This repository hosts the Trading Technologies Brokerage Plugin Integration with
 
 ### About Trading Technologies
 
+<p align="center">
+<picture >
+ <source media="(prefers-color-scheme: dark)" srcset="https://user-images.githubusercontent.com/79997186/188236361-ec8f5053-c660-464a-af9c-9fdd97071567.png">
+ <source media="(prefers-color-scheme: light)" srcset="https://user-images.githubusercontent.com/79997186/188236371-33090941-408e-4bae-b703-8b8af5cfa0a5.png">
+ <img alt="introduction" width="40%">
+</picture>
+<p>
+
 Trading Technologies (TT) was founded by Gary Kemp in 1994 with the goal to create professional trading software, infrastructure, and data solutions for a wide variety of users. TT provides access to trading Futures, Options, and Crypto. TT also provides a charting platform, infrastructure services, and risk management tools. TT is not actually a brokerage. The firm is a brokerage router with access to more than 30 execution destinations.
 
 For more information about the TT brokerage, see the [QuantConnect-Trading Technologies Integration Page](https://www.quantconnect.com/docs/v2/our-platform/live-trading/brokerages/trading-technologies). 
