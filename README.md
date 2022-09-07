@@ -31,6 +31,8 @@ For more information about the TT brokerage, see the [QuantConnect-Trading Techn
 
   You can deploy using a visual interface in the QuantConnect cloud. For instructions, see the [QuantConnect-Trading Technologies Integration Page](https://www.quantconnect.com/docs/v2/our-platform/live-trading/brokerages/trading-technologies). 
 
+  ![deploy-tt](https://user-images.githubusercontent.com/38889814/188247800-b9a5ffb7-95e9-43e8-ad17-565422a834b2.gif)
+
   In the QuantConnect Cloud Platform, you can harness the QuantConnect Live Data Feed. For most users, this is substantially cheaper and easier than self-hosting.
   
 ### Deploying Trading Technologies with LEAN CLI
