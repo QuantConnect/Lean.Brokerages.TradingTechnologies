@@ -16,7 +16,12 @@ namespace QuantConnect.Fix.TT.FIX44
 				return new [] { QuickFix.FixValues.BeginString.FIX44 };
             }
 
-			
+            public QuickFix.Message Create(string beginString, QuickFix.Fields.ApplVerID applVerId, string msgType)
+            {
+                return Create(beginString, msgType);
+            }
+
+
             public QuickFix.Message Create(string beginString, Fields.ApplVerID applVerId, string msgType)
             {
                 return Create(beginString, msgType);
@@ -257,7 +262,6 @@ namespace QuantConnect.Fix.TT.FIX44
 
                 return null;
             }
-
         }
     }
 }
