@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -171,13 +172,14 @@ namespace QuantConnect.TradingTechnologiesTests
                 var submittedEvent = new ManualResetEvent(false);
                 var filledEvent = new ManualResetEvent(false);
 
-                brokerage.OrderStatusChanged += (s, e) =>
+                brokerage.OrdersStatusChanged += (s, e) =>
                 {
-                    if (e.Status == OrderStatus.Submitted)
+                    var orderEvent = e.Single();
+                    if (orderEvent.Status == OrderStatus.Submitted)
                     {
                         submittedEvent.Set();
                     }
-                    else if (e.Status == OrderStatus.Filled)
+                    else if (orderEvent.Status == OrderStatus.Filled)
                     {
                         filledEvent.Set();
                     }
@@ -204,13 +206,14 @@ namespace QuantConnect.TradingTechnologiesTests
                 var submittedEvent = new ManualResetEvent(false);
                 var filledEvent = new ManualResetEvent(false);
 
-                brokerage.OrderStatusChanged += (s, e) =>
+                brokerage.OrdersStatusChanged += (s, e) =>
                 {
-                    if (e.Status == OrderStatus.Submitted)
+                    var orderEvent = e.Single();
+                    if (orderEvent.Status == OrderStatus.Submitted)
                     {
                         submittedEvent.Set();
                     }
-                    else if (e.Status == OrderStatus.Filled)
+                    else if (orderEvent.Status == OrderStatus.Filled)
                     {
                         filledEvent.Set();
                     }
@@ -242,20 +245,21 @@ namespace QuantConnect.TradingTechnologiesTests
             {
                 var submittedEvent = new ManualResetEvent(false);
 
-                brokerage.OrderStatusChanged += (s, e) =>
+                brokerage.OrdersStatusChanged += (s, e) =>
                 {
-                    if (e.Status == OrderStatus.Submitted)
+                    var orderEvent = e.Single();
+                    if (orderEvent.Status == OrderStatus.Submitted)
                     {
                         submittedEvent.Set();
 
                         Assert.IsTrue(isValid);
                     }
-                    else if (e.Status == OrderStatus.Invalid)
+                    else if (orderEvent.Status == OrderStatus.Invalid)
                     {
                         submittedEvent.Set();
 
                         Assert.IsFalse(isValid);
-                        Assert.That(e.Message.Contains(errorText));
+                        Assert.That(orderEvent.Message.Contains(errorText));
                     }
                 };
 
@@ -280,20 +284,21 @@ namespace QuantConnect.TradingTechnologiesTests
             {
                 var submittedEvent = new ManualResetEvent(false);
 
-                brokerage.OrderStatusChanged += (s, e) =>
+                brokerage.OrdersStatusChanged += (s, e) =>
                 {
-                    if (e.Status == OrderStatus.Submitted)
+                    var orderEvent = e.Single();
+                    if (orderEvent.Status == OrderStatus.Submitted)
                     {
                         submittedEvent.Set();
 
                         Assert.IsTrue(isValid);
                     }
-                    else if (e.Status == OrderStatus.Invalid)
+                    else if (orderEvent.Status == OrderStatus.Invalid)
                     {
                         submittedEvent.Set();
 
                         Assert.IsFalse(isValid);
-                        Assert.That(e.Message.Contains(errorText));
+                        Assert.That(orderEvent.Message.Contains(errorText));
                     }
                 };
 
@@ -319,9 +324,9 @@ namespace QuantConnect.TradingTechnologiesTests
             {
                 var cancelEvent = new ManualResetEvent(false);
 
-                brokerage.OrderStatusChanged += (s, e) =>
+                brokerage.OrdersStatusChanged += (s, e) =>
                 {
-                    if (e.Status == OrderStatus.Canceled)
+                    if (e.Single().Status == OrderStatus.Canceled)
                     {
                         cancelEvent.Set();
                     }
@@ -354,13 +359,13 @@ namespace QuantConnect.TradingTechnologiesTests
                 var submittedEvent = new ManualResetEvent(false);
                 var cancelledEvent = new ManualResetEvent(false);
 
-                brokerage.OrderStatusChanged += (s, e) =>
+                brokerage.OrdersStatusChanged += (s, e) =>
                 {
-                    if (e.Status == OrderStatus.Submitted)
+                    if (e.Single().Status == OrderStatus.Submitted)
                     {
                         submittedEvent.Set();
                     }
-                    else if (e.Status == OrderStatus.Canceled)
+                    else if (e.Single().Status == OrderStatus.Canceled)
                     {
                         cancelledEvent.Set();
                     }
@@ -397,13 +402,13 @@ namespace QuantConnect.TradingTechnologiesTests
                 var submittedEvent = new ManualResetEvent(false);
                 var updatedEvent = new ManualResetEvent(false);
 
-                brokerage.OrderStatusChanged += (s, e) =>
+                brokerage.OrdersStatusChanged += (s, e) =>
                 {
-                    if (e.Status == OrderStatus.Submitted)
+                    if (e.Single().Status == OrderStatus.Submitted)
                     {
                         submittedEvent.Set();
                     }
-                    else if (e.Status == OrderStatus.UpdateSubmitted)
+                    else if (e.Single().Status == OrderStatus.UpdateSubmitted)
                     {
                         updatedEvent.Set();
                     }
@@ -444,17 +449,17 @@ namespace QuantConnect.TradingTechnologiesTests
                 var updatedEvent = new ManualResetEvent(false);
                 var cancelledEvent = new ManualResetEvent(false);
 
-                brokerage.OrderStatusChanged += (s, e) =>
+                brokerage.OrdersStatusChanged += (s, e) =>
                 {
-                    if (e.Status == OrderStatus.Submitted)
+                    if (e.Single().Status == OrderStatus.Submitted)
                     {
                         submittedEvent.Set();
                     }
-                    else if (e.Status == OrderStatus.UpdateSubmitted)
+                    else if (e.Single().Status == OrderStatus.UpdateSubmitted)
                     {
                         updatedEvent.Set();
                     }
-                    else if (e.Status == OrderStatus.Canceled)
+                    else if (e.Single().Status == OrderStatus.Canceled)
                     {
                         cancelledEvent.Set();
                     }
@@ -501,17 +506,17 @@ namespace QuantConnect.TradingTechnologiesTests
                 var updatedEvent = new ManualResetEvent(false);
                 var filledEvent = new ManualResetEvent(false);
 
-                brokerage.OrderStatusChanged += (s, e) =>
+                brokerage.OrdersStatusChanged += (s, e) =>
                 {
-                    if (e.Status == OrderStatus.Submitted)
+                    if (e.Single().Status == OrderStatus.Submitted)
                     {
                         submittedEvent.Set();
                     }
-                    else if (e.Status == OrderStatus.UpdateSubmitted)
+                    else if (e.Single().Status == OrderStatus.UpdateSubmitted)
                     {
                         updatedEvent.Set();
                     }
-                    else if (e.Status == OrderStatus.Filled)
+                    else if (e.Single().Status == OrderStatus.Filled)
                     {
                         filledEvent.Set();
                     }
@@ -554,12 +559,13 @@ namespace QuantConnect.TradingTechnologiesTests
             {
                 var invalidEvent = new ManualResetEvent(false);
 
-                brokerage.OrderStatusChanged += (s, e) =>
+                brokerage.OrdersStatusChanged += (s, e) =>
                 {
-                    if (e.Status == OrderStatus.Invalid)
+                    var orderEvent = e.Single();
+                    if (orderEvent.Status == OrderStatus.Invalid)
                     {
-                        Assert.That(e.Message.EndsWith($"Invalid account {_fixConfiguration.AccountName}") ||
-                                    e.Message.EndsWith("Trading Technologies Order Event"));
+                        Assert.That(orderEvent.Message.EndsWith($"Invalid account {_fixConfiguration.AccountName}") ||
+                                    orderEvent.Message.EndsWith("Trading Technologies Order Event"));
 
                         invalidEvent.Set();
                     }
@@ -586,11 +592,12 @@ namespace QuantConnect.TradingTechnologiesTests
             {
                 var invalidEvent = new ManualResetEvent(false);
 
-                brokerage.OrderStatusChanged += (s, e) =>
+                brokerage.OrdersStatusChanged += (s, e) =>
                 {
-                    if (e.Status == OrderStatus.Invalid)
+                    var orderEvent = e.Single();
+                    if (orderEvent.Status == OrderStatus.Invalid)
                     {
-                        Assert.That(e.Message.Contains("Lookup by name failed") || e.Message.Contains("No instrument found"));
+                        Assert.That(orderEvent.Message.Contains("Lookup by name failed") || orderEvent.Message.Contains("No instrument found"));
 
                         invalidEvent.Set();
                     }
@@ -618,13 +625,13 @@ namespace QuantConnect.TradingTechnologiesTests
                 var submittedEvent = new ManualResetEvent(false);
                 var filledEvent = new ManualResetEvent(false);
 
-                brokerage.OrderStatusChanged += (s, e) =>
+                brokerage.OrdersStatusChanged += (s, e) =>
                 {
-                    if (e.Status == OrderStatus.Submitted)
+                    if (e.Single().Status == OrderStatus.Submitted)
                     {
                         submittedEvent.Set();
                     }
-                    else if (e.Status == OrderStatus.Filled)
+                    else if (e.Single().Status == OrderStatus.Filled)
                     {
                         filledEvent.Set();
                     }
@@ -656,17 +663,17 @@ namespace QuantConnect.TradingTechnologiesTests
                 var partiallyFilledEvent = new ManualResetEvent(false);
                 var cancelledEvent = new ManualResetEvent(false);
 
-                brokerage.OrderStatusChanged += (s, e) =>
+                brokerage.OrdersStatusChanged += (s, e) =>
                 {
-                    if (e.Status == OrderStatus.Submitted)
+                    if (e.Single().Status == OrderStatus.Submitted)
                     {
                         submittedEvent.Set();
                     }
-                    else if (e.Status == OrderStatus.PartiallyFilled)
+                    else if (e.Single().Status == OrderStatus.PartiallyFilled)
                     {
                         partiallyFilledEvent.Set();
                     }
-                    else if (e.Status == OrderStatus.Canceled)
+                    else if (e.Single().Status == OrderStatus.Canceled)
                     {
                         cancelledEvent.Set();
                     }
@@ -702,17 +709,17 @@ namespace QuantConnect.TradingTechnologiesTests
                 var partiallyFilledEvent = new ManualResetEvent(false);
                 var updatedEvent = new ManualResetEvent(false);
 
-                brokerage.OrderStatusChanged += (s, e) =>
+                brokerage.OrdersStatusChanged += (s, e) =>
                 {
-                    if (e.Status == OrderStatus.Submitted)
+                    if (e.Single().Status == OrderStatus.Submitted)
                     {
                         submittedEvent.Set();
                     }
-                    else if (e.Status == OrderStatus.PartiallyFilled)
+                    else if (e.Single().Status == OrderStatus.PartiallyFilled)
                     {
                         partiallyFilledEvent.Set();
                     }
-                    else if (e.Status == OrderStatus.UpdateSubmitted)
+                    else if (e.Single().Status == OrderStatus.UpdateSubmitted)
                     {
                         updatedEvent.Set();
                     }
@@ -752,21 +759,22 @@ namespace QuantConnect.TradingTechnologiesTests
                 var updatedEvent = new ManualResetEvent(false);
                 var filledEvent = new ManualResetEvent(false);
 
-                brokerage.OrderStatusChanged += (s, e) =>
+                brokerage.OrdersStatusChanged += (s, e) =>
                 {
-                    if (e.Status == OrderStatus.Submitted)
+                    var orderEvents = e.Single();
+                    if (orderEvents.Status == OrderStatus.Submitted)
                     {
                         submittedEvent.Set();
                     }
-                    else if (e.Status == OrderStatus.PartiallyFilled)
+                    else if (orderEvents.Status == OrderStatus.PartiallyFilled)
                     {
                         partiallyFilledEvent.Set();
                     }
-                    else if (e.Status == OrderStatus.UpdateSubmitted)
+                    else if (orderEvents.Status == OrderStatus.UpdateSubmitted)
                     {
                         updatedEvent.Set();
                     }
-                    else if (e.Status == OrderStatus.Filled)
+                    else if (orderEvents.Status == OrderStatus.Filled)
                     {
                         filledEvent.Set();
                     }

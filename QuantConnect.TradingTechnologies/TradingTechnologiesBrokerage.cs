@@ -279,7 +279,7 @@ namespace QuantConnect.TradingTechnologies
                 : e.ClOrdID.getValue();
             var time = e.TransactTime.getValue();
 
-            var order = _orderProvider.GetOrderByBrokerageId(orderId);
+            var order = _orderProvider.GetOrdersByBrokerageId(orderId)?.SingleOrDefault();
             if (order == null)
             {
                 Log.Error($"TradingTechnologiesBrokerage.OnExecutionReport(): Unable to locate order with BrokerageId: {orderId}");

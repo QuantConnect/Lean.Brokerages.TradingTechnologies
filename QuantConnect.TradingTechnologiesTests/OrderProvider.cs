@@ -52,9 +52,9 @@ namespace QuantConnect.TradingTechnologiesTests
             return _orders.FirstOrDefault(x => x.Id == orderId);
         }
 
-        public Order GetOrderByBrokerageId(string brokerageId)
+        public List<Order> GetOrdersByBrokerageId(string brokerageId)
         {
-            return _orders.FirstOrDefault(x => x.BrokerId.Contains(brokerageId));
+            return _orders.Where(x => x.BrokerId.Contains(brokerageId)).ToList();
         }
 
         public IEnumerable<OrderTicket> GetOrderTickets(Func<OrderTicket, bool> filter = null)
