@@ -829,12 +829,13 @@ namespace QuantConnect.TradingTechnologiesTests
         }
 
         [TestCase(TradingTechnologiesOrderProperties.AutomatedExecutionOrderPrivate)]
+        [TestCase(TradingTechnologiesOrderProperties.AutomatedExecutionOrderPublic)]
+        [TestCase(TradingTechnologiesOrderProperties.ManualOrder)]
         public void OrderCanDefineHandleInstruction(char handleInstruction)
         {
             var ttOrderProperties = new TradingTechnologiesOrderProperties() { HandleInstruction = handleInstruction };
             var ttOrder = new NewOrderSingle() { HandlInst = new HandlInst((char)ttOrderProperties.HandleInstruction) };
             Assert.AreEqual(handleInstruction, ttOrder.HandlInst.getValue());
-
         }
 
         private readonly Dictionary<Symbol, decimal> _bidPrices = new Dictionary<Symbol, decimal>
