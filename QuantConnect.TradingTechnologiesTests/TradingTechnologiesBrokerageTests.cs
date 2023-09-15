@@ -13,6 +13,8 @@ using QuantConnect.Algorithm;
 using QuantConnect.Configuration;
 using QuantConnect.Data;
 using QuantConnect.Data.Market;
+using QuantConnect.Fix.TT.FIX44.Fields;
+using QuantConnect.Fix.TT.FIX44.Messages;
 using QuantConnect.Lean.Engine.DataFeeds;
 using QuantConnect.Logging;
 using QuantConnect.Orders;
@@ -824,6 +826,16 @@ namespace QuantConnect.TradingTechnologiesTests
             fixInstance.OnLogon(sessionId);
 
             fixInstance.Terminate();
+        }
+
+        [TestCase(TradingTechnologiesOrderProperties.AutomatedExecutionOrderPrivate)]
+        [TestCase(TradingTechnologiesOrderProperties.AutomatedExecutionOrderPublic)]
+        [TestCase(TradingTechnologiesOrderProperties.ManualOrder)]
+        public void OrderCanDefineHandleInstruction(char handleInstruction)
+        {
+            var ttOrderProperties = new TradingTechnologiesOrderProperties() { HandleInstruction = handleInstruction };
+            var ttOrder = new NewOrderSingle() { HandlInst = new HandlInst((char)ttOrderProperties.HandleInstruction) };
+            Assert.AreEqual(handleInstruction, ttOrder.HandlInst.getValue());
         }
 
         private readonly Dictionary<Symbol, decimal> _bidPrices = new Dictionary<Symbol, decimal>
