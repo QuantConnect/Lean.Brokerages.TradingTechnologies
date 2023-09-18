@@ -9,6 +9,7 @@ using System.Threading;
 using QuantConnect.TradingTechnologies.Fix.LogFactory;
 using QuantConnect.TradingTechnologies.Fix.Protocol;
 using QuickFix;
+using QuickFix.Fields;
 using QuickFix.Transport;
 
 namespace QuantConnect.TradingTechnologies.Fix
@@ -22,6 +23,7 @@ namespace QuantConnect.TradingTechnologies.Fix
         private readonly IFixProtocolDirector _protocolDirector;
         private readonly FixConfiguration _fixConfiguration;
         private readonly SocketInitiator _initiator;
+        private readonly OnBehalfOfSubID _onBehalfOfSubID;
 
         private bool _disposed;
 
@@ -35,6 +37,8 @@ namespace QuantConnect.TradingTechnologies.Fix
 
         public FixInstance(IFixProtocolDirector protocolDirector, FixConfiguration fixConfiguration, bool logFixMessages)
         {
+            // we send the user name to avoid issues if the accounts has multiple users
+            _onBehalfOfSubID = new OnBehalfOfSubID(fixConfiguration.UserName);
             _protocolDirector = protocolDirector ?? throw new ArgumentNullException(nameof(protocolDirector));
             _fixConfiguration = fixConfiguration;
 
@@ -115,10 +119,14 @@ namespace QuantConnect.TradingTechnologies.Fix
 
         public void ToAdmin(Message msg, SessionID sessionId)
         {
+            msg.Header.SetField(_onBehalfOfSubID);
             _protocolDirector.EnrichOutbound(msg);
         }
 
-        public void ToApp(Message msg, SessionID sessionId) { }
+        public void ToApp(Message msg, SessionID sessionId)
+        {
+            msg.Header.SetField(_onBehalfOfSubID);
+        }
 
         public void Terminate()
         {

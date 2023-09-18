@@ -46,7 +46,7 @@ namespace QuantConnect.TradingTechnologies.Fix.Core
                 return false;
             }
 
-            if (!_getOpenOrdersResetEvent.WaitOne(TimeSpan.FromSeconds(5)))
+            if (!_getOpenOrdersResetEvent.WaitOne(TimeSpan.FromSeconds(10)))
             {
                 Log.Error("Timeout waiting for open orders.");
                 return false;
@@ -213,6 +213,9 @@ namespace QuantConnect.TradingTechnologies.Fix.Core
             order.Properties.TimeInForce = timeInForce;
 
             order.BrokerId.Add(er.ClOrdID.getValue());
+
+            var orderStatus = Utility.ConvertOrderStatus(er);
+            order.Status = orderStatus;
 
             return order;
         }

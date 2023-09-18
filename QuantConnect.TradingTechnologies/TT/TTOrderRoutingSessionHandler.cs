@@ -75,7 +75,6 @@ namespace QuantConnect.TradingTechnologies.TT
 
                 // Account details:
                 Account = new Account(_account),
-                CustOrderCapacity = new CustOrderCapacity(CustOrderCapacity.ALL_OTHER),
                 CustOrderHandlingInst = new CustOrderHandlingInst(CustOrderHandlingInst.ELECTRONIC),
                 OrderOrigination = new OrderOrigination(OrderOrigination.ORDER_RECEIVED_FROM_DIRECT_OR_SPONSORED_ACCESS_CUSTOMER)
             };
@@ -123,7 +122,8 @@ namespace QuantConnect.TradingTechnologies.TT
             var request = new OrderCancelReplaceRequest
             {
                 ClOrdID = new ClOrdID(TTOrderId.GetNext()),
-                OrigClOrdID = new OrigClOrdID(order.BrokerId[0])
+                OrigClOrdID = new OrigClOrdID(order.BrokerId[0]),
+                OrdType = new OrdType(Utility.ConvertOrderType(order.Type)),
             };
 
             var displayFactor = _symbolMapper.GetDisplayFactor(order.Symbol);

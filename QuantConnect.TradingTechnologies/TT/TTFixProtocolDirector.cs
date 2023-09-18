@@ -114,7 +114,6 @@ namespace QuantConnect.TradingTechnologies.TT
                     logon.SetField(new MsgSeqNum(1));
                     logon.SetField(new EncryptMethod(EncryptMethod.NONE));
                     logon.SetField(new UserName(_fixConfiguration.UserName));
-                    logon.SetField(new UserType(UserType.TRADING_FIRM));
                     break;
             }
         }

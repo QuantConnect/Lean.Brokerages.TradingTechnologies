@@ -62,8 +62,8 @@ namespace QuantConnect.TradingTechnologiesTests
 
         private static readonly Symbol _invalidSymbol = Symbol.CreateFuture("XY", Market.CME, new DateTime(2021, 9, 17));
 
-        private static readonly Symbol _symbolEs = Symbol.CreateFuture("ES", Market.CME, new DateTime(2021, 9, 17));
-        private static readonly Symbol _symbolCl = Symbol.CreateFuture("CL", Market.NYMEX, new DateTime(2021, 9, 21));
+        private static readonly Symbol _symbolEs = Symbol.CreateFuture("ES", Market.CME, new DateTime(2023, 12, 15));
+        private static readonly Symbol _symbolCl = Symbol.CreateFuture("CL", Market.NYMEX, new DateTime(2023, 10, 20));
         private static readonly Symbol _symbolVx = Symbol.CreateFuture("VX", Market.CFE, new DateTime(2021, 10, 20));
         private static readonly Symbol _symbolB = Symbol.CreateFuture("B", Market.ICE, new DateTime(2021, 9, 30));
 
@@ -166,6 +166,41 @@ namespace QuantConnect.TradingTechnologiesTests
             }
         }
 
+        [Test]
+        public void SubmitsManualMarketOrder()
+        {
+            using (var brokerage = CreateBrokerage())
+            {
+                var submittedEvent = new ManualResetEvent(false);
+                var filledEvent = new ManualResetEvent(false);
+
+                brokerage.OrdersStatusChanged += (s, e) =>
+                {
+                    var orderEvent = e.Single();
+                    if (orderEvent.Status == OrderStatus.Submitted)
+                    {
+                        submittedEvent.Set();
+                    }
+                    else if (orderEvent.Status == OrderStatus.Filled)
+                    {
+                        filledEvent.Set();
+                    }
+                };
+
+                brokerage.Connect();
+                Assert.IsTrue(brokerage.IsConnected);
+
+                var symbol = Symbol.CreateFuture("CL", Market.NYMEX, new DateTime(2023, 10, 20));
+                var order = new MarketOrder(symbol, 1, DateTime.UtcNow, properties: new TradingTechnologiesOrderProperties { HandleInstruction = FixOrderProperites.ManualOrder });
+                _orderProvider.Add(order);
+
+                Assert.IsTrue(brokerage.PlaceOrder(order));
+
+                Assert.IsTrue(submittedEvent.WaitOne(TimeSpan.FromSeconds(5)));
+                Assert.IsFalse(filledEvent.WaitOne(TimeSpan.FromSeconds(10)));
+            }
+        }
+
         [TestCaseSource(nameof(_marketOrderTestCases))]
         public void SubmitsMarketOrder(Symbol symbol, int quantity)
         {
@@ -181,7 +216,7 @@ namespace QuantConnect.TradingTechnologiesTests
                     {
                         submittedEvent.Set();
                     }
-                    else if (orderEvent.Status == OrderStatus.Filled)
+                    else if (orderEvent.Status == OrderStatus.Filled && orderEvent.FillQuantity == quantity)
                     {
                         filledEvent.Set();
                     }
@@ -566,8 +601,8 @@ namespace QuantConnect.TradingTechnologiesTests
                     var orderEvent = e.Single();
                     if (orderEvent.Status == OrderStatus.Invalid)
                     {
-                        Assert.That(orderEvent.Message.EndsWith($"Invalid account {_fixConfiguration.AccountName}") ||
-                                    orderEvent.Message.EndsWith("Trading Technologies Order Event"));
+                        Assert.That(orderEvent.Message.Contains($"Invalid account {_fixConfiguration.AccountName}") ||
+                                    orderEvent.Message.Contains("Account does not exist"));
 
                         invalidEvent.Set();
                     }
@@ -592,28 +627,13 @@ namespace QuantConnect.TradingTechnologiesTests
 
             using (var brokerage = CreateBrokerage())
             {
-                var invalidEvent = new ManualResetEvent(false);
-
-                brokerage.OrdersStatusChanged += (s, e) =>
-                {
-                    var orderEvent = e.Single();
-                    if (orderEvent.Status == OrderStatus.Invalid)
-                    {
-                        Assert.That(orderEvent.Message.Contains("Lookup by name failed") || orderEvent.Message.Contains("No instrument found"));
-
-                        invalidEvent.Set();
-                    }
-                };
-
                 brokerage.Connect();
                 Assert.IsTrue(brokerage.IsConnected);
 
                 var order = new MarketOrder(symbol, 1, DateTime.UtcNow);
                 _orderProvider.Add(order);
 
-                Assert.IsTrue(brokerage.PlaceOrder(order));
-
-                Assert.IsTrue(invalidEvent.WaitOne(TimeSpan.FromSeconds(5)));
+                Assert.Throws<NotSupportedException>(() => brokerage.PlaceOrder(order));
             }
         }
 
@@ -840,8 +860,8 @@ namespace QuantConnect.TradingTechnologiesTests
 
         private readonly Dictionary<Symbol, decimal> _bidPrices = new Dictionary<Symbol, decimal>
         {
-            { _symbolEs, 3933.25m },
-            { _symbolCl, 65.48m },
+            { _symbolEs, 4470m },
+            { _symbolCl, 91.73m },
             { _symbolVx, 29.45m },
             { _symbolB, 68.24m },
         };
