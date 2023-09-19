@@ -181,7 +181,7 @@ namespace QuantConnect.TradingTechnologies.Fix.Core
             switch (orderType)
             {
                 case OrderType.Market:
-                    order = new MarketOrder();
+                    order = new MarketOrder(symbol, orderQuantity, time);
                     break;
 
                 case OrderType.Limit:
