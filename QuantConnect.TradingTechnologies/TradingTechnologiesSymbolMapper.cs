@@ -243,11 +243,11 @@ namespace QuantConnect.TradingTechnologies
                 {
                     var date = (int) (x.ExpirationDate / 1000000);
                     var expirationDate = new DateTime(date / 10000, date / 100 % 100, date % 100);
-                    return expirationDate == symbol.ID.Date;
+                    return expirationDate == symbol.ID.Date.Date;
                 });
                 if (instrument == null)
                 {
-                    throw new NotSupportedException($"GetInstrumentId(): expiration date not found - ExpirationDate: {symbol.ID.Date:yyyy-MM-dd}, Symbol: {ticker}");
+                    throw new NotSupportedException($"GetInstrumentId(): expiration date not found - ExpirationDate: {symbol.ID.Date}, Symbol: {ticker}");
                 }
 
                 if (!_instruments.ContainsKey(instrument.Id))
