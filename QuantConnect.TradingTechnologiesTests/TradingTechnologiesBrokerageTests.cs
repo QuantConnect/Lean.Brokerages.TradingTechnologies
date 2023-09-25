@@ -858,6 +858,17 @@ namespace QuantConnect.TradingTechnologiesTests
             Assert.AreEqual(handleInstruction, ttOrder.HandlInst.getValue());
         }
 
+        [TestCase("Example text")]
+        [TestCase("")]
+        [TestCase(null)]
+        [TestCase("t")]
+        public void OrderCanDefineNotes(string notes)
+        {
+            var ttOrderProperties = new TradingTechnologiesOrderProperties() { Notes = notes };
+            var ttOrder = new NewOrderSingle() { Text = new Text(ttOrderProperties.Notes) };
+            Assert.AreEqual(notes, ttOrder.Text.getValue());
+        }
+
         private readonly Dictionary<Symbol, decimal> _bidPrices = new Dictionary<Symbol, decimal>
         {
             { _symbolEs, 4470m },

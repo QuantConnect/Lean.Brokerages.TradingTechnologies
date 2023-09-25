@@ -56,7 +56,6 @@ namespace QuantConnect.TradingTechnologies.TT
             var securityType = new QuantConnect.Fix.TT.FIX44.Fields.SecurityType(_symbolMapper.GetBrokerageProductType(order.Symbol.SecurityType));
 
             var displayFactor = _symbolMapper.GetDisplayFactor(order.Symbol);
-            var orderPropertiesHandleInstruction = (order.Properties as TradingTechnologiesOrderProperties)?.HandleInstruction;
 
             var ttOrder = new NewOrderSingle
             {
@@ -79,9 +78,21 @@ namespace QuantConnect.TradingTechnologies.TT
                 OrderOrigination = new OrderOrigination(OrderOrigination.ORDER_RECEIVED_FROM_DIRECT_OR_SPONSORED_ACCESS_CUSTOMER)
             };
 
-            if (orderPropertiesHandleInstruction != null)
+            var orderProperties = (order.Properties as TradingTechnologiesOrderProperties);
+            if (orderProperties != null)
             {
-                ttOrder.HandlInst = new HandlInst((char)orderPropertiesHandleInstruction);
+                var orderPropertiesHandleInstruction = orderProperties.HandleInstruction;
+                var orderPropertiesNotes = orderProperties.Notes;
+
+                if (orderPropertiesHandleInstruction != null)
+                {
+                    ttOrder.HandlInst = new HandlInst((char)orderPropertiesHandleInstruction);
+                }
+
+                if (!orderPropertiesNotes.IsNullOrEmpty())
+                {
+                    ttOrder.Text = new Text(orderPropertiesNotes);
+                }
             }
 
             if (order.Symbol.SecurityType == SecurityType.Future)
