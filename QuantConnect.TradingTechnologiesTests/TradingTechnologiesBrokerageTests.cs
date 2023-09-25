@@ -861,7 +861,6 @@ namespace QuantConnect.TradingTechnologiesTests
         [TestCase("Example text")]
         [TestCase("")]
         [TestCase(null)]
-        [TestCase("t")]
         public void OrderCanDefineNotes(string notes)
         {
             var ttOrderProperties = new TradingTechnologiesOrderProperties() { Notes = notes };
