@@ -1,5 +1,5 @@
 {
-	"description": "Trading Technologies (TT) is a low latency, high-quality execution provider integrated with QuantConnect by FIX. We have integrated with the TT data feed and order routing.",
+	"description": "The Trading Technologies integration with QuantConnect allows FIX order routing to all the exchanges and prime brokerages supported by Trading Technologies. Popular with Trading Firms, the integration brings world-class execution to the QuantConnect platform.",
 	
 	"platforms-features": [
 		{
