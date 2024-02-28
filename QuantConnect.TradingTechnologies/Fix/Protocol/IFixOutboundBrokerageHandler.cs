@@ -5,7 +5,7 @@
 
 using QuantConnect.Orders;
 
-namespace QuantConnect.TradingTechnologies.Fix.Protocol
+namespace QuantConnect.Brokerages.TradingTechnologies.Fix.Protocol
 {
     /// <summary>
     ///     Defines a class that can perform actions related to orders for a specific FIX version.

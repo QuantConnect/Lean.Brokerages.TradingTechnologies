@@ -5,7 +5,7 @@
 
 using QuickFix;
 
-namespace QuantConnect.TradingTechnologies.Fix.Core
+namespace QuantConnect.Brokerages.TradingTechnologies.Fix.Core
 {
     /// <summary>
     ///     Interface for a FIX session.

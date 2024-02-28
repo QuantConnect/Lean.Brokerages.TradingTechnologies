@@ -4,10 +4,10 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{0671E19C-3DA4-4346-89CA-43E4D337D4CE}</ProjectGuid>
     <TargetFramework>net6.0</TargetFramework>
-    <AssemblyTitle>QuantConnect.TradingTechnologies</AssemblyTitle>
-    <AssemblyName>QuantConnect.TradingTechnologies</AssemblyName>
+    <AssemblyTitle>QuantConnect.Brokerages.TradingTechnologies</AssemblyTitle>
+    <AssemblyName>QuantConnect.Brokerages.TradingTechnologies</AssemblyName>
     <OutputType>Library</OutputType>
-    <Product>QuantConnect.TradingTechnologies</Product>
+    <Product>QuantConnect.Brokerages.TradingTechnologies</Product>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <CodeAnalysisRuleSet>..\..\Lean\QuantConnect.ruleset</CodeAnalysisRuleSet>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>

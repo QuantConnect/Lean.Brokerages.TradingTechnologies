@@ -13,8 +13,6 @@ using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using QuantConnect.Brokerages;
-using QuantConnect.Configuration;
 using QuantConnect.Data;
 using QuantConnect.Fix.TT.FIX44.Messages;
 using QuantConnect.Interfaces;
@@ -24,16 +22,16 @@ using QuantConnect.Orders.Fees;
 using QuantConnect.Packets;
 using QuantConnect.Securities;
 using QuantConnect.Api;
-using QuantConnect.TradingTechnologies.Fix;
-using QuantConnect.TradingTechnologies.Fix.Core;
-using QuantConnect.TradingTechnologies.Fix.Utils;
-using QuantConnect.TradingTechnologies.TT;
-using QuantConnect.TradingTechnologies.TT.Api;
+using QuantConnect.Brokerages.TradingTechnologies.Fix;
+using QuantConnect.Brokerages.TradingTechnologies.Fix.Core;
+using QuantConnect.Brokerages.TradingTechnologies.Fix.Utils;
+using QuantConnect.Brokerages.TradingTechnologies.TT;
+using QuantConnect.Brokerages.TradingTechnologies.TT.Api;
 using QuantConnect.Util;
 using RestSharp;
 using BaseData = QuantConnect.Data.BaseData;
 
-namespace QuantConnect.TradingTechnologies
+namespace QuantConnect.Brokerages.TradingTechnologies
 {
     [BrokerageFactory(typeof(TradingTechnologiesBrokerageFactory))]
     public class TradingTechnologiesBrokerage : Brokerage, IDataQueueHandler, IDataQueueUniverseProvider

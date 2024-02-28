@@ -6,7 +6,7 @@
 using System;
 using QuickFix;
 
-namespace QuantConnect.TradingTechnologies.Fix.Core
+namespace QuantConnect.Brokerages.TradingTechnologies.Fix.Core
 {
     /// <summary>
     ///     Session that passes calls to a QuickFIXn <see cref="Session" />

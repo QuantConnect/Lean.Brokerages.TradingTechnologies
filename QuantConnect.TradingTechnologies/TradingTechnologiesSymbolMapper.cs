@@ -7,12 +7,11 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using QuantConnect.Brokerages;
 using QuantConnect.Logging;
 using QuantConnect.Securities;
-using QuantConnect.TradingTechnologies.TT.Api;
+using QuantConnect.Brokerages.TradingTechnologies.TT.Api;
 
-namespace QuantConnect.TradingTechnologies
+namespace QuantConnect.Brokerages.TradingTechnologies
 {
     public class TradingTechnologiesSymbolMapper : ISymbolMapper
     {

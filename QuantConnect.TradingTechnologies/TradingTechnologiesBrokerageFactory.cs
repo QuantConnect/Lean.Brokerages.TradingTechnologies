@@ -5,16 +5,15 @@
 
 using System;
 using System.Collections.Generic;
-using QuantConnect.Brokerages;
 using QuantConnect.Configuration;
 using QuantConnect.Data;
 using QuantConnect.Interfaces;
 using QuantConnect.Packets;
 using QuantConnect.Securities;
-using QuantConnect.TradingTechnologies.Fix;
+using QuantConnect.Brokerages.TradingTechnologies.Fix;
 using QuantConnect.Util;
 
-namespace QuantConnect.TradingTechnologies
+namespace QuantConnect.Brokerages.TradingTechnologies
 {
     /// <summary>
     /// Provides an implementations of <see cref="IBrokerageFactory"/> that produces a <see cref="TradingTechnologiesBrokerage"/>

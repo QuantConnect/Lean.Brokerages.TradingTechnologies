@@ -7,7 +7,7 @@ using System;
 using System.Collections.Concurrent;
 using QuickFix;
 
-namespace QuantConnect.TradingTechnologies.Fix.LogFactory
+namespace QuantConnect.Brokerages.TradingTechnologies.Fix.LogFactory
 {
     public class QuickFixLogFactory : ILogFactory
     {

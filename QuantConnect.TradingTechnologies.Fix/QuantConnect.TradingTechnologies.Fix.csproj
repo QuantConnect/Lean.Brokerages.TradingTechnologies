@@ -4,9 +4,9 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{2E71AA9C-0EEE-4390-85DF-4021440F14C0}</ProjectGuid>
     <TargetFramework>net6.0</TargetFramework>
-    <AssemblyTitle>QuantConnect.TradingTechnologies.Fix</AssemblyTitle>
-    <AssemblyName>QuantConnect.TradingTechnologies.Fix</AssemblyName>
-    <Product>QuantConnect.TradingTechnologies.Fix</Product>
+    <AssemblyTitle>QuantConnect.Brokerages.TradingTechnologies.Fix</AssemblyTitle>
+    <AssemblyName>QuantConnect.Brokerages.TradingTechnologies.Fix</AssemblyName>
+    <Product>QuantConnect.Brokerages.TradingTechnologies.Fix</Product>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <CodeAnalysisRuleSet>..\..\Lean\QuantConnect.ruleset</CodeAnalysisRuleSet>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>

@@ -15,7 +15,7 @@ using Newtonsoft.Json;
 using QuantConnect.Logging;
 using QuantConnect.Util;
 
-namespace QuantConnect.TradingTechnologies.TT.Api
+namespace QuantConnect.Brokerages.TradingTechnologies.TT.Api
 {
     /// <summary>
     /// Utilises TT's REST API to retrieve positions and other information.

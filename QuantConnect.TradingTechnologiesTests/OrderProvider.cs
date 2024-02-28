@@ -10,7 +10,7 @@ using System.Threading;
 using QuantConnect.Orders;
 using QuantConnect.Securities;
 
-namespace QuantConnect.TradingTechnologiesTests
+namespace QuantConnect.Brokerages.TradingTechnologiesTests
 {
     /// <summary>
     /// Provides a test implementation of order mapping

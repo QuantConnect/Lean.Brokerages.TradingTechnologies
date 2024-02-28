@@ -5,7 +5,7 @@
 
 using QuantConnect.Fix.TT.FIX44.Fields;
 
-namespace QuantConnect.TradingTechnologies.TT
+namespace QuantConnect.Brokerages.TradingTechnologies.TT
 {
     public enum TTMarketDataType
     {

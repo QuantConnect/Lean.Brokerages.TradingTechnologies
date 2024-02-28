@@ -5,9 +5,9 @@
 
 using System;
 using NUnit.Framework;
-using QuantConnect.TradingTechnologies.Fix.Utils;
+using QuantConnect.Brokerages.TradingTechnologies.Fix.Utils;
 
-namespace QuantConnect.TradingTechnologiesTests
+namespace QuantConnect.Brokerages.TradingTechnologiesTests
 {
     [TestFixture]
     public class UtilityTests

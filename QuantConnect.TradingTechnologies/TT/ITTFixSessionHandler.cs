@@ -5,7 +5,7 @@
 
 using QuickFix;
 
-namespace QuantConnect.TradingTechnologies.TT
+namespace QuantConnect.Brokerages.TradingTechnologies.TT
 {
     internal interface ITTFixSessionHandler
     {

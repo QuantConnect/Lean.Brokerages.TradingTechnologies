@@ -13,11 +13,11 @@ using QuantConnect.Fix.TT.FIX44.Fields;
 using QuantConnect.Fix.TT.FIX44.Messages;
 using QuantConnect.Logging;
 using QuantConnect.Orders;
-using QuantConnect.TradingTechnologies.Fix.Extensions;
-using QuantConnect.TradingTechnologies.Fix.Protocol;
-using QuantConnect.TradingTechnologies.Fix.Utils;
+using QuantConnect.Brokerages.TradingTechnologies.Fix.Extensions;
+using QuantConnect.Brokerages.TradingTechnologies.Fix.Protocol;
+using QuantConnect.Brokerages.TradingTechnologies.Fix.Utils;
 
-namespace QuantConnect.TradingTechnologies.Fix.Core
+namespace QuantConnect.Brokerages.TradingTechnologies.Fix.Core
 {
     /// <summary>
     ///     Generic communication controller between Lean and a FIX session that can handle order-related tasks.
