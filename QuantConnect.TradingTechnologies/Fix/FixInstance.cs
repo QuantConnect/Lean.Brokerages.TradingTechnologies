@@ -6,13 +6,13 @@
 using System;
 using System.Linq;
 using System.Threading;
-using QuantConnect.TradingTechnologies.Fix.LogFactory;
-using QuantConnect.TradingTechnologies.Fix.Protocol;
+using QuantConnect.Brokerages.TradingTechnologies.Fix.LogFactory;
+using QuantConnect.Brokerages.TradingTechnologies.Fix.Protocol;
 using QuickFix;
 using QuickFix.Fields;
 using QuickFix.Transport;
 
-namespace QuantConnect.TradingTechnologies.Fix
+namespace QuantConnect.Brokerages.TradingTechnologies.Fix
 {
     /// <summary>
     ///     Essentially, an instance of a single QuickFIXn configuration.

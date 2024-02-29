@@ -6,7 +6,7 @@
 using System;
 using System.Globalization;
 
-namespace QuantConnect.TradingTechnologies.TT
+namespace QuantConnect.Brokerages.TradingTechnologies.TT
 {
     /// <summary>
     ///     Helper for TT order ids.  Generates unique ids per session.

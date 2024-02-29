@@ -19,15 +19,15 @@ using QuantConnect.Lean.Engine.DataFeeds;
 using QuantConnect.Logging;
 using QuantConnect.Orders;
 using QuantConnect.Packets;
-using QuantConnect.TradingTechnologies;
-using QuantConnect.TradingTechnologies.Fix;
-using QuantConnect.TradingTechnologies.Fix.Core;
-using QuantConnect.TradingTechnologies.TT;
-using QuantConnect.TradingTechnologies.TT.Api;
+using QuantConnect.Brokerages.TradingTechnologies;
+using QuantConnect.Brokerages.TradingTechnologies.Fix;
+using QuantConnect.Brokerages.TradingTechnologies.Fix.Core;
+using QuantConnect.Brokerages.TradingTechnologies.TT;
+using QuantConnect.Brokerages.TradingTechnologies.TT.Api;
 using QuickFix;
 using Log = QuantConnect.Logging.Log;
 
-namespace QuantConnect.TradingTechnologiesTests
+namespace QuantConnect.Brokerages.TradingTechnologiesTests
 {
     [TestFixture]
     [Explicit("These tests require a valid TT configuration.")]

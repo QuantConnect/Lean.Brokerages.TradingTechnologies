@@ -6,7 +6,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace QuantConnect.TradingTechnologies.TT.Api
+namespace QuantConnect.Brokerages.TradingTechnologies.TT.Api
 {
     [JsonObject]
     public class PositionsResponse

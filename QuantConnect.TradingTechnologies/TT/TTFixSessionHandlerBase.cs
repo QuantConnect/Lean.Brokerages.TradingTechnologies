@@ -6,10 +6,10 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using QuantConnect.Fix.TT.FIX44.Messages;
-using QuantConnect.TradingTechnologies.Fix.Utils;
+using QuantConnect.Brokerages.TradingTechnologies.Fix.Utils;
 using QuickFix;
 
-namespace QuantConnect.TradingTechnologies.TT
+namespace QuantConnect.Brokerages.TradingTechnologies.TT
 {
     public abstract class TTFixSessionHandlerBase : MessageCracker, ITTFixSessionHandler
     {

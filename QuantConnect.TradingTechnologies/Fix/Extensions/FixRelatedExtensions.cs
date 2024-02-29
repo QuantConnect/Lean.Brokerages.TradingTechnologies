@@ -6,7 +6,7 @@
 using QuantConnect.Fix.TT.FIX44.Fields;
 using QuantConnect.Fix.TT.FIX44.Messages;
 
-namespace QuantConnect.TradingTechnologies.Fix.Extensions
+namespace QuantConnect.Brokerages.TradingTechnologies.Fix.Extensions
 {
     public static class FixRelatedExtensions
     {

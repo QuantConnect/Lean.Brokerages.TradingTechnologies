@@ -7,9 +7,9 @@ using System;
 using System.Collections.Generic;
 using QuantConnect.Fix.TT.FIX44.Messages;
 using QuantConnect.Orders;
-using QuantConnect.TradingTechnologies.Fix.Protocol;
+using QuantConnect.Brokerages.TradingTechnologies.Fix.Protocol;
 
-namespace QuantConnect.TradingTechnologies.Fix.Core
+namespace QuantConnect.Brokerages.TradingTechnologies.Fix.Core
 {
     /// <summary>
     ///     Controls brokerage related communication between QC and a FIX protocol implementation.

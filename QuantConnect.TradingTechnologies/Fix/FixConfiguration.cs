@@ -5,7 +5,7 @@
 
 using QuickFix;
 
-namespace QuantConnect.TradingTechnologies.Fix
+namespace QuantConnect.Brokerages.TradingTechnologies.Fix
 {
     public class FixConfiguration
     {

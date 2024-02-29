@@ -5,9 +5,9 @@
 
 using System;
 using QuantConnect.Data.Market;
-using QuantConnect.TradingTechnologies.Fix.Protocol;
+using QuantConnect.Brokerages.TradingTechnologies.Fix.Protocol;
 
-namespace QuantConnect.TradingTechnologies.Fix.Core
+namespace QuantConnect.Brokerages.TradingTechnologies.Fix.Core
 {
     /// <summary>
     ///     Controls market-data related communication between QC and a FIX protocol implementation.

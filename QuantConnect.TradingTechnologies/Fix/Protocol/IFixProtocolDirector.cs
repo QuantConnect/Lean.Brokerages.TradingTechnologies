@@ -5,7 +5,7 @@
 
 using QuickFix;
 
-namespace QuantConnect.TradingTechnologies.Fix.Protocol
+namespace QuantConnect.Brokerages.TradingTechnologies.Fix.Protocol
 {
     /// <summary>
     ///     Applies protocol specific customizations, and helps direct FIX messages to specific handlers.

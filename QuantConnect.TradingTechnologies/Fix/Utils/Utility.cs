@@ -9,7 +9,7 @@ using QuantConnect.Fix.TT.FIX44.Messages;
 using QuantConnect.Orders;
 using TimeInForce = QuantConnect.Orders.TimeInForce;
 
-namespace QuantConnect.TradingTechnologies.Fix.Utils
+namespace QuantConnect.Brokerages.TradingTechnologies.Fix.Utils
 {
     public static class Utility
     {

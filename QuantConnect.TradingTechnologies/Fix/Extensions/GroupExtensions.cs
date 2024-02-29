@@ -9,7 +9,7 @@ using System.Linq;
 using QuickFix;
 using QuickFix.Fields;
 
-namespace QuantConnect.TradingTechnologies.Fix.Extensions
+namespace QuantConnect.Brokerages.TradingTechnologies.Fix.Extensions
 {
     public static class GroupExtensions
     {

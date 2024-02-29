@@ -8,13 +8,13 @@ using System.Collections.Concurrent;
 using System.Linq;
 using QuantConnect.Fix.TT.FIX44.Fields;
 using QuantConnect.Fix.TT.FIX44.Messages;
-using QuantConnect.TradingTechnologies.Fix;
-using QuantConnect.TradingTechnologies.Fix.Core;
-using QuantConnect.TradingTechnologies.Fix.Protocol;
+using QuantConnect.Brokerages.TradingTechnologies.Fix;
+using QuantConnect.Brokerages.TradingTechnologies.Fix.Core;
+using QuantConnect.Brokerages.TradingTechnologies.Fix.Protocol;
 using QuickFix;
 using Message = QuickFix.Message;
 
-namespace QuantConnect.TradingTechnologies.TT
+namespace QuantConnect.Brokerages.TradingTechnologies.TT
 {
     public class TTFixProtocolDirector : IFixProtocolDirector
     {

@@ -7,14 +7,14 @@ using System;
 using QuantConnect.Fix.TT.FIX44.Fields;
 using QuantConnect.Fix.TT.FIX44.Messages;
 using QuantConnect.Orders;
-using QuantConnect.TradingTechnologies.Fix.Core;
-using QuantConnect.TradingTechnologies.Fix.Extensions;
-using QuantConnect.TradingTechnologies.Fix.Protocol;
-using QuantConnect.TradingTechnologies.Fix.Utils;
+using QuantConnect.Brokerages.TradingTechnologies.Fix.Core;
+using QuantConnect.Brokerages.TradingTechnologies.Fix.Extensions;
+using QuantConnect.Brokerages.TradingTechnologies.Fix.Protocol;
+using QuantConnect.Brokerages.TradingTechnologies.Fix.Utils;
 using QuantConnect.Util;
 using QuickFix;
 
-namespace QuantConnect.TradingTechnologies.TT
+namespace QuantConnect.Brokerages.TradingTechnologies.TT
 {
     /// <summary>
     ///     Handler for TT Order Routing FIX sessions.

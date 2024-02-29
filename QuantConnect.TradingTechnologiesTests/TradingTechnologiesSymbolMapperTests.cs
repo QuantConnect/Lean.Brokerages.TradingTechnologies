@@ -6,10 +6,10 @@
 using System;
 using NUnit.Framework;
 using QuantConnect.Configuration;
-using QuantConnect.TradingTechnologies;
-using QuantConnect.TradingTechnologies.TT.Api;
+using QuantConnect.Brokerages.TradingTechnologies;
+using QuantConnect.Brokerages.TradingTechnologies.TT.Api;
 
-namespace QuantConnect.TradingTechnologiesTests
+namespace QuantConnect.Brokerages.TradingTechnologiesTests
 {
     [TestFixture]
     [Explicit("These tests require a valid TT configuration.")]

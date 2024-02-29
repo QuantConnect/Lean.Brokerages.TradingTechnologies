@@ -9,8 +9,9 @@
     <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
     <IsCodedUITest>False</IsCodedUITest>
     <TestProjectType>UnitTest</TestProjectType>
-    <AssemblyTitle>QuantConnect.TradingTechnologiesTests</AssemblyTitle>
-    <Product>QuantConnect.TradingTechnologiesTests</Product>
+    <AssemblyTitle>QuantConnect.Brokerages.TradingTechnologies.Tests</AssemblyTitle>
+    <AssemblyName>QuantConnect.Brokerages.TradingTechnologies.Tests</AssemblyName>
+    <Product>QuantConnect.Brokerages.TradingTechnologies.Tests</Product>
     <Copyright>Copyright ©  2020</Copyright>
     <CodeAnalysisRuleSet>..\..\Lean\QuantConnect.ruleset</CodeAnalysisRuleSet>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>

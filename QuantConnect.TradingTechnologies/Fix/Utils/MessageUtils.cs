@@ -10,7 +10,7 @@ using System.Linq;
 using System.Reflection;
 using QuickFix.Fields;
 
-namespace QuantConnect.TradingTechnologies.Fix.Utils
+namespace QuantConnect.Brokerages.TradingTechnologies.Fix.Utils
 {
     public static class MessageUtils
     {
