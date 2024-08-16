@@ -270,7 +270,7 @@ namespace QuantConnect.Brokerages.TradingTechnologies
                 market = Market.CME;
             }
 
-            var entry = _mapMarkets.FirstOrDefault(x => x.Value == market);
+            var entry = _mapMarkets.FirstOrDefault(x => x.Value.Contains(market, StringComparison.InvariantCultureIgnoreCase));
             if (entry.Value == null)
             {
                 throw new NotSupportedException($"GetMarketId(): unsupported Lean market: {market}");
