@@ -205,7 +205,7 @@ namespace QuantConnect.Brokerages.TradingTechnologies
         {
             var leanTicker = brokerageTicker;
 
-            var mapping = _tickerMappings.FirstOrDefault(x => x.Value == brokerageTicker);
+            var mapping = _tickerMappings.FirstOrDefault(x => x.Value.Contains(brokerageTicker, StringComparison.InvariantCultureIgnoreCase));
             if (mapping.Key != null)
             {
                 leanTicker = mapping.Key;
@@ -226,7 +226,7 @@ namespace QuantConnect.Brokerages.TradingTechnologies
 
                 var ticker = GetBrokerageTicker(symbol);
 
-                var product = products.FirstOrDefault(x => x.ProductTypeId == productTypeId && x.Symbol == ticker);
+                var product = products.FirstOrDefault(x => x.ProductTypeId.Contains(productTypeId, StringComparison.InvariantCultureIgnoreCase) && x.Symbol.Contains(ticker, StringComparison.InvariantCultureIgnoreCase));
                 if (product == null)
                 {
                     throw new NotSupportedException($"GetInstrumentId(): product not found - ProductTypeId: {productTypeId}, Symbol: {ticker}");
