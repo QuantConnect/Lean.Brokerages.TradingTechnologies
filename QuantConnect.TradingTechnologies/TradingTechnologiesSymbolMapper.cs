@@ -273,8 +273,8 @@ namespace QuantConnect.Brokerages.TradingTechnologies
             var entry = _mapMarkets.FirstOrDefault(x => x.Value.Equals(market, StringComparison.InvariantCultureIgnoreCase));
             if (entry.Value == null)
             {
-                Log.Trace($"{nameof(TradingTechnologiesSymbolMapper)}.{nameof(GetMarketId)}.market: {market}");
-                Log.Trace($"{nameof(TradingTechnologiesSymbolMapper)}.{nameof(GetMarketId)}._mapMarkets: {string.Join(",", _mapMarkets.Values)}");
+                Log.Trace($"{nameof(TradingTechnologiesSymbolMapper)}.{nameof(GetMarketId)}.market: {market},\n" +
+                    $"_mapMarkets: {string.Join(",", _mapMarkets.Values)}");
                 throw new NotSupportedException($"GetMarketId(): unsupported Lean market: {market}");
             }
 
