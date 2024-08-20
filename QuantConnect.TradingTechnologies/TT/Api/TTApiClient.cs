@@ -168,7 +168,7 @@ namespace QuantConnect.Brokerages.TradingTechnologies.TT.Api
 
                     var tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(json);
 
-                    if (!string.IsNullOrEmpty(tokenResponse.AccessToken) || response.StatusCode != System.Net.HttpStatusCode.OK)
+                    if (string.IsNullOrEmpty(tokenResponse.AccessToken) || response.StatusCode != System.Net.HttpStatusCode.OK)
                     {
                         var error = $"{nameof(TTApiClient)}.{nameof(GetNewToken)}.Request failed with status code {(int)response.StatusCode} ({response.StatusCode}). Response Content: {json}";
                         Error?.Invoke(this, error);
