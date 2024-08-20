@@ -36,6 +36,8 @@ namespace QuantConnect.Brokerages.TradingTechnologies.TT.Api
         private TokenResponse _token;
         private bool _disposed;
 
+        public event EventHandler<string> Error;
+
         public TTApiClient(string appKey, string appSecret, string environment)
         {
             _appKey = appKey;
@@ -162,8 +164,18 @@ namespace QuantConnect.Brokerages.TradingTechnologies.TT.Api
                 });
                 using (var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false))
                 {
-                    var stream = await response.Content.ReadAsStreamAsync();
-                    return DeserializeJsonFromStream<TokenResponse>(stream);
+                    var json = await response.Content.ReadAsStringAsync();
+
+                    var tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(json);
+
+                    if (string.IsNullOrEmpty(tokenResponse.AccessToken) || response.StatusCode != System.Net.HttpStatusCode.OK)
+                    {
+                        var error = $"{nameof(TTApiClient)}.{nameof(GetNewToken)}.Request failed with status code {(int)response.StatusCode} ({response.StatusCode}). Response Content: {json}";
+                        Error?.Invoke(this, error);
+                        throw new Exception(error);
+                    }
+
+                    return tokenResponse;
                 }
             }
         }

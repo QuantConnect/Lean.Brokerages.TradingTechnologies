@@ -45,6 +45,11 @@ namespace QuantConnect.Brokerages.TradingTechnologiesTests
         {
             using (var apiClient = new TTApiClient(_appKey, _appSecret, _environment))
             {
+                apiClient.Error += (object _, string error) =>
+                {
+                    Assert.Fail(error);
+                };
+
                 var symbolMapper = new TradingTechnologiesSymbolMapper(apiClient);
 
                 var market = symbolMapper.GetBrokerageMarket(leanMarket, leanSecurityType);

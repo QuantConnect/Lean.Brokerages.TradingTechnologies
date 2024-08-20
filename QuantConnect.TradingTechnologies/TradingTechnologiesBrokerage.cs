@@ -65,6 +65,12 @@ namespace QuantConnect.Brokerages.TradingTechnologies
             _subscriptionManager.UnsubscribeImpl += (s, t) => Unsubscribe(s);
 
             _apiClient = new TTApiClient(fixConfiguration.RestAppKey, fixConfiguration.RestAppSecret, fixConfiguration.RestEnvironment);
+
+            _apiClient.Error += (object _, string error) =>
+            {
+                OnMessage(new BrokerageMessageEvent(BrokerageMessageType.Error, -1, error));
+            };
+
             _symbolMapper = new TradingTechnologiesSymbolMapper(_apiClient);
 
             _fixMarketDataController = new FixMarketDataController();

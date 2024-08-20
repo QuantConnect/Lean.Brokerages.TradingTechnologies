@@ -8,7 +8,6 @@ using Newtonsoft.Json;
 
 namespace QuantConnect.Brokerages.TradingTechnologies.TT.Api
 {
-    [JsonObject]
     public class TokenResponse
     {
         private int? _secondsUntilExpiry;
