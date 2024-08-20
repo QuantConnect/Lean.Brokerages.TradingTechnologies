@@ -205,7 +205,7 @@ namespace QuantConnect.Brokerages.TradingTechnologies
         {
             var leanTicker = brokerageTicker;
 
-            var mapping = _tickerMappings.FirstOrDefault(x => x.Value.Contains(brokerageTicker, StringComparison.InvariantCultureIgnoreCase));
+            var mapping = _tickerMappings.FirstOrDefault(x => x.Value.Equals(brokerageTicker, StringComparison.InvariantCultureIgnoreCase));
             if (mapping.Key != null)
             {
                 leanTicker = mapping.Key;
@@ -226,7 +226,7 @@ namespace QuantConnect.Brokerages.TradingTechnologies
 
                 var ticker = GetBrokerageTicker(symbol);
 
-                var product = products.FirstOrDefault(x => x.ProductTypeId.Contains(productTypeId, StringComparison.InvariantCultureIgnoreCase) && x.Symbol.Contains(ticker, StringComparison.InvariantCultureIgnoreCase));
+                var product = products.FirstOrDefault(x => x.ProductTypeId.Equals(productTypeId, StringComparison.InvariantCultureIgnoreCase) && x.Symbol.Equals(ticker, StringComparison.InvariantCultureIgnoreCase));
                 if (product == null)
                 {
                     throw new NotSupportedException($"GetInstrumentId(): product not found - ProductTypeId: {productTypeId}, Symbol: {ticker}");
@@ -270,7 +270,7 @@ namespace QuantConnect.Brokerages.TradingTechnologies
                 market = Market.CME;
             }
 
-            var entry = _mapMarkets.FirstOrDefault(x => x.Value.Contains(market, StringComparison.InvariantCultureIgnoreCase));
+            var entry = _mapMarkets.FirstOrDefault(x => x.Value.Equals(market, StringComparison.InvariantCultureIgnoreCase));
             if (entry.Value == null)
             {
                 Log.Trace($"{nameof(TradingTechnologiesSymbolMapper)}.{nameof(GetMarketId)}.market: {market}");
