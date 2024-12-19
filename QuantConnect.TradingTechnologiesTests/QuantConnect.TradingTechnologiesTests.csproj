@@ -3,7 +3,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{C2B721AA-3E0A-4B29-8C71-BB0C883A7810}</ProjectGuid>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
     <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
@@ -30,10 +30,15 @@
   <ItemGroup>
     <PackageReference Include="NodaTime" Version="3.0.5" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
-    <PackageReference Include="NUnit" Version="3.13.3" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
+    <PackageReference Include="NUnit" Version="4.2.2" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0">
+        <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="QuantConnect.Lean.Engine" Version="2.5.*" />
     <PackageReference Include="QuantConnect.Brokerages" Version="2.5.*" />
+  </ItemGroup>
+  <ItemGroup>
+      <Using Include="NUnit.Framework.Legacy.ClassicAssert" Alias="Assert" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\QuantConnect.TradingTechnologies\QuantConnect.TradingTechnologies.csproj" />
