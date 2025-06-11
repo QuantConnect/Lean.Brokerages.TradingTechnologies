@@ -1,4 +1,7 @@
 {
+	"name" : "Trading Technologies",
+	"logo-url" : "https://cdn.quantconnect.com/i/tu/trading-tech-logo-cropped.png",
+	"min-deposit" : "None",
 	"description": "The Trading Technologies integration with QuantConnect allows FIX order routing to all the exchanges and prime brokerages supported by Trading Technologies. Popular with Trading Firms, the integration brings world-class execution to the QuantConnect platform.",
 	
 	"platforms-features": [
