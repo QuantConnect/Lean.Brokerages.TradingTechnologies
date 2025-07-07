@@ -28,8 +28,11 @@ namespace QuantConnect.Brokerages.TradingTechnologies.Fix.Core
         private readonly ConcurrentDictionary<string, ExecutionReport> _orders = new ConcurrentDictionary<string, ExecutionReport>();
         private readonly ManualResetEvent _getOpenOrdersResetEvent = new ManualResetEvent(false);
         private IFixOutboundBrokerageHandler _handler;
+        private bool _sentOrderIdWarning;
 
         public event EventHandler<ExecutionReport> ExecutionReport;
+
+        public event EventHandler<string> Warning;
 
         public FixBrokerageController(TradingTechnologiesSymbolMapper symbolMapper)
         {
@@ -124,6 +127,15 @@ namespace QuantConnect.Brokerages.TradingTechnologies.Fix.Core
                 throw new ArgumentNullException(nameof(execution));
             }
 
+            if (!execution.IsSetField(CustomTags.ClOrdID))
+            {
+                if (!_sentOrderIdWarning)
+                {
+                    _sentOrderIdWarning = true;
+                    Warning?.Invoke(this, $"Ignoring manual orders without expected fix tags");
+                }
+                return;
+            }
             var orderId = execution.ClOrdID.getValue();
             var orderStatus = execution.OrdStatus.getValue();
             if (orderStatus != OrdStatus.REJECTED)

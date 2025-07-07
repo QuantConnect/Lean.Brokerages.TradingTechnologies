@@ -19,12 +19,15 @@ namespace QuantConnect.Brokerages.TradingTechnologies
         private readonly SymbolPropertiesDatabase _symbolPropertiesDatabase = SymbolPropertiesDatabase.FromDataFolder();
 
         // TT SecurityExchange -> Lean market
-        private readonly Dictionary<string, string> _mapSecurityExchangeToLeanMarket = new Dictionary<string, string>
+        private readonly Dictionary<string, string> _mapSecurityExchangeToLeanMarket = new Dictionary<string, string> (StringComparer.OrdinalIgnoreCase)
         {
             { "CME", Market.CME },
             { "CBOE", Market.CBOE },
             { "CFE", Market.CFE },
-            { "ICE", Market.ICE }
+            { "ICE", Market.ICE },
+            { "Eurex", Market.EUREX },
+            { "SGX", Market.SGX },
+            { "HKEX", Market.HKFE }
         };
 
         // Lean market -> TT SecurityExchange
