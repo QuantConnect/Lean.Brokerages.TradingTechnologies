@@ -45,12 +45,13 @@ namespace QuantConnect.Brokerages.TradingTechnologies
 
         private readonly EventBasedDataQueueHandlerSubscriptionManager _subscriptionManager;
         private readonly IFixMarketDataController _fixMarketDataController;
-        private readonly IFixBrokerageController _fixBrokerageController;
+        private readonly FixBrokerageController _fixBrokerageController;
         private readonly FixInstance _fixInstance;
 
         private readonly TTApiClient _apiClient;
         private readonly TradingTechnologiesSymbolMapper _symbolMapper;
         private readonly SymbolPropertiesDatabase _symbolPropertiesDatabase = SymbolPropertiesDatabase.FromDataFolder();
+        private HashSet<string> _unknownInstrumentIds = new();
 
         public TradingTechnologiesBrokerage(IAlgorithm algorithm, LiveNodePacket job, IOrderProvider orderProvider, IDataAggregator aggregator, FixConfiguration fixConfiguration, bool logFixMessages)
             : base("TradingTechnologies")
@@ -78,6 +79,10 @@ namespace QuantConnect.Brokerages.TradingTechnologies
 
             _fixBrokerageController = new FixBrokerageController(_symbolMapper);
             _fixBrokerageController.ExecutionReport += OnExecutionReport;
+            _fixBrokerageController.Warning += (object _, string warning) =>
+            {
+                OnMessage(new BrokerageMessageEvent(BrokerageMessageType.Warning, -1, warning));
+            };
 
             var fixProtocolDirector = new TTFixProtocolDirector(_symbolMapper, fixConfiguration, _fixMarketDataController, _fixBrokerageController);
 
@@ -179,23 +184,41 @@ namespace QuantConnect.Brokerages.TradingTechnologies
                     continue;
                 }
 
-                var symbol = _symbolMapper.GetLeanSymbol(position.InstrumentId);
-
-                var currencySymbol = Currencies.GetCurrencySymbol(
-                    _symbolPropertiesDatabase.GetSymbolProperties(symbol.ID.Market, symbol, symbol.SecurityType, Currencies.USD).QuoteCurrency);
-
-                var displayFactor = _symbolMapper.GetDisplayFactor(symbol);
-
-                var holding = new Holding
+                try
                 {
-                    Symbol = symbol,
-                    Quantity = position.NetPosition.Value,
-                    AveragePrice = position.OpenAvgPrice * displayFactor ?? 0,
-                    MarketPrice = position.PnlPrice * displayFactor ?? 0,
-                    CurrencySymbol = currencySymbol
-                };
+                    var symbol = _symbolMapper.GetLeanSymbol(position.InstrumentId);
 
-                holdings.Add(holding);
+                    var currencySymbol = Currencies.GetCurrencySymbol(
+                        _symbolPropertiesDatabase.GetSymbolProperties(symbol.ID.Market, symbol, symbol.SecurityType, Currencies.USD).QuoteCurrency);
+
+                    var displayFactor = _symbolMapper.GetDisplayFactor(symbol);
+
+                    var holding = new Holding
+                    {
+                        Symbol = symbol,
+                        Quantity = position.NetPosition.Value,
+                        AveragePrice = position.OpenAvgPrice * displayFactor ?? 0,
+                        MarketPrice = position.PnlPrice * displayFactor ?? 0,
+                        CurrencySymbol = currencySymbol
+                    };
+
+                    holdings.Add(holding);
+                }
+                catch (Exception ex)
+                {
+                    if (_algorithm?.Settings.IgnoreUnknownAssetHoldings ?? true)
+                    {
+                        if (_unknownInstrumentIds.Add(position.InstrumentId))
+                        {
+                            OnMessage(new BrokerageMessageEvent(BrokerageMessageType.Warning, -1,
+                                $"Unsupported asset {position.InstrumentId} will be ignored: {ex.Message}"));
+                        }
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
             }
 
             return holdings;
