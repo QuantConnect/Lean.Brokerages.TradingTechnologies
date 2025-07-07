@@ -56,6 +56,10 @@ namespace QuantConnect.Brokerages.TradingTechnologies.Fix
             defaultDic.SetString("HeartBtInt", "30");
             defaultDic.SetString("LogonTimeout", "30");
 
+            if (RestEnvironment.Contains("prod", System.StringComparison.InvariantCultureIgnoreCase))
+            {
+                defaultDic.SetString("SSLEnable", "Y");
+            }
             settings.Set(defaultDic);
 
             var orderRoutingDic = new Dictionary();
