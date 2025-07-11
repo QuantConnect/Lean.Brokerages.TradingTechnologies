@@ -51,6 +51,12 @@ namespace QuantConnect.Brokerages.TradingTechnologies.TT.Api
             return response?.Positions ?? new List<Position>(0);
         }
 
+        public async Task<string> GetAccountName(decimal accountId)
+        {
+            var response = await RequestAsync<AccountResponse>("ttaccount", $"account/{accountId}", AddRequestId()).ConfigureAwait(false);
+            return (response?.Account ?? []).FirstOrDefault(x => x.Id == accountId)?.Name;
+        }
+
         public async Task<Instrument> GetInstrument(string instrumentId)
         {
             var response = await RequestAsync<InstrumentResponse>("ttpds", $"instrument/{instrumentId}", AddRequestId()).ConfigureAwait(false);

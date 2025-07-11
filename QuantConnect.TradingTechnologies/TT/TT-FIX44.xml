@@ -4320,6 +4320,7 @@
         <field number='16857' name='TTSMPID' type='STRING' />
         <field number='16858' name='TTSMPInstruction' type='INT' >        
             <value enum='0' description='TT_SMP_INST_REJECT_NEW' />
+            <value enum='1' description='TT_SMP_INST_REJECT_NEW_2' />
             <value enum='3' description='TT_SMP_INST_CANCEL_RESTING' />
             <value enum='4' description='TT_SMP_INST_INTERNALIZATION' /> 
             <value enum='6' description='TT_SMP_INST_INTERNALIZE_BEST' /> 

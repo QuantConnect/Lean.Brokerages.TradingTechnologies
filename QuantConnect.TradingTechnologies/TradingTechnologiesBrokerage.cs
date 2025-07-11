@@ -48,7 +48,9 @@ namespace QuantConnect.Brokerages.TradingTechnologies
         private readonly FixBrokerageController _fixBrokerageController;
         private readonly FixInstance _fixInstance;
 
+        private bool _ignorePositionsFromOtherAccountsWarning;
         private readonly TTApiClient _apiClient;
+        private readonly FixConfiguration _fixConfiguration;
         private readonly TradingTechnologiesSymbolMapper _symbolMapper;
         private readonly SymbolPropertiesDatabase _symbolPropertiesDatabase = SymbolPropertiesDatabase.FromDataFolder();
         private HashSet<string> _unknownInstrumentIds = new();
@@ -61,6 +63,7 @@ namespace QuantConnect.Brokerages.TradingTechnologies
             _orderProvider = orderProvider;
             _aggregator = aggregator;
 
+            _fixConfiguration = fixConfiguration;
             _subscriptionManager = new EventBasedDataQueueHandlerSubscriptionManager();
             _subscriptionManager.SubscribeImpl += (s, t) => Subscribe(s);
             _subscriptionManager.UnsubscribeImpl += (s, t) => Unsubscribe(s);
@@ -77,7 +80,7 @@ namespace QuantConnect.Brokerages.TradingTechnologies
             _fixMarketDataController = new FixMarketDataController();
             _fixMarketDataController.NewTick += OnNewTick;
 
-            _fixBrokerageController = new FixBrokerageController(_symbolMapper);
+            _fixBrokerageController = new FixBrokerageController(_symbolMapper, _fixConfiguration.AccountName);
             _fixBrokerageController.ExecutionReport += OnExecutionReport;
             _fixBrokerageController.Warning += (object _, string warning) =>
             {
@@ -176,12 +179,31 @@ namespace QuantConnect.Brokerages.TradingTechnologies
             var holdings = new List<Holding>();
 
             var positions = _apiClient.GetPositions().SynchronouslyAwaitTaskResult();
+            var accountNamePerId = new Dictionary<decimal, string>();
 
             foreach (var position in positions)
             {
                 if (!position.NetPosition.HasValue || position.NetPosition.Value == 0)
                 {
                     continue;
+                }
+
+                if (position.AccountId.HasValue)
+                {
+                    if (!accountNamePerId.TryGetValue(position.AccountId.Value, out var accountName))
+                    {
+                        accountNamePerId[position.AccountId.Value] = accountName = _apiClient.GetAccountName(position.AccountId.Value).SynchronouslyAwaitTaskResult();
+                    }
+
+                    if (!string.IsNullOrEmpty(accountName) && accountName != _fixConfiguration.AccountName)
+                    {
+                        if (!_ignorePositionsFromOtherAccountsWarning)
+                        {
+                            _ignorePositionsFromOtherAccountsWarning = true;
+                            OnMessage(new BrokerageMessageEvent(BrokerageMessageType.Warning, -1, $"Holdings of other accounts like {accountName} will be ignored"));
+                        }
+                        continue;
+                    }
                 }
 
                 try

@@ -833,7 +833,7 @@ namespace QuantConnect.Brokerages.TradingTechnologiesTests
             var symbolMapper = new TradingTechnologiesSymbolMapper(apiClient);
 
             var marketDataController = new FixMarketDataController();
-            using var brokerageController = new FixBrokerageController(symbolMapper);
+            using var brokerageController = new FixBrokerageController(symbolMapper, string.Empty);
             var fixProtocolDirector = new TTFixProtocolDirector(symbolMapper, _fixConfiguration, marketDataController, brokerageController);
 
             using var fixInstance = new FixInstance(fixProtocolDirector, _fixConfiguration, true);
