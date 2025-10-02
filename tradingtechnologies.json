@@ -16,5 +16,6 @@
 	"order-types": [ "Market", "Limit", "Stop Market", "Stop Limit" ],
 	"assets": [ "Futures" ], 
 	"brokerage-url": "https://www.tradingtechnologies.com",
+	"landing-page-url" => "/brokerages/trading-technologies",
 	"documentation": "/docs/v2/cloud-platform/live-trading/brokerages/trading-technologies"
 }
