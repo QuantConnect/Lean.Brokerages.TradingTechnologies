@@ -28,8 +28,8 @@ using QuantConnect.Brokerages.TradingTechnologies.Fix.Utils;
 using QuantConnect.Brokerages.TradingTechnologies.TT;
 using QuantConnect.Brokerages.TradingTechnologies.TT.Api;
 using QuantConnect.Util;
-using RestSharp;
 using BaseData = QuantConnect.Data.BaseData;
+using System.Net.Http;
 
 namespace QuantConnect.Brokerages.TradingTechnologies
 {
@@ -443,8 +443,13 @@ namespace QuantConnect.Brokerages.TradingTechnologies
                 {
                     information.Add("organizationId", organizationId);
                 }
-                var request = new RestRequest("modules/license/read", Method.POST) { RequestFormat = DataFormat.Json };
-                request.AddParameter("application/json", JsonConvert.SerializeObject(information), ParameterType.RequestBody);
+                // Create HTTP request
+                var request = new HttpRequestMessage(HttpMethod.Post, "modules/license/read");
+                request.Content = new StringContent(
+                    JsonConvert.SerializeObject(information),
+                    Encoding.UTF8,
+                    "application/json"
+                );
                 api.TryRequest(request, out ModulesReadLicenseRead result);
                 if (!result.Success)
                 {
