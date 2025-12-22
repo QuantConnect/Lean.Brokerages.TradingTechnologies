@@ -81,5 +81,10 @@ namespace QuantConnect.Brokerages.TradingTechnologiesTests
         {
             return _orders.Where(x => x.Status.IsOpen() && (filter == null || filter(x))).ToList();
         }
+
+        public ProjectedHoldings GetProjectedHoldings(Security security)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
