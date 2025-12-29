@@ -3,7 +3,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{2E71AA9C-0EEE-4390-85DF-4021440F14C0}</ProjectGuid>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <AssemblyTitle>QuantConnect.Brokerages.TradingTechnologies.Fix</AssemblyTitle>
     <AssemblyName>QuantConnect.Brokerages.TradingTechnologies.Fix</AssemblyName>
     <Product>QuantConnect.Brokerages.TradingTechnologies.Fix</Product>

@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <AssemblyTitle>QuantConnect.Brokerages.TradingTechnologies.Tests</AssemblyTitle>
     <AssemblyName>QuantConnect.Brokerages.TradingTechnologies.Tests</AssemblyName>
     <Product>QuantConnect.Brokerages.TradingTechnologies.Tests</Product>
