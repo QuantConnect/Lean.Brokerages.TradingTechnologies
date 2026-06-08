@@ -35,6 +35,7 @@
       <Using Include="NUnit.Framework.Legacy.ClassicAssert" Alias="Assert" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Lean\Tests\QuantConnect.Tests.csproj" />
     <ProjectReference Include="..\QuantConnect.TradingTechnologies\QuantConnect.TradingTechnologies.csproj" />
   </ItemGroup>
 </Project>

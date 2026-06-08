@@ -16,7 +16,6 @@ using QuantConnect.Data.Market;
 using QuantConnect.Fix.TT.FIX44.Fields;
 using QuantConnect.Fix.TT.FIX44.Messages;
 using QuantConnect.Lean.Engine.DataFeeds;
-using QuantConnect.Logging;
 using QuantConnect.Orders;
 using QuantConnect.Packets;
 using QuantConnect.Brokerages.TradingTechnologies;
@@ -26,6 +25,7 @@ using QuantConnect.Brokerages.TradingTechnologies.TT;
 using QuantConnect.Brokerages.TradingTechnologies.TT.Api;
 using QuickFix;
 using Log = QuantConnect.Logging.Log;
+using QuantConnect.Tests;
 
 namespace QuantConnect.Brokerages.TradingTechnologiesTests
 {
