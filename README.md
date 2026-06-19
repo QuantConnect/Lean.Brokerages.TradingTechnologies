@@ -23,13 +23,13 @@ This repository hosts the Trading Technologies Brokerage Plugin Integration with
 
 Trading Technologies (TT) was founded by Gary Kemp in 1994 with the goal to create professional trading software, infrastructure, and data solutions for a wide variety of users. TT provides access to trading Futures, Options, and Crypto. TT also provides a charting platform, infrastructure services, and risk management tools. TT is not actually a brokerage. The firm is a brokerage router with access to more than 30 execution destinations.
 
-For more information about the TT brokerage, see the [QuantConnect-Trading Technologies Integration Page](https://www.quantconnect.com/docs/v2/our-platform/live-trading/brokerages/trading-technologies). 
+For more information about the TT brokerage, see the [QuantConnect-Trading Technologies Integration Page](https://www.quantconnect.com/docs/v2/cloud-platform/live-trading/brokerages/trading-technologies). 
 
 ## Using the Brokerage Plugin
   
 ### Deploying Trading Technologies with VSCode User Interace
 
-  You can deploy using a visual interface in the QuantConnect cloud. For instructions, see the [QuantConnect-Trading Technologies Integration Page](https://www.quantconnect.com/docs/v2/our-platform/live-trading/brokerages/trading-technologies). 
+  You can deploy using a visual interface in the QuantConnect cloud. For instructions, see the [QuantConnect-Trading Technologies Integration Page](https://www.quantconnect.com/docs/v2/cloud-platform/live-trading/brokerages/trading-technologies). 
 
   ![deploy-tt](https://user-images.githubusercontent.com/38889814/188247800-b9a5ffb7-95e9-43e8-ad17-565422a834b2.gif)
 
@@ -39,7 +39,7 @@ For more information about the TT brokerage, see the [QuantConnect-Trading Techn
 
 Follow these steps to start local live trading with the Trading Technologies brokerage:
 
-1.  Open a terminal in your [CLI root directory](https://www.quantconnect.com/docs/v2/lean-cli/initialization/directory-structure#02-lean-init).
+1.  Open a terminal in your [CLI root directory](https://www.quantconnect.com/docs/v2/lean-cli/initialization/organization-workspaces#03-Directory-Structure).
 2.  Run `lean live "<projectName>"` to start a live deployment wizard for the project in `./<projectName>` and then enter the brokerage number.
 
 	```
@@ -142,8 +142,8 @@ Follow these steps to start local live trading with the Trading Technologies bro
     To enter multiple options, separate them with comma.:
     ```
 
-    If you select IQFeed, see [IQFeed](https://www.quantconnect.com/docs/v2/lean-cli/live-trading/other-data-feeds/iqfeed) for set up instructions.  
-    If you select Polygon Data Feed, see [Polygon](https://www.quantconnect.com/docs/v2/lean-cli/live-trading/other-data-feeds/polygon) for set up instructions.
+    If you select IQFeed, see [IQFeed](https://www.quantconnect.com/docs/v2/lean-cli/live-trading/data-providers/iqfeed) for set up instructions.  
+    If you select Polygon Data Feed, see [Polygon](https://www.quantconnect.com/docs/v2/lean-cli/live-trading/data-providers/polygon) for set up instructions.
 
 10.  View the result in the `<projectName>/live/<timestamp>` directory. Results are stored in real-time in JSON format. You can save results to a different directory by providing the `--output <path>` option in step 2.
 
@@ -181,7 +181,7 @@ You can set the Brokerage Model with the following statements
     SetBrokerageModel(BrokerageName.TradingTechnologies, AccountType.Cash);
     SetBrokerageModel(BrokerageName.TradingTechnologies, AccountType.Margin);
 
-[Read Documentation](https://www.quantconnect.com/docs/v2/our-platform/live-trading/brokerages/trading-technologies)
+[Read Documentation](https://www.quantconnect.com/docs/v2/cloud-platform/live-trading/brokerages/trading-technologies)
 
 ### Fees
 
@@ -191,7 +191,7 @@ We model the order fees of TT, which are $0. To check the latest fees, see the [
 
 We model buying power and margin calls to ensure your algorithm stays within the margin requirements and only submits valid orders to TT in live trading.
 
-[Read Documentation](https://www.quantconnect.com/docs/v2/our-platform/live-trading/brokerages/trading-technologies)
+[Read Documentation](https://www.quantconnect.com/docs/v2/cloud-platform/live-trading/brokerages/trading-technologies)
 
 #### Buying Power
 
