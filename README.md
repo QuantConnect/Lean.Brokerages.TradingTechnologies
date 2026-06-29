@@ -185,7 +185,7 @@ You can set the Brokerage Model with the following statements
 
 ### Fees
 
-We model the order fees of TT, which are $0. To check the latest fees, see the [Pricing](https://www.tradingtechnologies.com/resources/pricing/) page on the TT website.
+We model the order fees of TT, which are $0. 
 
 ### Margin
 
