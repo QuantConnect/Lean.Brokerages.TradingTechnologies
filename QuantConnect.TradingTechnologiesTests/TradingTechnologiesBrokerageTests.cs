@@ -191,7 +191,7 @@ namespace QuantConnect.Brokerages.TradingTechnologiesTests
                 Assert.IsTrue(brokerage.IsConnected);
 
                 var symbol = Symbol.CreateFuture("CL", Market.NYMEX, new DateTime(2023, 10, 20));
-                var order = new MarketOrder(symbol, 1, DateTime.UtcNow, properties: new TradingTechnologiesOrderProperties { HandleInstruction = FixOrderProperites.ManualOrder });
+                var order = new MarketOrder(symbol, 1, DateTime.UtcNow, properties: new TradingTechnologiesOrderProperties { HandleInstruction = FixOrderProperties.ManualOrder });
                 _orderProvider.Add(order);
 
                 Assert.IsTrue(brokerage.PlaceOrder(order));
