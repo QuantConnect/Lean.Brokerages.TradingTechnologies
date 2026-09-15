@@ -16,6 +16,7 @@ using Newtonsoft.Json.Linq;
 using QuantConnect.Data;
 using QuantConnect.Fix.TT.FIX44.Messages;
 using QuantConnect.Interfaces;
+using QuantConnect.Lean.Engine.Results;
 using QuantConnect.Logging;
 using QuantConnect.Orders;
 using QuantConnect.Orders.Fees;
@@ -90,6 +91,11 @@ namespace QuantConnect.Brokerages.TradingTechnologies
             var fixProtocolDirector = new TTFixProtocolDirector(_symbolMapper, fixConfiguration, _fixMarketDataController, _fixBrokerageController);
 
             _fixInstance = new FixInstance(fixProtocolDirector, fixConfiguration, logFixMessages);
+
+            DeploymentDetailsHelper.Add("tt-user-name", fixConfiguration.UserName);
+            DeploymentDetailsHelper.Add("tt-account-name", fixConfiguration.AccountName);
+            DeploymentDetailsHelper.Add("tt-rest-environment", fixConfiguration.RestEnvironment);
+            DeploymentDetailsHelper.Add("tt-order-routing-sender-comp-id", fixConfiguration.OrderRoutingSenderCompId);
 
             // call home
             ValidateSubscription();
