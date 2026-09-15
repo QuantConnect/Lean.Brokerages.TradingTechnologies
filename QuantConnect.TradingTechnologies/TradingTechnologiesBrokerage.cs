@@ -95,7 +95,6 @@ namespace QuantConnect.Brokerages.TradingTechnologies
             DeploymentDetailsHelper.Add("tt-user-name", fixConfiguration.UserName);
             DeploymentDetailsHelper.Add("tt-account-name", fixConfiguration.AccountName);
             DeploymentDetailsHelper.Add("tt-rest-environment", fixConfiguration.RestEnvironment);
-            DeploymentDetailsHelper.Add("tt-market-data-sender-comp-id", fixConfiguration.MarketDataSenderCompId);
             DeploymentDetailsHelper.Add("tt-order-routing-sender-comp-id", fixConfiguration.OrderRoutingSenderCompId);
 
             // call home
