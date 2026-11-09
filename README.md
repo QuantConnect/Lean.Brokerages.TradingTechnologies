@@ -85,14 +85,14 @@ Follow these steps to start local live trading with the Trading Technologies bro
     REST app key: my-rest-app-key
     REST app secret: ****************
     REST environment: my-environment
-    Order routing sender comp id: 
-    Market data sender comp id: 
-    Market data target comp id: 
-    Market data host: 
-    Market data port: 
-    Order routing target comp id: 
-    Order routing host: 
-    Order routing port: 
+    Order routing sender comp id: my-order-routing-sender-comp-id
+    Market data sender comp id: my-market-data-sender-comp-id
+    Market data target comp id: my-market-data-target-comp-id
+    Market data host: 127.0.0.1
+    Market data port: 11701
+    Order routing target comp id: my-order-routing-target-comp-id
+    Order routing host: 127.0.0.1
+    Order routing port: 11702
     Log FIX messages (true/false)? [False]: false
     ```
 
