@@ -39,116 +39,112 @@ For more information about the TT brokerage, see the [QuantConnect-Trading Techn
 
 Follow these steps to start local live trading with the Trading Technologies brokerage:
 
-1.  Open a terminal in your [organization workspace](https://www.quantconnect.com/docs/v2/lean-cli/initialization/organization-workspaces).
-2.  Run `lean live "<projectName>"` to start a live deployment wizard for the project in `./<projectName>` and then enter the brokerage number.
+1.  [Log in](https://www.quantconnect.com/docs/v2/lean-cli/initialization/authentication#02-Log-In) to the CLI if you haven't done so already.
 
-	```
-    $ lean live "My Project"
+2.  Open a terminal in the [organization workspace](https://www.quantconnect.com/docs/v2/lean-cli/initialization/organization-workspaces) that contains the project.
+
+3.  If your algorithm trades US Equities, Options, or Futures, [purchase and download](https://www.quantconnect.com/docs/v2/lean-cli/datasets/quantconnect) the QuantConnect datasets that LEAN uses for the asset class.
+
+4.  Run `lean live deploy "<projectName>"` to start a live deployment wizard for the project in `./<projectName>` and then enter the brokerage number, 11.
+
+    ```
+    $ lean live deploy "My Project"
     Select a brokerage:
     1) Paper Trading
     2) Interactive Brokers
     3) Tradier
-    4) OANDA
+    4) Oanda
     5) Bitfinex
-    6) Coinbase Pro
+    6) Coinbase Advanced Trade
     7) Binance
     8) Zerodha
     9) Samco
-    10) Terminal Link
-    11) Atreyu
-    12) Trading Technologies
-    13) Kraken
-    14) FTX 
-    Enter an option: 
-	```
-
-
-3.  Enter the number of the organization that has a subscription for the Trading Technologies module.
-
-    ```
-    $ lean live "My Project"
-    Select the organization with the Trading Technologies module subscription:
-    1) Organization 1
-    2) Organization 2
-    3) Organization 3
-    Enter an option: 1
+    10) Quant Bridge
+    11) Trading Technologies
+    12) Kraken
+    13) CharlesSchwab
+    14) Bybit
+    15) TradeStation
+    16) Alpaca
+    17) Tastytrade
+    18) Eze
+    19) dYdX
+    20) Webull
+    21) Public
+    22) ClearStreet
+    Enter an option: 11
     ```
 
-4.  Enter your Trading Technologies credentials.
+5.  Enter [your Trading Technologies credentials and REST configuration](https://www.quantconnect.com/docs/v2/cloud-platform/live-trading/brokerages/trading-technologies#14-Create-TT-Users), the FIX order routing and market data configuration, and whether to log FIX messages.
 
     ```
-    $ lean live "My Project"
+    $ lean live deploy "My Project"
     User name: john
-    Session password: ****************       
+    Session password: ****************
     Account name: jane
-    ```
-
-5.  Enter the REST configuration
-
-    ```
-    $ lean live "My Project"
     REST app key: my-rest-app-key
-    REST app secret: ******************
+    REST app secret: ****************
     REST environment: my-environment
+    Order routing sender comp id: my-order-routing-sender-comp-id
+    Market data sender comp id: my-market-data-sender-comp-id
+    Market data target comp id: my-market-data-target-comp-id
+    Market data host: 127.0.0.1
+    Market data port: 11701
+    Order routing target comp id: my-order-routing-target-comp-id
+    Order routing host: 127.0.0.1
+    Order routing port: 11702
+    Log FIX messages (true/false)? [False]: false
     ```
 
-6.  Enter the market data configuration.
+6.  Enter the number of the live data provider(s) to use and then follow the steps required for the data connection.
 
     ```
-    $ lean live "My Project"
-    Market data sender comp id:
-    Market data target comp id:
-    Market data host:
-    Market data port:
-    ```
-
-7.  Enter the order routing configuration.
-
-    ```
-    $ lean live "My Project"
-    Order routing sender comp id:
-    Order routing target comp id:
-    Order routing host:
-    Order routing port:
-    ```
-
-8.  Enter whether FIX messages must be logged.
-
-    ```
-    $ lean live "My Project"
-    Log FIX messages (yes/no): yes
-    ```
-
-9.  Enter the number of the data feed to use and then follow the steps required for the data connection.
-
-    ```
-    $ lean live "My Project"
-    Select a data feed:
+    $ lean live deploy "My Project"
+    Select a live data feed:
     1) Interactive Brokers
     2) Tradier
     3) Oanda
     4) Bitfinex
-    5) Coinbase Pro
+    5) Coinbase Advanced Trade
     6) Binance
     7) Zerodha
     8) Samco
-    9) Terminal Link
+    9) Quant Bridge
     10) Trading Technologies
     11) Kraken
-    12) FTX
+    12) CharlesSchwab
     13) IQFeed
-    14) Polygon Data Feed
-    15) Custom data only
-    To enter multiple options, separate them with comma.:
+    14) Polygon
+    15) CoinApi
+    16) ThetaData
+    17) Custom data only
+    18) Bybit
+    19) TradeStation
+    20) Alpaca
+    21) Tastytrade
+    22) Eze
+    23) dYdX
+    24) Databento
+    To enter multiple options, separate them with comma: 10
     ```
 
-    If you select IQFeed, see [IQFeed](https://www.quantconnect.com/docs/v2/lean-cli/live-trading/data-providers/iqfeed) for set up instructions.  
-    If you select Polygon Data Feed, see [Polygon](https://www.quantconnect.com/docs/v2/lean-cli/live-trading/data-providers/polygon) for set up instructions.
+    If you select IQFeed, Polygon, or ThetaData, see [IQFeed](https://www.quantconnect.com/docs/v2/lean-cli/live-trading/data-providers/iqfeed), [Polygon](https://www.quantconnect.com/docs/v2/lean-cli/live-trading/data-providers/polygon), or [Theta Data](https://www.quantconnect.com/docs/v2/lean-cli/live-trading/data-providers/theta-data) for set up instructions.
 
-10.  View the result in the `<projectName>/live/<timestamp>` directory. Results are stored in real-time in JSON format. You can save results to a different directory by providing the `--output <path>` option in step 2.
+7.  Set your initial cash balance.
 
-If you already have a live environment configured in your [Lean configuration file](https://www.quantconnect.com/docs/v2/lean-cli/initialization/configuration#03-Lean-Configuration), you can skip the interactive wizard by providing the `--environment <value>` option in step 2. The value of this option must be the name of an environment which has `live-mode` set to `true`.
+    ```
+    $ lean live deploy "My Project"
+    Do you want to use the last cash balance? [{'currency': 'USD', 'amount': 100000.0}] [y/N]: n
+    Setting initial cash balance...
+    Currency: USD
+    Amount: 95800
+    Cash balance: [{'currency': 'USD', 'amount': 95800.0}]
+    Do you want to add more currency? [y/N]: n
+    ```
 
+8.  View the result in the `<projectName>/live/<timestamp>` directory. Results are stored in real-time in JSON format. You can save results to a different directory by providing the `--output <path>` option in step 4.
+
+If you already have a live environment configured in your [Lean configuration file](https://www.quantconnect.com/docs/v2/lean-cli/initialization/configuration#03-Lean-Configuration), you can skip the interactive wizard by providing the `--environment <value>` option in step 4. The value of this option must be the name of an environment which has `live-mode` set to `true`.
 
 ## Account Types
 
